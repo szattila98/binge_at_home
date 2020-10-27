@@ -1,0 +1,24 @@
+{
+  "properties": [
+    {
+      "name": "spring.application.description",
+      "type": "java.lang.String",
+      "description": "Description of the application."
+    },
+    {
+      "name": "spring.application.version",
+      "type": "java.lang.String",
+      "description": "Version of the application."
+    },
+    {
+      "name": "homeflix.video.store.root",
+      "type": "java.lang.String",
+      "description": "Path to the served videos."
+    },
+    {
+      "name": "homeflix.video.validExtensions",
+      "type": "java.lang.String",
+      "description": "Served video extensions."
+    }
+  ]
+}

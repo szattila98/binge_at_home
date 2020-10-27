@@ -1,0 +1,42 @@
+## Maven ##
+target/
+
+## IntelliJ IDEA ##
+.idea
+.idea/
+**/*.pyc
+**/*.iml
+*.iws
+*.iml
+*.ipr
+/out/
+.project
+
+## Linux ##
+.directory
+
+## NetBeans ##
+**/nbproject/private/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
+## Eclipse ##
+.metadata
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.settings/
+.loadpath
+.recommenders
+.factorypath
+.buildpath
+
+*.log
+
+videos
