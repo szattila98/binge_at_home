@@ -1,4 +1,4 @@
-package ren.home.homeflix.controller;
+package ren.home.bingeAtHome.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -11,9 +11,9 @@ import org.springframework.core.io.support.ResourceRegion;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ren.home.homeflix.model.Video;
-import ren.home.homeflix.service.VideoService;
-import ren.home.homeflix.service.exception.VideoMissingException;
+import ren.home.bingeAtHome.model.Video;
+import ren.home.bingeAtHome.service.VideoService;
+import ren.home.bingeAtHome.service.exception.VideoMissingException;
 
 import java.util.Set;
 

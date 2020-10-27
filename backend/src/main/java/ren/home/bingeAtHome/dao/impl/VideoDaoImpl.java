@@ -1,9 +1,9 @@
-package ren.home.homeflix.dao.impl;
+package ren.home.bingeAtHome.dao.impl;
 
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import ren.home.homeflix.dao.VideoDao;
+import ren.home.bingeAtHome.dao.VideoDao;
 
 import java.io.File;
 import java.util.ArrayList;

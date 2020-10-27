@@ -1,4 +1,4 @@
-package ren.home.homeflix.config;
+package ren.home.bingeAtHome.config;
 
 import io.swagger.v3.oas.models.ExternalDocumentation;
 import io.swagger.v3.oas.models.OpenAPI;

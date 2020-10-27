@@ -1,10 +1,10 @@
-package ren.home.homeflix;
+package ren.home.bingeAtHome;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class VideoApplication {
+public class BingeAtHomeApplication {
 
 	/**
 	 * The entry point of the application.
@@ -13,7 +13,7 @@ public class VideoApplication {
 	 */
 	public static void main(String[] args) {
 		// TODO check if properties are alright, store dir is dir, extensions are valid
-		SpringApplication.run(VideoApplication.class, args);
+		SpringApplication.run(BingeAtHomeApplication.class, args);
 	}
 
 }

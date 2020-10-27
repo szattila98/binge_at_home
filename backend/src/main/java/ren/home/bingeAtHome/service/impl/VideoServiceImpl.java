@@ -1,4 +1,4 @@
-package ren.home.homeflix.service.impl;
+package ren.home.bingeAtHome.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -6,10 +6,10 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.core.io.support.ResourceRegion;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import ren.home.homeflix.dao.VideoDao;
-import ren.home.homeflix.model.Video;
-import ren.home.homeflix.service.VideoService;
-import ren.home.homeflix.service.exception.VideoMissingException;
+import ren.home.bingeAtHome.dao.VideoDao;
+import ren.home.bingeAtHome.model.Video;
+import ren.home.bingeAtHome.service.VideoService;
+import ren.home.bingeAtHome.service.exception.VideoMissingException;
 
 import java.io.File;
 import java.io.IOException;

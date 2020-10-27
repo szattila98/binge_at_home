@@ -1,4 +1,4 @@
-package ren.home.homeflix.service.exception;
+package ren.home.bingeAtHome.service.exception;
 
 public class VideoMissingException extends Exception {
 

@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>ren.home</groupId>
-	<artifactId>binge-at-home</artifactId>
+	<artifactId>bingeAtHome</artifactId>
 	<version>0.0.1</version>
 	<name>Binge@Home</name>
 	<description>Video streaming for home network.</description>

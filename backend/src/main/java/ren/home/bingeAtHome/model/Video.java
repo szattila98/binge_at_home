@@ -1,4 +1,4 @@
-package ren.home.homeflix.model;
+package ren.home.bingeAtHome.model;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;

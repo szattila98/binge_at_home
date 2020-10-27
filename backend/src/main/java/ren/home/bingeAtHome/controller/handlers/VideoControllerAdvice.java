@@ -1,11 +1,11 @@
-package ren.home.homeflix.controller.handlers;
+package ren.home.bingeAtHome.controller.handlers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ren.home.homeflix.service.exception.VideoMissingException;
+import ren.home.bingeAtHome.service.exception.VideoMissingException;
 
 import java.util.Collections;
 import java.util.Map;

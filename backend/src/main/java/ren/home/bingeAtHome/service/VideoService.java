@@ -1,10 +1,10 @@
-package ren.home.homeflix.service;
+package ren.home.bingeAtHome.service;
 
 import org.springframework.core.io.support.ResourceRegion;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import ren.home.homeflix.model.Video;
-import ren.home.homeflix.service.exception.VideoMissingException;
+import ren.home.bingeAtHome.model.Video;
+import ren.home.bingeAtHome.service.exception.VideoMissingException;
 
 import java.util.Set;
 
