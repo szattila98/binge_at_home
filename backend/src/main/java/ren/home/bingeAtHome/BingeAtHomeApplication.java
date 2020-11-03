@@ -12,7 +12,6 @@ public class BingeAtHomeApplication {
 	 * @param args the input arguments
 	 */
 	public static void main(String[] args) {
-		// TODO check if properties are alright, store dir is dir, extensions are valid
 		SpringApplication.run(BingeAtHomeApplication.class, args);
 	}
 
