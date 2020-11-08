@@ -8,7 +8,7 @@ const routes = [
     component: Home
   },
   {
-    path: '/video/:name',
+    path: '/video/:name/type/:ext',
     name: 'Video',
     component: Video
   }

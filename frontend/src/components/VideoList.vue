@@ -7,7 +7,7 @@
         th Creation date
         th Last Viewed date
     tbody
-      tr(v-for="video in this.data" @click="view(video.fileName)").videoRow
+      tr(v-for="video in this.data" @click="view(video.fileName, video.extension)").videoRow
         td {{ video.fileName }}
         td {{ video.size | prettyBytes }}
         td {{ video.created | moment('DD/MM/YYYY') }}
@@ -24,10 +24,10 @@ export default {
     }
   },
   methods: {
-    view (name) {
+    view (name, ext) {
       this.$router.push({
         name: 'Video',
-        params: { name: name }
+        params: { name: name, ext: ext }
       })
     }
   }

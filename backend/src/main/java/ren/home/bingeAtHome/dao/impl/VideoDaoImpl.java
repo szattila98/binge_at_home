@@ -72,7 +72,7 @@ public class VideoDaoImpl implements VideoDao {
             props.setProperty(VIDEO_STORE_PATH_PROP, DEFAULT_VIDEOS_PATH);
             props.setProperty(VALID_EXTENSIONS_PROP, DEFAULT_EXTENSIONS);
             try {
-                props.store(new FileOutputStream(propsFile), "");
+                props.store(new FileOutputStream(propsFile), "Automatically generated configuration properties.");
             } catch (IOException e) {
                 throw new RuntimeException(
                         "APPLICATION FAILED TO START! REASON: Config file cannot be created!");

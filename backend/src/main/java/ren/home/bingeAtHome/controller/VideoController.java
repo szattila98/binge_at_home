@@ -64,7 +64,7 @@ public class VideoController {
      */
     @Operation(summary = "Streams a video.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Streaming video.",
+            @ApiResponse(responseCode = "206", description = "Streaming video.",
                     content = {@Content(mediaType = "video/mp4")}),
             @ApiResponse(responseCode = "404", description = "Video not found.")
     })

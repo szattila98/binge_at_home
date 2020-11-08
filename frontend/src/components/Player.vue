@@ -5,6 +5,7 @@
 <script>
 import videojs from 'video.js'
 import hotkeys from 'videojs-hotkeys'
+import persistVolume from 'videojs-persistvolume'
 
 export default {
   name: 'Player',
@@ -17,14 +18,19 @@ export default {
         preload: 'auto',
         playbackRates: [0.5, 1.0, 2.0],
         sources: [{
-          src: 'http://localhost:8080/api/video/' + this.$route.params.name, // TODO no prefix
-          type: `video/${this.$route.params.name.substr(this.$route.params.name.length - 3)}`
+          src: 'http://localhost:8080/api/video/' + this.$route.params.name,
+          // src: location.origin + '/api/video/' + this.$route.params.name,
+          type: `video/${this.$route.params.ext}`
         }],
         fluid: true,
         // poster: "/static/images/author.jpg", TODO poster on backend
-        plugins: { // TODO moar plugins
+        plugins: {
           hotkeys: {
             customClass: hotkeys
+          },
+          persistvolume: {
+            customClass: persistVolume,
+            namespace: 'binge-at-home'
           }
         }
       }
