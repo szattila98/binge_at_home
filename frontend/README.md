@@ -1,24 +1,13 @@
-# frontend
+# Binge@Home front-end
+
+## Requirements
+Newer versions are probably fine, but it was developed on these.
+- node.js 15.1.0
+- npm 7.0.8
 
 ## Project setup
+Run the commands below and then serve the *dist* folder's content as described in the back-end readme.
 ```
 npm install
-```
-
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
-
-### Compiles and minifies for production
-```
 npm run build
 ```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).

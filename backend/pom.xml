@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>ren.home</groupId>
 	<artifactId>bingeAtHome</artifactId>
-	<version>0.0.1</version>
+	<version>0.1.0</version>
 	<name>Binge@Home</name>
 	<description>Video streaming for home network.</description>
 

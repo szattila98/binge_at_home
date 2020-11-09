@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.support.ResourceRegion;
 import org.springframework.http.HttpHeaders;
@@ -15,6 +16,7 @@ import ren.home.bingeAtHome.model.Video;
 import ren.home.bingeAtHome.service.VideoService;
 import ren.home.bingeAtHome.service.exception.VideoMissingException;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Set;
 
 /**
@@ -22,6 +24,7 @@ import java.util.Set;
  *
  * @author Attila Szőke
  */
+@Slf4j
 @RestController
 @RequestMapping(path = "/api")
 public class VideoController {
@@ -50,7 +53,8 @@ public class VideoController {
                             array = @ArraySchema(schema = @Schema(implementation = Video.class)))})
     })
     @GetMapping("/video")
-    public Set<Video> listVideos() {
+    public Set<Video> listVideos(HttpServletRequest request) {
+        log.info("Video list requested. IP: {}", request.getRemoteAddr());
         return service.getAllVideos();
     }
 
@@ -69,8 +73,10 @@ public class VideoController {
             @ApiResponse(responseCode = "404", description = "Video not found.")
     })
     @GetMapping("/video/{videoName}")
-    public ResponseEntity<ResourceRegion> streamVideo(@PathVariable String videoName, @RequestHeader HttpHeaders headers)
+    public ResponseEntity<ResourceRegion> streamVideo(HttpServletRequest request, @PathVariable String videoName, @RequestHeader HttpHeaders headers)
             throws VideoMissingException {
+        log.info("Video range sent. Video name: {}, Range: {}, IP: {}",
+                videoName, headers.getRange(), request.getRemoteAddr());
         return service.prepareContent(videoName, headers);
     }
 
