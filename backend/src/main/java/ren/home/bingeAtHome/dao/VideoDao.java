@@ -1,6 +1,9 @@
 package ren.home.bingeAtHome.dao;
 
+import org.springframework.core.io.UrlResource;
+
 import java.io.File;
+import java.net.MalformedURLException;
 import java.util.List;
 
 /**
@@ -18,10 +21,10 @@ public interface VideoDao {
     List<File> findAllVideos();
 
     /**
-     * Retrieves a file by it's name from the video store directory.
+     * Retrieves a file resource by it's name from the video store directory.
      *
      * @param name name of the file
      * @return the searched file
      */
-    File findByName(String name);
+    UrlResource findResourceByName(String name) throws MalformedURLException;
 }

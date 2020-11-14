@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import ren.home.bingeAtHome.model.Video;
 import ren.home.bingeAtHome.service.exception.VideoMissingException;
 
-import java.util.Set;
+import java.util.List;
 
 /**
  * Defines the basic operation of this application.
@@ -20,7 +20,7 @@ public interface VideoService {
      *
      * @return video list
      */
-    Set<Video> getAllVideos();
+    List<Video> getAllVideos();
 
     /**
      * Prepares video content in a response entity for streaming.

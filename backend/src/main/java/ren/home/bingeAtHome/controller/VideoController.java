@@ -17,7 +17,7 @@ import ren.home.bingeAtHome.service.VideoService;
 import ren.home.bingeAtHome.service.exception.VideoMissingException;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Set;
+import java.util.List;
 
 /**
  * Main REST based controller of the application.
@@ -53,7 +53,7 @@ public class VideoController {
                             array = @ArraySchema(schema = @Schema(implementation = Video.class)))})
     })
     @GetMapping("/video")
-    public Set<Video> listVideos(HttpServletRequest request) {
+    public List<Video> listVideos(HttpServletRequest request) {
         log.info("Video list requested. IP: {}", request.getRemoteAddr());
         return service.getAllVideos();
     }

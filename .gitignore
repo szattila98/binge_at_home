@@ -1,0 +1,4 @@
+*.jar
+logs/
+videos/
+dist/config.properties

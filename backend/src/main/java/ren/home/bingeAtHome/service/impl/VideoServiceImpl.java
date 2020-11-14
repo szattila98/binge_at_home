@@ -13,11 +13,9 @@ import ren.home.bingeAtHome.service.exception.VideoMissingException;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Base implementation of VideoService.
@@ -28,10 +26,10 @@ import java.util.Set;
 @Service
 public class VideoServiceImpl implements VideoService {
 
-    private final VideoDao videoDao;
+    private VideoDao videoDao;
 
     /**
-     * Instantiates a new Homeflix service.
+     * Instantiates a new Video service.
      *
      * @param videoDao the video dao
      */
@@ -40,19 +38,27 @@ public class VideoServiceImpl implements VideoService {
         this.videoDao = videoDao;
     }
 
+
+    /**
+     * Default constructor for Video service.
+     */
+    public VideoServiceImpl() {
+    }
+
     /**
      * {@inheritDoc}
      */
     @Override
-    public Set<Video> getAllVideos() {
-        Set<Video> storedVideos = new HashSet<>();
+    public List<Video> getAllVideos() {
+        List<Video> storedVideos = new ArrayList<>();
         for (File file : videoDao.findAllVideos()) {
             try {
-                storedVideos.add(getVideoAttributes(file));
+                storedVideos.add(new Video(file));
             } catch (IOException e) {
-                log.debug("Video fetched is now missing somehow!");
+                log.warn("Video fetched is now missing somehow!");
             }
         }
+        Collections.sort(storedVideos);
         log.debug("Videos fetched: {}", storedVideos);
         return storedVideos;
     }
@@ -62,11 +68,10 @@ public class VideoServiceImpl implements VideoService {
      */
     @Override
     public ResponseEntity<ResourceRegion> prepareContent(String videoName, HttpHeaders headers) throws VideoMissingException {
-        Video video = getVideo(videoName);
-        log.debug("Preparing video: {}", video);
         try {
-            UrlResource resource = new UrlResource("file:" + video.getFullPath());
+            UrlResource resource = videoDao.findResourceByName(videoName);
             ResourceRegion region = resourceRegion(resource, headers);
+            log.debug("Prepared video: {}", videoName);
             return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT)
                     .contentType(MediaTypeFactory
                             .getMediaType(resource)
@@ -76,35 +81,6 @@ public class VideoServiceImpl implements VideoService {
             log.debug("Video fetched is now missing somehow!");
             throw new VideoMissingException();
         }
-    }
-
-    /**
-     * Gets a video by its name.
-     *
-     * @param name queried video's name
-     * @return the video
-     */
-    private Video getVideo(String name) throws VideoMissingException {
-        File file = videoDao.findByName(name);
-        try {
-            return getVideoAttributes(file);
-        } catch (IOException e) {
-            log.debug("Video fetched is now missing somehow!");
-            throw new VideoMissingException();
-        }
-    }
-
-    /**
-     * Returns a video object with it's attributes.
-     *
-     * @param file the file
-     * @return the video object
-     * @throws IOException thrown when the video is missing
-     */
-    private Video getVideoAttributes(File file) throws IOException {
-        BasicFileAttributes attr = Files.readAttributes(file.toPath(), BasicFileAttributes.class);
-        return new Video(file.getName(), new Date(attr.creationTime().toMillis()),
-                new Date(attr.lastAccessTime().toMillis()), attr.size(), file.getAbsolutePath());
     }
 
     /**

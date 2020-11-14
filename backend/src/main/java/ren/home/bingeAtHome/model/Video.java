@@ -1,12 +1,13 @@
 package ren.home.bingeAtHome.model;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.apache.commons.io.FilenameUtils;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Date;
 
 /**
@@ -17,22 +18,27 @@ import java.util.Date;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Video {
+@EqualsAndHashCode
+@ToString
+public class Video implements Comparable<Video> {
 
     private String fileName;
     private Date created;
     private Date lastAccessed;
     private long size; // bytes
     private String extension;
-    @JsonIgnore
-    private String fullPath;
 
-    public Video(String fileName, Date created, Date lastAccessed, long size, String fullPath) {
-        this.fileName = fileName;
-        this.created = created;
-        this.lastAccessed = lastAccessed;
-        this.size = size;
+    public Video(File file) throws IOException {
+        BasicFileAttributes attr = Files.readAttributes(file.toPath(), BasicFileAttributes.class);
+        this.fileName = file.getName();
+        this.created = new Date(attr.creationTime().toMillis());
+        this.lastAccessed = new Date(attr.lastAccessTime().toMillis());
+        this.size = attr.size();
         this.extension = FilenameUtils.getExtension(this.fileName);
-        this.fullPath = fullPath;
+    }
+
+    @Override
+    public int compareTo(Video o) {
+        return this.fileName.compareTo(o.fileName);
     }
 }

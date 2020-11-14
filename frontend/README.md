@@ -2,7 +2,7 @@
 
 ## Requirements
 Newer versions are probably fine, but it was developed on these.
-- node.js 15.1.0
+- node.js 15.2.0
 - npm 7.0.8
 
 ## Project setup

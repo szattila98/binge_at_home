@@ -1,6 +1,7 @@
 package ren.home.bingeAtHome.dao.impl;
 
 import org.apache.commons.io.FileUtils;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Component;
 import ren.home.bingeAtHome.dao.VideoDao;
 
@@ -9,6 +10,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -101,7 +104,7 @@ public class VideoDaoImpl implements VideoDao {
      * {@inheritDoc}
      */
     @Override
-    public File findByName(String name) {
-        return FileUtils.getFile(new File(videoStorePath), name);
+    public UrlResource findResourceByName(String name) throws MalformedURLException {
+        return new UrlResource("file:" + Paths.get(new File(videoStorePath).getAbsolutePath(), name).toString());
     }
 }

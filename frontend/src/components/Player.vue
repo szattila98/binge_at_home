@@ -18,8 +18,8 @@ export default {
         preload: 'auto',
         playbackRates: [0.5, 1.0, 2.0],
         sources: [{
-          src: 'http://localhost:8080/api/video/' + this.$route.params.name,
-          // src: location.origin + '/api/video/' + this.$route.params.name,
+          // src: 'http://localhost:8080/api/video/' + this.$route.params.name,
+          src: location.origin + '/api/video/' + this.$route.params.name,
           type: `video/${this.$route.params.ext}`
         }],
         fluid: true,

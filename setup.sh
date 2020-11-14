@@ -15,5 +15,5 @@ cd backend
 mvn clean package
 cd ..
 echo "Copying built back-end!"
-cp -R "backend/target/$jar/" dist/
+cp -R "backend/target/$jar" dist/
 echo "Setup done!"
