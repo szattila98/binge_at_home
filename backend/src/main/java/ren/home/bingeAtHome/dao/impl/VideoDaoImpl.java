@@ -11,6 +11,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -96,7 +97,7 @@ public class VideoDaoImpl implements VideoDao {
      * {@inheritDoc}
      */
     @Override
-    public List<File> findAllVideos() {
+    public List<File> findAllVideoFiles() {
         return new ArrayList<>(FileUtils.listFiles(new File(videoStorePath), validExtensions, false));
     }
 
@@ -104,7 +105,7 @@ public class VideoDaoImpl implements VideoDao {
      * {@inheritDoc}
      */
     @Override
-    public UrlResource findResourceByName(String name) throws MalformedURLException {
+    public UrlResource findResourceByName(String name) throws MalformedURLException, InvalidPathException {
         return new UrlResource("file:" + Paths.get(new File(videoStorePath).getAbsolutePath(), name).toString());
     }
 }

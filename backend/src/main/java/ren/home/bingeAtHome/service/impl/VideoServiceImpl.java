@@ -13,6 +13,7 @@ import ren.home.bingeAtHome.service.exception.VideoMissingException;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.InvalidPathException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -51,11 +52,11 @@ public class VideoServiceImpl implements VideoService {
     @Override
     public List<Video> getAllVideos() {
         List<Video> storedVideos = new ArrayList<>();
-        for (File file : videoDao.findAllVideos()) {
+        for (File file : videoDao.findAllVideoFiles()) {
             try {
                 storedVideos.add(new Video(file));
             } catch (IOException e) {
-                log.warn("Video fetched is now missing somehow!");
+                log.warn("Video fetched is now missing somehow: {}!", file.getName());
             }
         }
         Collections.sort(storedVideos);
@@ -77,8 +78,8 @@ public class VideoServiceImpl implements VideoService {
                             .getMediaType(resource)
                             .orElse(MediaType.APPLICATION_OCTET_STREAM))
                     .body(region);
-        } catch (IOException e) {
-            log.debug("Video fetched is now missing somehow!");
+        } catch (IOException | InvalidPathException e) {
+            log.warn("Video fetched is missing: {}!", videoName);
             throw new VideoMissingException();
         }
     }

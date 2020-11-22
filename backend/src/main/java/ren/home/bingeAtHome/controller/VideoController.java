@@ -70,6 +70,8 @@ public class VideoController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "206", description = "Streaming video.",
                     content = {@Content(mediaType = "video/mp4")}),
+            @ApiResponse(responseCode = "206", description = "Streaming video.",
+                    content = {@Content(mediaType = "video/webm")}),
             @ApiResponse(responseCode = "404", description = "Video not found.")
     })
     @GetMapping("/video/{videoName}")
