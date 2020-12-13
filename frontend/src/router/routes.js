@@ -1,5 +1,6 @@
 import Home from '@/views/Home'
 import Video from '@/views/Video'
+import NotFound from '@/views/NotFound'
 
 const routes = [
   {
@@ -11,6 +12,11 @@ const routes = [
     path: '/video/:name/type/:ext',
     name: 'Video',
     component: Video
+  },
+  {
+    path: '*',
+    name: 'NotFound',
+    component: NotFound
   }
 ]
 
