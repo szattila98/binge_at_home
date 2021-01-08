@@ -16,7 +16,6 @@ import ren.home.bingeAtHome.model.Video;
 import ren.home.bingeAtHome.service.VideoService;
 import ren.home.bingeAtHome.service.exception.VideoMissingException;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
@@ -53,8 +52,7 @@ public class VideoController {
                             array = @ArraySchema(schema = @Schema(implementation = Video.class)))})
     })
     @GetMapping("/video")
-    public List<Video> listVideos(HttpServletRequest request) {
-        log.info("Video list requested. IP: {}", request.getRemoteAddr());
+    public List<Video> listVideos() {
         return service.getAllVideos();
     }
 
@@ -75,10 +73,8 @@ public class VideoController {
             @ApiResponse(responseCode = "404", description = "Video not found.")
     })
     @GetMapping("/video/{videoName}")
-    public ResponseEntity<ResourceRegion> streamVideo(HttpServletRequest request, @PathVariable String videoName, @RequestHeader HttpHeaders headers)
+    public ResponseEntity<ResourceRegion> streamVideo(@PathVariable String videoName, @RequestHeader HttpHeaders headers)
             throws VideoMissingException {
-        log.info("Video range sent. Video name: {}, Range: {}, IP: {}",
-                videoName, headers.getRange(), request.getRemoteAddr());
         return service.prepareContent(videoName, headers);
     }
 

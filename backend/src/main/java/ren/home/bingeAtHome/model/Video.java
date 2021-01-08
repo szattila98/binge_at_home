@@ -27,6 +27,7 @@ public class Video implements Comparable<Video> {
     private Date lastAccessed;
     private long size; // bytes
     private String extension;
+    private Metadata metadata;
 
     public Video(File file) throws IOException {
         BasicFileAttributes attr = Files.readAttributes(file.toPath(), BasicFileAttributes.class);

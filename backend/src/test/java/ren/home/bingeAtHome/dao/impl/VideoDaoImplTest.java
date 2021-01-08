@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.UrlResource;
+import ren.home.bingeAtHome.dao.ConfigUtil;
 import ren.home.bingeAtHome.dao.VideoDao;
 
 import java.io.File;
@@ -28,6 +29,7 @@ class VideoDaoImplTest {
 
     @BeforeAll
     static void setUp() throws URISyntaxException, IOException {
+        ConfigUtil.init();
         URL resource = VideoDaoImplTest.class.getClassLoader().getResource(testFile);
         assert resource != null;
         FileUtils.copyFile(new File(resource.toURI()), new File(videoRoot + "/" + testFile));

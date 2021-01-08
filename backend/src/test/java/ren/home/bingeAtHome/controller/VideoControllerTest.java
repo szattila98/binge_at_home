@@ -62,4 +62,6 @@ class VideoControllerTest {
         Video[] videoList = mapFromJson(content, Video[].class);
         assertThat(videoList).isEqualTo(videos.toArray());
     }
+
+    // TODO test streaming
 }

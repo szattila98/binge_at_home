@@ -2,6 +2,7 @@ package ren.home.bingeAtHome;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import ren.home.bingeAtHome.dao.ConfigUtil;
 
 @SpringBootApplication
 public class BingeAtHomeApplication {
@@ -12,6 +13,7 @@ public class BingeAtHomeApplication {
 	 * @param args the input arguments
 	 */
 	public static void main(String[] args) {
+		ConfigUtil.init();
 		SpringApplication.run(BingeAtHomeApplication.class, args);
 	}
 
