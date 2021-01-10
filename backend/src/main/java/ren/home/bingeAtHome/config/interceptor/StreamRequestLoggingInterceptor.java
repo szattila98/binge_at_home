@@ -51,7 +51,7 @@ public class StreamRequestLoggingInterceptor extends HandlerInterceptorAdapter {
                 ips.remove(storedIp);
             }
         } else {
-            log.info("Video range sent. Video name: {}, Range: {}, IP: {}", request.getRequestURI().split("/")[3],
+            log.info("Video range sent. Video name: {}, Range: {}, IP: {}", request.getRequestURI(),
                     request.getHeader("range"), requestIp.ip);
             ips.add(requestIp);
         }

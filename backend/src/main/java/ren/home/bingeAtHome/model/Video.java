@@ -29,13 +29,14 @@ public class Video implements Comparable<Video> {
     private String extension;
     private Metadata metadata;
 
-    public Video(File file) throws IOException {
+    public Video(File file, Metadata metadata) throws IOException {
         BasicFileAttributes attr = Files.readAttributes(file.toPath(), BasicFileAttributes.class);
         this.fileName = file.getName();
         this.created = new Date(attr.creationTime().toMillis());
         this.lastAccessed = new Date(attr.lastAccessTime().toMillis());
         this.size = attr.size();
         this.extension = FilenameUtils.getExtension(this.fileName);
+        this.metadata = metadata;
     }
 
     @Override

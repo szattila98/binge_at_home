@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
-public class ConfigUtil {
+public class ExternalConfigurationUtil {
 
     private static final String VIDEO_STORE_PATH_PROP = "bingeAtHome.video.store.path";
     private static final String VALID_EXTENSIONS_PROP = "bingeAtHome.video.validExtensions";

@@ -9,7 +9,7 @@ import ren.home.bingeAtHome.service.exception.VideoMissingException;
 import java.util.List;
 
 /**
- * Defines the basic operation of this application.
+ * Defines the basic operations of this application.
  *
  * @author Attila Szőke
  */

@@ -6,6 +6,7 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.core.io.support.ResourceRegion;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import ren.home.bingeAtHome.dao.MetadataDao;
 import ren.home.bingeAtHome.dao.VideoDao;
 import ren.home.bingeAtHome.model.Video;
 import ren.home.bingeAtHome.service.VideoService;
@@ -28,15 +29,18 @@ import java.util.List;
 public class VideoServiceImpl implements VideoService {
 
     private VideoDao videoDao;
+    private MetadataDao metadataDao;
 
     /**
      * Instantiates a new Video service.
      *
-     * @param videoDao the video dao
+     * @param videoDao    the video dao
+     * @param metadataDao the metadata dao
      */
     @Autowired
-    public VideoServiceImpl(VideoDao videoDao) {
+    public VideoServiceImpl(VideoDao videoDao, MetadataDao metadataDao) {
         this.videoDao = videoDao;
+        this.metadataDao = metadataDao;
     }
 
 
@@ -54,7 +58,7 @@ public class VideoServiceImpl implements VideoService {
         List<Video> storedVideos = new ArrayList<>();
         for (File file : videoDao.findAllVideoFiles()) {
             try {
-                storedVideos.add(new Video(file));
+                storedVideos.add(new Video(file, metadataDao.readMetadata(file.getName())));
             } catch (IOException e) {
                 log.warn("Video fetched is now missing somehow: {}!", file.getName());
             }

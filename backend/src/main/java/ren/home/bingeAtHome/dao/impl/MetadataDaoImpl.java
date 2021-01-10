@@ -2,7 +2,7 @@ package ren.home.bingeAtHome.dao.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Component;
-import ren.home.bingeAtHome.dao.ConfigUtil;
+import ren.home.bingeAtHome.dao.ExternalConfigurationUtil;
 import ren.home.bingeAtHome.dao.MetadataDao;
 import ren.home.bingeAtHome.model.Metadata;
 
@@ -24,7 +24,7 @@ public class MetadataDaoImpl implements MetadataDao {
      */
     @Override
     public Metadata readMetadata(String fileName) throws IOException {
-        return mapper.readValue(new File(ConfigUtil.metadataStorePath + fileName + ".json"), Metadata.class);
+        return mapper.readValue(new File(ExternalConfigurationUtil.metadataStorePath + fileName + ".json"), Metadata.class);
     }
 
     /**
@@ -32,6 +32,6 @@ public class MetadataDaoImpl implements MetadataDao {
      */
     @Override
     public void saveMetadata(String fileName, Metadata metadata) throws IOException {
-        mapper.writeValue(new File(ConfigUtil.metadataStorePath + fileName + ".json"), metadata);
+        mapper.writeValue(new File(ExternalConfigurationUtil.metadataStorePath + fileName + ".json"), metadata);
     }
 }

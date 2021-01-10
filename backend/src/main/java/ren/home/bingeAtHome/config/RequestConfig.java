@@ -9,13 +9,16 @@ import ren.home.bingeAtHome.config.interceptor.StreamRequestLoggingInterceptor;
 @Configuration
 public class RequestConfig implements WebMvcConfigurer {
 
+    private final StreamRequestLoggingInterceptor interceptor;
+
     @Autowired
-    private StreamRequestLoggingInterceptor interceptor;
+    public RequestConfig(StreamRequestLoggingInterceptor interceptor) {
+        this.interceptor = interceptor;
+    }
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(interceptor)
-                .addPathPatterns("/api/video/**");
-        
+        registry.addInterceptor(interceptor).addPathPatterns("/api/video/**");
+
     }
 }
