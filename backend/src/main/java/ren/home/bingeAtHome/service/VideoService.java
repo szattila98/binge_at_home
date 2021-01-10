@@ -22,6 +22,16 @@ public interface VideoService {
      */
     List<Video> getAllVideos();
 
+
+    /**
+     * Gets a specific video.
+     *
+     * @param fileName the file name
+     * @return the video
+     * @throws VideoMissingException the video missing exception
+     */
+    Video getVideo(String fileName) throws VideoMissingException;
+
     /**
      * Prepares video content in a response entity for streaming.
      *

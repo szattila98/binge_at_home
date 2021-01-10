@@ -8,6 +8,7 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import ren.home.bingeAtHome.dao.MetadataDao;
 import ren.home.bingeAtHome.dao.VideoDao;
+import ren.home.bingeAtHome.model.Metadata;
 import ren.home.bingeAtHome.model.Video;
 import ren.home.bingeAtHome.service.VideoService;
 import ren.home.bingeAtHome.service.exception.VideoMissingException;
@@ -58,7 +59,7 @@ public class VideoServiceImpl implements VideoService {
         List<Video> storedVideos = new ArrayList<>();
         for (File file : videoDao.findAllVideoFiles()) {
             try {
-                storedVideos.add(new Video(file, metadataDao.readMetadata(file.getName())));
+                storedVideos.add(new Video(file));
             } catch (IOException e) {
                 log.warn("Video fetched is now missing somehow: {}!", file.getName());
             }
@@ -66,6 +67,32 @@ public class VideoServiceImpl implements VideoService {
         Collections.sort(storedVideos);
         log.debug("Videos fetched: {}", storedVideos);
         return storedVideos;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Video getVideo(String fileName) throws VideoMissingException {
+        File videoFile = videoDao.getVideoFile(fileName);
+        Metadata metadata = null;
+        if (!videoFile.exists()) {
+            log.warn("Video fetched is missing: {}!", fileName);
+            throw new VideoMissingException();
+        }
+        try {
+            metadata = metadataDao.readMetadata(fileName);
+        } catch (IOException e) {
+            log.warn("Metadata for this file is missing: {}!", fileName);
+        }
+        try {
+            Video video = new Video(videoFile, metadata);
+            log.debug("Fetched video: {}", video);
+            return video;
+        } catch (IOException e) {
+            log.warn("Video fetched is now missing somehow: {}!", fileName);
+            throw new VideoMissingException();
+        }
     }
 
     /**

@@ -38,7 +38,7 @@ class VideoDaoImplTest {
     @AfterAll
     static void tearDown() throws IOException {
         FileUtils.forceDelete(new File(videoRoot));
-        FileUtils.forceDelete(new File(props));
+        //FileUtils.forceDelete(new File(props));
     }
 
     @Autowired

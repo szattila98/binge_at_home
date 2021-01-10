@@ -5,6 +5,7 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Component;
 import ren.home.bingeAtHome.dao.ExternalConfigurationUtil;
 import ren.home.bingeAtHome.dao.VideoDao;
+import ren.home.bingeAtHome.service.exception.VideoMissingException;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -28,6 +29,14 @@ public class VideoDaoImpl implements VideoDao {
     @Override
     public List<File> findAllVideoFiles() {
         return new ArrayList<>(FileUtils.listFiles(new File(ExternalConfigurationUtil.videoStorePath), ExternalConfigurationUtil.validExtensions, false));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public File getVideoFile(String fileName) {
+        return new File(ExternalConfigurationUtil.videoStorePath, fileName);
     }
 
     /**

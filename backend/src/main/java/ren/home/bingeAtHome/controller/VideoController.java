@@ -50,8 +50,19 @@ public class VideoController {
                             array = @ArraySchema(schema = @Schema(implementation = Video.class)))})
     })
     @GetMapping("/video")
-    public List<Video> listVideos() {
-        return service.getAllVideos();
+    public ResponseEntity<List<Video>> listVideos() {
+        return ResponseEntity.ok(service.getAllVideos());
+    }
+
+    @Operation(summary = "Gets a video's information from the store store.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Video info.",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Video.class))}),
+            @ApiResponse(responseCode = "404", description = "Video not found.")
+    })
+    @GetMapping("/video/{fileName}")
+    public ResponseEntity<Video> getVideo(@PathVariable String fileName) throws VideoMissingException {
+        return ResponseEntity.ok(service.getVideo(fileName));
     }
 
     /**
@@ -70,8 +81,8 @@ public class VideoController {
                     content = {@Content(mediaType = "video/webm")}),
             @ApiResponse(responseCode = "404", description = "Video not found.")
     })
-    @GetMapping("/video/{videoName}")
-    public ResponseEntity<ResourceRegion> streamVideo(@PathVariable String videoName, @RequestHeader HttpHeaders headers)
+    @GetMapping("/stream")
+    public ResponseEntity<ResourceRegion> streamVideo(@RequestParam(name = "v") String videoName, @RequestHeader HttpHeaders headers)
             throws VideoMissingException {
         return service.prepareContent(videoName, headers);
     }

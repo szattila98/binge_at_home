@@ -1,7 +1,6 @@
 package ren.home.bingeAtHome.controller.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import ren.home.bingeAtHome.model.Metadata;
 
 /**
@@ -11,6 +10,9 @@ import ren.home.bingeAtHome.model.Metadata;
  */
 @Getter
 @Setter
+@NoArgsConstructor
+@EqualsAndHashCode
+@ToString
 public class MetadataInput {
 
     private String fileName;

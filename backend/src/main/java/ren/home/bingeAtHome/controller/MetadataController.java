@@ -1,10 +1,13 @@
 package ren.home.bingeAtHome.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ren.home.bingeAtHome.controller.dto.MetadataInput;
@@ -33,9 +36,12 @@ public class MetadataController {
      * @param metadataInput the metadata input, containing the film name and the metadata
      */
     @Operation(summary = "Saves the metadata of a video.")
-    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Metadata saved.")})
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Metadata saved.",
+            content = {@Content(mediaType = "text/plain")})})
+    // TODO after advice responses
     @PostMapping("/metadata")
-    public void saveMetadata(MetadataInput metadataInput) throws MetadataCannotBeSavedException {
+    public ResponseEntity<String> saveMetadata(@RequestBody MetadataInput metadataInput) throws MetadataCannotBeSavedException {
         metadataService.saveMetadata(metadataInput.getFileName(), metadataInput.getMetadata());
+        return ResponseEntity.ok(metadataInput.getFileName());
     }
 }

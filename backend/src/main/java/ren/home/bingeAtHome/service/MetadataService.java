@@ -15,6 +15,7 @@ public interface MetadataService {
      *
      * @param fileName the file name
      * @param metadata the metadata
+     * @throws MetadataCannotBeSavedException the metadata cannot be saved exception
      */
     void saveMetadata(String fileName, Metadata metadata) throws MetadataCannotBeSavedException;
 }

@@ -18,7 +18,7 @@ public class RequestConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(interceptor).addPathPatterns("/api/video/**");
+        registry.addInterceptor(interceptor).addPathPatterns("/api/stream");
 
     }
 }

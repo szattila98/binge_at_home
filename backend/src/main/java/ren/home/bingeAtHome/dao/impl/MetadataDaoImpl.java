@@ -24,7 +24,7 @@ public class MetadataDaoImpl implements MetadataDao {
      */
     @Override
     public Metadata readMetadata(String fileName) throws IOException {
-        return mapper.readValue(new File(ExternalConfigurationUtil.metadataStorePath + fileName + ".json"), Metadata.class);
+        return mapper.readValue(new File(ExternalConfigurationUtil.metadataStorePath, fileName + ".json"), Metadata.class);
     }
 
     /**
@@ -32,6 +32,6 @@ public class MetadataDaoImpl implements MetadataDao {
      */
     @Override
     public void saveMetadata(String fileName, Metadata metadata) throws IOException {
-        mapper.writeValue(new File(ExternalConfigurationUtil.metadataStorePath + fileName + ".json"), metadata);
+        mapper.writerWithDefaultPrettyPrinter().writeValue(new File(ExternalConfigurationUtil.metadataStorePath, fileName + ".json"), metadata);
     }
 }
