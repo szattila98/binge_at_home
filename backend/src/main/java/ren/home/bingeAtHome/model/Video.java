@@ -1,6 +1,7 @@
 package ren.home.bingeAtHome.model;
 
 
+import io.humble.video.Demuxer;
 import lombok.*;
 import org.apache.commons.io.FilenameUtils;
 
@@ -26,25 +27,40 @@ public class Video implements Comparable<Video> {
     private Date created;
     private Date lastAccessed;
     private long size; // bytes
+    private long duration;
     private String extension;
     private Metadata metadata;
 
-    public Video(File file) throws IOException {
+    /**
+     * Instantiates a new Video without metadata.
+     *
+     * @param file the file
+     * @throws IOException the io exception
+     */
+    public Video(File file) throws IOException, InterruptedException {
         BasicFileAttributes attr = Files.readAttributes(file.toPath(), BasicFileAttributes.class);
+        Demuxer demuxer = Demuxer.make();
+        demuxer.open(file.getAbsolutePath(), null, false, true, null, null);
+
         this.fileName = file.getName();
         this.created = new Date(attr.creationTime().toMillis());
         this.lastAccessed = new Date(attr.lastAccessTime().toMillis());
         this.size = attr.size();
+        this.duration = demuxer.getDuration();
         this.extension = FilenameUtils.getExtension(this.fileName);
+
+        demuxer.close();
     }
 
-    public Video(File file, Metadata metadata) throws IOException {
-        BasicFileAttributes attr = Files.readAttributes(file.toPath(), BasicFileAttributes.class);
-        this.fileName = file.getName();
-        this.created = new Date(attr.creationTime().toMillis());
-        this.lastAccessed = new Date(attr.lastAccessTime().toMillis());
-        this.size = attr.size();
-        this.extension = FilenameUtils.getExtension(this.fileName);
+    /**
+     * Instantiates a new Video.
+     *
+     * @param file     the file
+     * @param metadata the metadata
+     * @throws IOException the io exception
+     */
+    public Video(File file, Metadata metadata) throws IOException, InterruptedException {
+        this(file);
         this.metadata = metadata;
     }
 

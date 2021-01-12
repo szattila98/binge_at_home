@@ -20,7 +20,6 @@ public class Metadata {
     private String videoName;
     private String description;
     private List<String> tags;
-    private String length;
     private String posterPath;
     private List<String> captionsPath;
 }

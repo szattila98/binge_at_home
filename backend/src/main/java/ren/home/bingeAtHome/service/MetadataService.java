@@ -2,6 +2,7 @@ package ren.home.bingeAtHome.service;
 
 import ren.home.bingeAtHome.model.Metadata;
 import ren.home.bingeAtHome.service.exception.MetadataCannotBeSavedException;
+import ren.home.bingeAtHome.service.exception.VideoMissingException;
 
 /**
  * Defines the basic operations with metadata.
@@ -16,6 +17,7 @@ public interface MetadataService {
      * @param fileName the file name
      * @param metadata the metadata
      * @throws MetadataCannotBeSavedException the metadata cannot be saved exception
+     * @throws VideoMissingException          the video missing exception
      */
-    void saveMetadata(String fileName, Metadata metadata) throws MetadataCannotBeSavedException;
+    void saveMetadata(String fileName, Metadata metadata) throws MetadataCannotBeSavedException, VideoMissingException;
 }

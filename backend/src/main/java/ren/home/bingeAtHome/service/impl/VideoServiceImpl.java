@@ -60,7 +60,7 @@ public class VideoServiceImpl implements VideoService {
         for (File file : videoDao.findAllVideoFiles()) {
             try {
                 storedVideos.add(new Video(file));
-            } catch (IOException e) {
+            } catch (IOException | InterruptedException e) {
                 log.warn("Video fetched is now missing somehow: {}!", file.getName());
             }
         }
@@ -89,7 +89,7 @@ public class VideoServiceImpl implements VideoService {
             Video video = new Video(videoFile, metadata);
             log.debug("Fetched video: {}", video);
             return video;
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             log.warn("Video fetched is now missing somehow: {}!", fileName);
             throw new VideoMissingException();
         }

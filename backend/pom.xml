@@ -29,6 +29,11 @@
 			<artifactId>commons-io</artifactId>
 			<version>2.6</version>
 		</dependency>
+		<dependency>
+			<groupId>io.humble</groupId>
+			<artifactId>humble-video-all</artifactId>
+			<version>0.3.0</version>
+		</dependency>
 
 		<dependency>
 			<groupId>org.projectlombok</groupId>
