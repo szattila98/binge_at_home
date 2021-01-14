@@ -10,6 +10,7 @@ public class MetadataCannotBeSavedException extends Exception {
     private static final String ERROR_MSG = "There was an error when trying to save the metadata!";
 
     public MetadataCannotBeSavedException() {
+        super(ERROR_MSG);
     }
 
     public MetadataCannotBeSavedException(String message) {

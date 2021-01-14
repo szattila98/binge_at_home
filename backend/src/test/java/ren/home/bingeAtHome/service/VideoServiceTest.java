@@ -14,9 +14,7 @@ import org.springframework.core.io.support.ResourceRegion;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpRange;
 import org.springframework.http.ResponseEntity;
-import ren.home.bingeAtHome.dao.MetadataDao;
 import ren.home.bingeAtHome.dao.VideoDao;
-import ren.home.bingeAtHome.model.Metadata;
 import ren.home.bingeAtHome.model.Video;
 import ren.home.bingeAtHome.service.exception.VideoMissingException;
 import ren.home.bingeAtHome.service.impl.VideoServiceImpl;
@@ -54,13 +52,12 @@ class VideoServiceTest {
 
     @Mock
     private VideoDao videoDao;
-    private MetadataDao metadataDao;
 
     @InjectMocks
     private final VideoService videoService = new VideoServiceImpl();
 
     @Test
-    void getAllVideos_returnsTestMp4_notReturnsMissingFileInVideoList() throws IOException {
+    void getAllVideos_returnsTestMp4_notReturnsMissingFileInVideoList() {
         File file = new File(videoRoot + "/" + testFile);
         File notExists = new File(videoRoot + "/" + notExistsName);
 
@@ -70,6 +67,7 @@ class VideoServiceTest {
         assertThat(videos).hasSize(1);
         for (Video video : videos) {
             assertThat(video.getFileName()).isEqualTo(testFile);
+            assertThat(video.getMetadata()).isNull();
         }
     }
 

@@ -15,6 +15,8 @@ import ren.home.bingeAtHome.service.MetadataService;
 import ren.home.bingeAtHome.service.exception.MetadataCannotBeSavedException;
 import ren.home.bingeAtHome.service.exception.VideoMissingException;
 
+import javax.validation.Valid;
+
 /**
  * REST based controller of the application, which serves Metadata related operations.
  *
@@ -39,12 +41,11 @@ public class MetadataController {
     @Operation(summary = "Saves the metadata of a video.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Metadata saved.", content = {@Content(mediaType = "text/plain")}),
-            @ApiResponse(responseCode = "404", description = "Video not found!"),
+            @ApiResponse(responseCode = "404", description = "Video not found!", content = {@Content(mediaType = "application/json")}),
             @ApiResponse(responseCode = "500", description = "Metadata could not be saved!")
     })
     @PostMapping("/metadata")
-    public ResponseEntity<String> saveMetadata(@RequestBody MetadataInput metadataInput) throws MetadataCannotBeSavedException, VideoMissingException {
-        metadataService.saveMetadata(metadataInput.getFileName(), metadataInput.getMetadata());
-        return ResponseEntity.ok(metadataInput.getFileName());
+    public ResponseEntity<String> saveMetadata(@Valid @RequestBody MetadataInput metadataInput) throws MetadataCannotBeSavedException, VideoMissingException {
+        return ResponseEntity.ok(metadataService.saveMetadata(metadataInput.getFileName(), metadataInput.getMetadata()));
     }
 }

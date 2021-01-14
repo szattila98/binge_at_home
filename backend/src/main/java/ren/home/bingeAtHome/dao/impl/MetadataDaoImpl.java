@@ -18,20 +18,22 @@ import java.io.IOException;
 public class MetadataDaoImpl implements MetadataDao {
 
     private final ObjectMapper mapper = new ObjectMapper();
+    private static final String metadataExt = ".json";
 
     /**
      * {@inheritDoc}
      */
     @Override
     public Metadata readMetadata(String fileName) throws IOException {
-        return mapper.readValue(new File(ExternalConfigurationUtil.metadataStorePath, fileName + ".json"), Metadata.class);
+        return mapper.readValue(new File(ExternalConfigurationUtil.metadataStorePath, fileName + metadataExt), Metadata.class);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void saveMetadata(String fileName, Metadata metadata) throws IOException {
-        mapper.writerWithDefaultPrettyPrinter().writeValue(new File(ExternalConfigurationUtil.metadataStorePath, fileName + ".json"), metadata);
+    public String saveMetadata(String fileName, Metadata metadata) throws IOException {
+        mapper.writeValue(new File(ExternalConfigurationUtil.metadataStorePath, fileName + metadataExt), metadata);
+        return fileName;
     }
 }

@@ -16,8 +16,9 @@ public interface MetadataService {
      *
      * @param fileName the file name
      * @param metadata the metadata
+     * @return file name
      * @throws MetadataCannotBeSavedException the metadata cannot be saved exception
      * @throws VideoMissingException          the video missing exception
      */
-    void saveMetadata(String fileName, Metadata metadata) throws MetadataCannotBeSavedException, VideoMissingException;
+    String saveMetadata(String fileName, Metadata metadata) throws MetadataCannotBeSavedException, VideoMissingException;
 }

@@ -1,4 +1,4 @@
-package ren.home.bingeAtHome.dao.impl;
+package ren.home.bingeAtHome.dao;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterAll;
@@ -7,8 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.UrlResource;
-import ren.home.bingeAtHome.dao.ExternalConfigurationUtil;
-import ren.home.bingeAtHome.dao.VideoDao;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,7 +19,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-class VideoDaoImplTest {
+class VideoDaoTest {
 
     private static final String testFile = "best_mp4_for_test.mp4";
     private static final String videoRoot = "./videos";
@@ -30,7 +28,7 @@ class VideoDaoImplTest {
     @BeforeAll
     static void setUp() throws URISyntaxException, IOException {
         ExternalConfigurationUtil.init();
-        URL resource = VideoDaoImplTest.class.getClassLoader().getResource(testFile);
+        URL resource = VideoDaoTest.class.getClassLoader().getResource(testFile);
         assert resource != null;
         FileUtils.copyFile(new File(resource.toURI()), new File(videoRoot + "/" + testFile));
     }
@@ -38,7 +36,6 @@ class VideoDaoImplTest {
     @AfterAll
     static void tearDown() throws IOException {
         FileUtils.forceDelete(new File(videoRoot));
-        //FileUtils.forceDelete(new File(props));
     }
 
     @Autowired

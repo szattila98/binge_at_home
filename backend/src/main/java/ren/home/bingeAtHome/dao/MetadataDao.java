@@ -1,7 +1,6 @@
 package ren.home.bingeAtHome.dao;
 
 import ren.home.bingeAtHome.model.Metadata;
-import ren.home.bingeAtHome.service.exception.MetadataCannotBeSavedException;
 
 import java.io.IOException;
 
@@ -28,6 +27,6 @@ public interface MetadataDao {
      * @param metadata the metadata
      * @throws IOException the io exception
      */
-    void saveMetadata(String fileName, Metadata metadata) throws IOException;
+    String saveMetadata(String fileName, Metadata metadata) throws IOException;
 
 }

@@ -24,6 +24,9 @@ public class MetadataServiceImpl implements MetadataService {
     private MetadataDao metadataDao;
     private VideoDao videoDao;
 
+    public MetadataServiceImpl() {
+    }
+
     @Autowired
     public MetadataServiceImpl(MetadataDao metadataDao, VideoDao videoDao) {
         this.metadataDao = metadataDao;
@@ -34,13 +37,13 @@ public class MetadataServiceImpl implements MetadataService {
      * {@inheritDoc}
      */
     @Override
-    public void saveMetadata(String fileName, Metadata metadata) throws MetadataCannotBeSavedException, VideoMissingException {
+    public String saveMetadata(String fileName, Metadata metadata) throws MetadataCannotBeSavedException, VideoMissingException {
         if (!videoDao.getVideoFile(fileName).exists()) {
             throw new VideoMissingException();
         }
         try {
-            metadataDao.saveMetadata(fileName, metadata);
             log.debug("Metadata {} saved for file: {}!", metadata, fileName);
+            return metadataDao.saveMetadata(fileName, metadata);
         } catch (IOException e) {
             throw new MetadataCannotBeSavedException();
         }
