@@ -23,7 +23,7 @@ import java.util.Map;
 @RestControllerAdvice
 public class WebRestControllerAdvice {
 
-    private static final String messageKey = "err_msg";
+    public static final String messageKey = "err_msg";
 
     @ExceptionHandler(VideoMissingException.class)
     public ResponseEntity<Map<String, Object>> handleException(VideoMissingException e) {

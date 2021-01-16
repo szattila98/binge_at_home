@@ -42,6 +42,7 @@ public class MetadataController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Metadata saved.", content = {@Content(mediaType = "text/plain")}),
             @ApiResponse(responseCode = "404", description = "Video not found!", content = {@Content(mediaType = "application/json")}),
+            @ApiResponse(responseCode = "400", description = "Metadata input invalid!", content = {@Content(mediaType = "application/json")}),
             @ApiResponse(responseCode = "500", description = "Metadata could not be saved!")
     })
     @PostMapping("/metadata")

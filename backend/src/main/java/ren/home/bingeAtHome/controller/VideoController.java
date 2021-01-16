@@ -58,7 +58,8 @@ public class VideoController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Video info.",
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Video.class))}),
-            @ApiResponse(responseCode = "404", description = "Video not found.")
+            @ApiResponse(responseCode = "404", description = "Video not found.",
+                    content = {@Content(mediaType = "application/json")})
     })
     @GetMapping("/video/{fileName}")
     public ResponseEntity<Video> getVideo(@PathVariable String fileName) throws VideoMissingException {
@@ -76,10 +77,9 @@ public class VideoController {
     @Operation(summary = "Streams a video.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "206", description = "Streaming video.",
-                    content = {@Content(mediaType = "video/mp4")}),
-            @ApiResponse(responseCode = "206", description = "Streaming video.",
-                    content = {@Content(mediaType = "video/webm")}),
-            @ApiResponse(responseCode = "404", description = "Video not found.")
+                    content = {@Content(mediaType = "video/*")}),
+            @ApiResponse(responseCode = "404", description = "Video not found.",
+                    content = {@Content(mediaType = "application/json")})
     })
     @GetMapping("/stream")
     public ResponseEntity<ResourceRegion> streamVideo(@RequestParam(name = "v") String videoName, @RequestHeader HttpHeaders headers)

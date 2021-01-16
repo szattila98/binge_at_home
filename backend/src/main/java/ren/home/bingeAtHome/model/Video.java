@@ -19,6 +19,7 @@ import java.util.Date;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode
 @ToString
 public class Video implements Comparable<Video> {
@@ -27,7 +28,7 @@ public class Video implements Comparable<Video> {
     private Date created;
     private Date lastAccessed;
     private long size; // bytes
-    private long duration;
+    private long duration; // microseconds
     private String extension;
     private Metadata metadata;
 
