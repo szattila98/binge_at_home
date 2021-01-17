@@ -1,4 +1,4 @@
-package ren.home.bingeAtHome.dao;
+package ren.home.bingeAtHome.util;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -11,18 +11,20 @@ public class ExternalConfigurationUtil {
 
     private static final String VIDEO_STORE_PATH_PROP = "bingeAtHome.video.store.path";
     private static final String VALID_EXTENSIONS_PROP = "bingeAtHome.video.validExtensions";
-    private static final String DEFAULT_VIDEOS_PATH = "./videos";
+    private static final String DEFAULT_VIDEOS_PATH = "." + File.separator + "videos";
     private static final String DEFAULT_EXTENSIONS = "mp4,webm";
-    private static final String CONFIG_FILE = "./config.properties";
+    private static final String CONFIG_FILE = "." + File.separator + "config.properties";
 
     public static String videoStorePath;
     public static String[] validExtensions;
     public static String metadataStorePath;
+    public static String imageStorePath;
 
     public static void init() {
         Properties props = new Properties();
         File propsFile = new File(CONFIG_FILE);
         if (propsFile.exists()) {
+            // Reading of properties from existing props file
             try {
                 props.load(new FileInputStream(CONFIG_FILE));
                 videoStorePath = props.getProperty(VIDEO_STORE_PATH_PROP);
@@ -43,18 +45,8 @@ public class ExternalConfigurationUtil {
                 throw new RuntimeException(
                         "APPLICATION FAILED TO START! REASON: Valid video store path should be supplied in config!");
             }
-            File videoStoreDir = new File(videoStorePath);
-            if (!videoStoreDir.exists()) {
-                if (!videoStoreDir.mkdirs()) {
-                    throw new RuntimeException(
-                            "APPLICATION FAILED TO START! REASON: video store directory cannot be created!");
-                }
-            }
-            if (!videoStoreDir.isDirectory()) {
-                throw new RuntimeException(
-                        "APPLICATION FAILED TO START! REASON: video store directory is not a directory!");
-            }
         } else {
+            // Creation of properties file in case it does not exist
             props.setProperty(VIDEO_STORE_PATH_PROP, DEFAULT_VIDEOS_PATH);
             props.setProperty(VALID_EXTENSIONS_PROP, DEFAULT_EXTENSIONS);
             try {
@@ -66,20 +58,27 @@ public class ExternalConfigurationUtil {
             videoStorePath = props.getProperty(VIDEO_STORE_PATH_PROP);
             validExtensions = props.getProperty(VALID_EXTENSIONS_PROP).split(",");
         }
+        // Creation of necessary folders
         File videoFolder = new File(videoStorePath);
-        if (!videoFolder.exists()) {
-            if (!videoFolder.mkdirs()) {
-                throw new RuntimeException(
-                        "APPLICATION FAILED TO START! REASON: video store directory cannot be created!");
-            }
+        if (!videoFolder.exists() && !videoFolder.mkdirs()) {
+            throw new RuntimeException(
+                    "APPLICATION FAILED TO START! REASON: video store directory cannot be created!");
         }
-        metadataStorePath = videoStorePath + "/" + "metadata";
+        if (!videoFolder.isDirectory()) {
+            throw new RuntimeException(
+                    "APPLICATION FAILED TO START! REASON: video store directory is not a directory!");
+        }
+        metadataStorePath = videoStorePath + File.separator + "metadata";
         File metadataFolder = new File(metadataStorePath);
-        if (!metadataFolder.exists()) {
-            if (!metadataFolder.mkdirs()) {
-                throw new RuntimeException(
-                        "APPLICATION FAILED TO START! REASON: metadata store directory cannot be created!");
-            }
+        if (!metadataFolder.exists() && !metadataFolder.mkdirs()) {
+            throw new RuntimeException(
+                    "APPLICATION FAILED TO START! REASON: metadata store directory cannot be created!");
+        }
+        imageStorePath = videoStorePath + File.separator + "image";
+        File imageFolder = new File(metadataStorePath);
+        if (!imageFolder.exists() && !imageFolder.mkdirs()) {
+            throw new RuntimeException(
+                    "APPLICATION FAILED TO START! REASON: image store directory cannot be created!");
         }
     }
 }

@@ -1,6 +1,7 @@
 package ren.home.bingeAtHome.service;
 
 import org.apache.commons.io.FileUtils;
+import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -10,6 +11,7 @@ import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 import ren.home.bingeAtHome.dao.MetadataDao;
 import ren.home.bingeAtHome.dao.VideoDao;
+import ren.home.bingeAtHome.model.Metadata;
 import ren.home.bingeAtHome.service.exception.MetadataCannotBeSavedException;
 import ren.home.bingeAtHome.service.exception.VideoMissingException;
 import ren.home.bingeAtHome.service.impl.MetadataServiceImpl;
@@ -28,12 +30,14 @@ class MetadataServiceTest {
     private static final String testFile = "best_mp4_for_test.mp4";
     private static final String videoRoot = "./videos";
     private static final String notExistsName = "not_exists.mp4";
+    private static final Metadata testMetadata = new Metadata(
+            "Never", "Gonna", Lists.list("Up"));
 
     @BeforeAll
     static void setUp() throws URISyntaxException, IOException {
         URL resource = VideoServiceTest.class.getClassLoader().getResource(testFile);
         assert resource != null;
-        FileUtils.copyFile(new File(resource.toURI()), new File(videoRoot + "/" + testFile));
+        FileUtils.copyFile(new File(resource.toURI()), new File(videoRoot + File.separator + testFile));
     }
 
     @AfterAll
@@ -52,24 +56,24 @@ class MetadataServiceTest {
     @Test
     void saveMetadata_whenEverythingCorrect_thenReturnFileName() throws IOException, VideoMissingException, MetadataCannotBeSavedException {
         Mockito.when(videoDao.getVideoFile(testFile)).thenReturn(new File(videoRoot + File.separator + testFile));
-        Mockito.when(metadataDao.saveMetadata(testFile, null)).thenReturn(testFile);
+        Mockito.when(metadataDao.saveMetadata(testFile, testMetadata)).thenReturn(testFile);
 
-        assertThat(metadataService.saveMetadata(testFile, null)).isEqualTo(testFile);
+        assertThat(metadataService.saveMetadata(testFile, testMetadata)).isEqualTo(testFile);
     }
 
     @Test
     void saveMetadata_whenFileNotExists_throwException() {
         Mockito.when(videoDao.getVideoFile(notExistsName)).thenReturn(new File(notExistsName));
 
-        assertThatThrownBy(() -> metadataService.saveMetadata(notExistsName, null)).isInstanceOf(VideoMissingException.class);
+        assertThatThrownBy(() -> metadataService.saveMetadata(notExistsName, testMetadata)).isInstanceOf(VideoMissingException.class);
     }
 
     @Test
     void saveMetadata_whenIoException_throwException() throws IOException {
         Mockito.when(videoDao.getVideoFile(testFile)).thenReturn(new File(videoRoot + File.separator + testFile));
-        Mockito.when(metadataDao.saveMetadata(testFile, null)).thenThrow(new IOException());
+        Mockito.when(metadataDao.saveMetadata(testFile, testMetadata)).thenThrow(new IOException());
 
-        assertThatThrownBy(() -> metadataService.saveMetadata(testFile, null)).isInstanceOf(MetadataCannotBeSavedException.class);
+        assertThatThrownBy(() -> metadataService.saveMetadata(testFile, testMetadata)).isInstanceOf(MetadataCannotBeSavedException.class);
     }
 
 }

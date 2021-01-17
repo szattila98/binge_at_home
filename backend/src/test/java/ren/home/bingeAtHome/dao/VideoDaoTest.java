@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.UrlResource;
+import ren.home.bingeAtHome.util.ExternalConfigurationUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,7 +31,7 @@ class VideoDaoTest {
         ExternalConfigurationUtil.init();
         URL resource = VideoDaoTest.class.getClassLoader().getResource(testFile);
         assert resource != null;
-        FileUtils.copyFile(new File(resource.toURI()), new File(videoRoot + "/" + testFile));
+        FileUtils.copyFile(new File(resource.toURI()), new File(videoRoot + File.separator + testFile));
     }
 
     @AfterAll

@@ -24,8 +24,8 @@ public class MetadataControllerTest {
     private final ObjectMapper objectMapper = new ObjectMapper();
     String uri = "/api/metadata";
     String validFileName = "mock_video.mp4";
-    String validMetadata = "{\"videoName\": \"Never\", \"description\": \"Gonna\", \"tags\": [\"Give\", \"You\", \"Up\"], \"posterPath\": \"Never Gonna\", \"captionsPath\": [\"Let\", \"You\", \"Down\"]}";
-    String validDto = "{\"fileName\": \"" + validFileName + "\", \"metadata\": " + validMetadata + "  }";
+    String validMetadata = "{\"videoName\": \"Never\", \"description\": \"Gonna\", \"tags\": [\"Give\", \"You\", \"Up\"]}";
+    String validDto = "{\"fileName\": \"" + validFileName + "\", " + validMetadata.replaceFirst("\\{", "").replaceFirst("}", "") + "}";
 
     @Autowired
     private MockMvc mockMvc;
@@ -56,7 +56,7 @@ public class MetadataControllerTest {
     }
 
     @Test
-    void saveMetadata_whenCannotBeSave_thenInternalServerError() throws Exception {
+    void saveMetadata_whenCannotBeSaved_thenInternalServerError() throws Exception {
         Mockito.when(service.saveMetadata(validFileName, objectMapper.readValue(validMetadata, Metadata.class))).thenThrow(new MetadataCannotBeSavedException());
 
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post(uri).content(validDto).accept(MediaType.APPLICATION_JSON)

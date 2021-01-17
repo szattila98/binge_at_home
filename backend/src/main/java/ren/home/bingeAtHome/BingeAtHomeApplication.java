@@ -2,7 +2,7 @@ package ren.home.bingeAtHome;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import ren.home.bingeAtHome.dao.ExternalConfigurationUtil;
+import ren.home.bingeAtHome.util.ExternalConfigurationUtil;
 
 @SpringBootApplication
 public class BingeAtHomeApplication {

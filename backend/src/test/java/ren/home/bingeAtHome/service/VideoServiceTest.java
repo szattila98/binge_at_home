@@ -42,7 +42,7 @@ class VideoServiceTest {
     static void setUp() throws URISyntaxException, IOException {
         URL resource = VideoServiceTest.class.getClassLoader().getResource(testFile);
         assert resource != null;
-        FileUtils.copyFile(new File(resource.toURI()), new File(videoRoot + "/" + testFile));
+        FileUtils.copyFile(new File(resource.toURI()), new File(videoRoot + File.separator + testFile));
     }
 
     @AfterAll
@@ -58,8 +58,8 @@ class VideoServiceTest {
 
     @Test
     void getAllVideos_returnsTestMp4_notReturnsMissingFileInVideoList() {
-        File file = new File(videoRoot + "/" + testFile);
-        File notExists = new File(videoRoot + "/" + notExistsName);
+        File file = new File(videoRoot + File.separator + testFile);
+        File notExists = new File(videoRoot + File.separator + notExistsName);
 
         Mockito.when(videoDao.findAllVideoFiles()).thenReturn(Lists.newArrayList(file, notExists));
 

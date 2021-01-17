@@ -3,9 +3,8 @@ package ren.home.bingeAtHome.dao.impl;
 import org.apache.commons.io.FileUtils;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Component;
-import ren.home.bingeAtHome.dao.ExternalConfigurationUtil;
 import ren.home.bingeAtHome.dao.VideoDao;
-import ren.home.bingeAtHome.service.exception.VideoMissingException;
+import ren.home.bingeAtHome.util.ExternalConfigurationUtil;
 
 import java.io.File;
 import java.net.MalformedURLException;

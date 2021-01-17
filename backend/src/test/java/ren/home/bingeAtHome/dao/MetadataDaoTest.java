@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import ren.home.bingeAtHome.model.Metadata;
+import ren.home.bingeAtHome.util.ExternalConfigurationUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,8 +36,8 @@ class MetadataDaoTest {
         URL resource2 = VideoDaoTest.class.getClassLoader().getResource(testFileMetadata);
         assert resource1 != null;
         assert resource2 != null;
-        FileUtils.copyFile(new File(resource1.toURI()), new File(videoRoot + "/" + testFile));
-        FileUtils.copyFile(new File(resource2.toURI()), new File(metadataRoot + "/" + testFileMetadata));
+        FileUtils.copyFile(new File(resource1.toURI()), new File(videoRoot + File.separator + testFile));
+        FileUtils.copyFile(new File(resource2.toURI()), new File(metadataRoot + File.separator + testFileMetadata));
     }
 
     @AfterAll
@@ -57,7 +58,7 @@ class MetadataDaoTest {
     void readMetadata_whenExisting_thenCorrectReturn() throws IOException {
         List<String> tags = Lists.list("Give", "You", "Up");
         List<String> captions = Lists.list("Let", "You", "Down");
-        Metadata shouldBeMetadata = new Metadata("Never", "Gonna", tags, "Never Gonna", captions);
+        Metadata shouldBeMetadata = new Metadata("Never", "Gonna", tags);
 
         metadataDao.saveMetadata(testFile, shouldBeMetadata);
         Metadata readMetadata = metadataDao.readMetadata(testFile);
@@ -74,7 +75,7 @@ class MetadataDaoTest {
     void saveMetadata_correctSave() throws IOException, InterruptedException {
         List<String> tags = Lists.list("Give", "You", "Up");
         List<String> captions = Lists.list("Let", "You", "Down");
-        Metadata shouldBeMetadata = new Metadata("Always", "Gonna", tags, "Always Gonna", captions);
+        Metadata shouldBeMetadata = new Metadata("Always", "Gonna", tags);
 
         metadataDao.saveMetadata(testFile, shouldBeMetadata);
         Metadata readMetadata = metadataDao.readMetadata(testFile);
