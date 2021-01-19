@@ -29,6 +29,11 @@ public class MetadataController {
 
     private MetadataService metadataService;
 
+    /**
+     * Instantiates a new Metadata controller.
+     *
+     * @param metadataService the metadata service
+     */
     @Autowired
     public MetadataController(MetadataService metadataService) {
         this.metadataService = metadataService;
@@ -38,6 +43,9 @@ public class MetadataController {
      * Saves the metadata of a video.
      *
      * @param metadataInput the metadata input, containing the film name and the metadata
+     * @return the response entity
+     * @throws MetadataCannotBeSavedException the metadata cannot be saved exception
+     * @throws VideoMissingException          the video missing exception
      */
     @Operation(summary = "Saves the metadata of a video.")
     @ApiResponses(value = {

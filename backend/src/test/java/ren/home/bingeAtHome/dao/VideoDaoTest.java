@@ -58,6 +58,11 @@ class VideoDaoTest {
     }
 
     @Test
+    void getVideoFile_returnsFile() {
+        assertThat(videoDao.getVideoFile(testFile)).isEqualTo(new File(videoRoot + File.separator + testFile));
+    }
+
+    @Test
     void findResourceByName_whenExists_thenCorrectResource() throws MalformedURLException {
         assertThat(videoDao.findResourceByName(testFile).exists()).isTrue();
         assertThat(videoDao.findResourceByName(testFile)).isEqualTo(new UrlResource(

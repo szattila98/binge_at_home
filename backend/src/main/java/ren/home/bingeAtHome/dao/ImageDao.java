@@ -1,8 +1,7 @@
 package ren.home.bingeAtHome.dao;
 
-import org.springframework.core.io.UrlResource;
-
 import java.io.IOException;
+import java.nio.file.Path;
 
 /**
  * Handles basic operations of image storage.
@@ -17,5 +16,5 @@ public interface ImageDao {
      * @param fileName the name of the image file
      * @return the image
      */
-    UrlResource readImage(String fileName) throws IOException;
+    Path readImage(String fileName) throws IOException;
 }

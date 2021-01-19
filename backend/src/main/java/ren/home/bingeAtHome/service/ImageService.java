@@ -1,8 +1,9 @@
 package ren.home.bingeAtHome.service;
 
 
-import org.springframework.core.io.UrlResource;
 import ren.home.bingeAtHome.service.exception.ImageMissingException;
+
+import java.nio.file.Path;
 
 /**
  * Defines the basic operations with images.
@@ -16,9 +17,9 @@ public interface ImageService {
      * Gets a poster image for a video.
      *
      * @param videoFileName the name of the video we want the poster of
-     * @return the image as a resource
+     * @return the image path
      * @throws ImageMissingException thrown if the image is missing
      */
-    UrlResource getPosterImage(String videoFileName) throws ImageMissingException;
+    Path getPosterImage(String videoFileName) throws ImageMissingException;
 
 }

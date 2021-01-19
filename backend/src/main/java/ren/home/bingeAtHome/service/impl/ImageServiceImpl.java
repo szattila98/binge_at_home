@@ -2,13 +2,13 @@ package ren.home.bingeAtHome.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import ren.home.bingeAtHome.dao.ImageDao;
 import ren.home.bingeAtHome.service.ImageService;
 import ren.home.bingeAtHome.service.exception.ImageMissingException;
 
 import java.io.IOException;
+import java.nio.file.Path;
 
 /**
  * Base implementation of VideoService.
@@ -35,8 +35,9 @@ public class ImageServiceImpl implements ImageService {
      * {@inheritDoc}
      */
     @Override
-    public UrlResource getPosterImage(String videoFileName) throws ImageMissingException {
+    public Path getPosterImage(String videoFileName) throws ImageMissingException {
         try {
+            log.debug("Reading image for video: {}!", videoFileName);
             return imageDao.readImage(videoFileName + ".webp");
         } catch (IOException e) {
             throw new ImageMissingException();

@@ -75,7 +75,7 @@ public class ExternalConfigurationUtil {
                     "APPLICATION FAILED TO START! REASON: metadata store directory cannot be created!");
         }
         imageStorePath = videoStorePath + File.separator + "image";
-        File imageFolder = new File(metadataStorePath);
+        File imageFolder = new File(imageStorePath);
         if (!imageFolder.exists() && !imageFolder.mkdirs()) {
             throw new RuntimeException(
                     "APPLICATION FAILED TO START! REASON: image store directory cannot be created!");

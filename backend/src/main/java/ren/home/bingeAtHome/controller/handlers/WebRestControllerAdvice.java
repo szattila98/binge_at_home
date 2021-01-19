@@ -7,6 +7,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import ren.home.bingeAtHome.service.exception.ImageMissingException;
 import ren.home.bingeAtHome.service.exception.MetadataCannotBeSavedException;
 import ren.home.bingeAtHome.service.exception.VideoMissingException;
 
@@ -41,7 +42,7 @@ public class WebRestControllerAdvice {
                 .body(Collections.singletonMap(messageKey, e.getMessage()));
     }
 
-    @ExceptionHandler(value = {MethodArgumentNotValidException.class})
+    @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleException(MethodArgumentNotValidException e) {
         log.error(e.getMessage());
         Map<String, Object> errors = new HashMap<>();
@@ -51,5 +52,13 @@ public class WebRestControllerAdvice {
             errors.put(fieldName, errorMessage);
         });
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+    }
+
+    @ExceptionHandler(ImageMissingException.class)
+    public ResponseEntity<Map<String, Object>> handleException(ImageMissingException e) {
+        log.error(e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(Collections.singletonMap(messageKey, e.getMessage()));
     }
 }
