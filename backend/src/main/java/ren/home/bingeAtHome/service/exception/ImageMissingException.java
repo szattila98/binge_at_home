@@ -1,7 +1,7 @@
 package ren.home.bingeAtHome.service.exception;
 
 /**
- * Thrown when and image cannot be found.
+ * Thrown when an image cannot be found.
  *
  * @author Attila Szőke
  */

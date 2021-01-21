@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ren.home.bingeAtHome.service.exception.ImageMissingException;
 import ren.home.bingeAtHome.service.exception.MetadataCannotBeSavedException;
+import ren.home.bingeAtHome.service.exception.TrackMissingException;
 import ren.home.bingeAtHome.service.exception.VideoMissingException;
 
 import java.util.Collections;
@@ -56,6 +57,14 @@ public class WebRestControllerAdvice {
 
     @ExceptionHandler(ImageMissingException.class)
     public ResponseEntity<Map<String, Object>> handleException(ImageMissingException e) {
+        log.error(e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(Collections.singletonMap(messageKey, e.getMessage()));
+    }
+
+    @ExceptionHandler(TrackMissingException.class)
+    public ResponseEntity<Map<String, Object>> handleException(TrackMissingException e) {
         log.error(e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)

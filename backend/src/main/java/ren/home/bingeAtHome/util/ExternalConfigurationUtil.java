@@ -19,6 +19,7 @@ public class ExternalConfigurationUtil {
     public static String[] validExtensions;
     public static String metadataStorePath;
     public static String imageStorePath;
+    public static String trackStorePath;
 
     public static void init() {
         Properties props = new Properties();
@@ -74,11 +75,17 @@ public class ExternalConfigurationUtil {
             throw new RuntimeException(
                     "APPLICATION FAILED TO START! REASON: metadata store directory cannot be created!");
         }
-        imageStorePath = videoStorePath + File.separator + "image";
+        imageStorePath = videoStorePath + File.separator + "images";
         File imageFolder = new File(imageStorePath);
         if (!imageFolder.exists() && !imageFolder.mkdirs()) {
             throw new RuntimeException(
                     "APPLICATION FAILED TO START! REASON: image store directory cannot be created!");
+        }
+        trackStorePath = videoStorePath + File.separator + "tracks";
+        File captionFolder = new File(trackStorePath);
+        if (!captionFolder.exists() && !captionFolder.mkdirs()) {
+            throw new RuntimeException(
+                    "APPLICATION FAILED TO START! REASON: caption store directory cannot be created!");
         }
     }
 }

@@ -1,6 +1,7 @@
 package ren.home.bingeAtHome.dao.impl;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Component;
 import ren.home.bingeAtHome.dao.VideoDao;
@@ -44,5 +45,25 @@ public class VideoDaoImpl implements VideoDao {
     @Override
     public UrlResource findResourceByName(String name) throws MalformedURLException, InvalidPathException {
         return new UrlResource("file:" + Paths.get(new File(ExternalConfigurationUtil.videoStorePath).getAbsolutePath(), name).toString());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<File> getTrackFiles(String videoName) {
+        return new ArrayList<>(FileUtils.listFiles(
+                new File(ExternalConfigurationUtil.trackStorePath),
+                new WildcardFileFilter(videoName + "-*.vtt"),
+                null
+        ));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public File readTrack(String trackName) {
+        return new File(new File(ExternalConfigurationUtil.trackStorePath).getAbsolutePath(), trackName);
     }
 }

@@ -13,8 +13,9 @@ public interface ImageDao {
     /**
      * Gets an image.
      *
-     * @param fileName the name of the image file
+     * @param imageName the image name
      * @return the image
+     * @throws IOException thrown when the image does not exist
      */
-    Path readImage(String fileName) throws IOException;
+    Path readImage(String imageName) throws IOException;
 }

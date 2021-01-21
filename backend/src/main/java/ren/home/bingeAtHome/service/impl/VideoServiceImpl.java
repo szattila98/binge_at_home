@@ -11,14 +11,13 @@ import ren.home.bingeAtHome.dao.VideoDao;
 import ren.home.bingeAtHome.model.Metadata;
 import ren.home.bingeAtHome.model.Video;
 import ren.home.bingeAtHome.service.VideoService;
+import ren.home.bingeAtHome.service.exception.TrackMissingException;
 import ren.home.bingeAtHome.service.exception.VideoMissingException;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.InvalidPathException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * Base implementation of VideoService.
@@ -113,6 +112,30 @@ public class VideoServiceImpl implements VideoService {
             log.warn("Video fetched is missing: {}!", videoName);
             throw new VideoMissingException();
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Map<String, String> getTrackInfo(String videoName) {
+        Map<String, String> tracks = new HashMap<>();
+        for (File track : videoDao.getTrackFiles(videoName)) {
+            String fileName = track.getName();
+            String langKey = fileName.substring(fileName.length() - 7);
+            langKey = langKey.substring(0, langKey.indexOf("."));
+            tracks.put(langKey, fileName);
+        }
+        log.debug("Track info {} sent for: {}!", tracks, videoName);
+        return tracks;
+    }
+
+    @Override
+    public File getTrack(String trackName) throws TrackMissingException {
+        File track = videoDao.readTrack(trackName);
+        if (!track.exists()) throw new TrackMissingException();
+        log.debug("Track sent: {}!", trackName);
+        return track;
     }
 
     /**

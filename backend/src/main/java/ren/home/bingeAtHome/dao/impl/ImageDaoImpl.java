@@ -21,8 +21,8 @@ public class ImageDaoImpl implements ImageDao {
      * {@inheritDoc}
      */
     @Override
-    public Path readImage(String imageId) throws IOException {
-        Path image = Paths.get(new File(ExternalConfigurationUtil.imageStorePath).getAbsolutePath(), imageId);
+    public Path readImage(String imageName) throws IOException {
+        Path image = Paths.get(new File(ExternalConfigurationUtil.imageStorePath).getAbsolutePath(), imageName);
         if (!image.toFile().exists()) throw new IOException();
         return image;
     }

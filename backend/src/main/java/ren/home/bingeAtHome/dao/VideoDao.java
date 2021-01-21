@@ -1,7 +1,6 @@
 package ren.home.bingeAtHome.dao;
 
 import org.springframework.core.io.UrlResource;
-import ren.home.bingeAtHome.service.exception.VideoMissingException;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -40,4 +39,20 @@ public interface VideoDao {
      * @throws InvalidPathException  the invalid path exception
      */
     UrlResource findResourceByName(String name) throws MalformedURLException, InvalidPathException;
+
+    /**
+     * Retrieves the track files.
+     *
+     * @param videoName the name of the video
+     * @return the path of the caption file
+     */
+    List<File> getTrackFiles(String videoName);
+
+    /**
+     * Retrieves a track file.
+     *
+     * @param trackName the name of the track
+     * @return the track file
+     */
+    File readTrack(String trackName);
 }

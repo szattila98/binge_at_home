@@ -24,16 +24,16 @@ public class MetadataDaoImpl implements MetadataDao {
      * {@inheritDoc}
      */
     @Override
-    public Metadata readMetadata(String fileName) throws IOException {
-        return mapper.readValue(new File(ExternalConfigurationUtil.metadataStorePath, fileName + metadataExt), Metadata.class);
+    public Metadata readMetadata(String videoName) throws IOException {
+        return mapper.readValue(new File(ExternalConfigurationUtil.metadataStorePath, videoName + metadataExt), Metadata.class);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public String saveMetadata(String fileName, Metadata metadata) throws IOException {
-        mapper.writeValue(new File(ExternalConfigurationUtil.metadataStorePath, fileName + metadataExt), metadata);
-        return fileName;
+    public String saveMetadata(String videoName, Metadata metadata) throws IOException {
+        mapper.writeValue(new File(ExternalConfigurationUtil.metadataStorePath, videoName + metadataExt), metadata);
+        return videoName;
     }
 }

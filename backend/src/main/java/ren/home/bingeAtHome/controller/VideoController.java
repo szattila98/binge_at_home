@@ -7,15 +7,18 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.support.ResourceRegion;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ren.home.bingeAtHome.model.Video;
 import ren.home.bingeAtHome.service.VideoService;
+import ren.home.bingeAtHome.service.exception.TrackMissingException;
 import ren.home.bingeAtHome.service.exception.VideoMissingException;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Main REST based controller of the application.
@@ -54,7 +57,14 @@ public class VideoController {
         return ResponseEntity.ok(service.getAllVideos());
     }
 
-    @Operation(summary = "Gets a video's information from the store store.")
+    /**
+     * Gets video.
+     *
+     * @param fileName the file name
+     * @return the video
+     * @throws VideoMissingException the video missing exception
+     */
+    @Operation(summary = "Gets a video's information.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Video info.",
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Video.class))}),
@@ -85,6 +95,39 @@ public class VideoController {
     public ResponseEntity<ResourceRegion> streamVideo(@RequestParam(name = "v") String videoName, @RequestHeader HttpHeaders headers)
             throws VideoMissingException {
         return service.prepareContent(videoName, headers);
+    }
+
+
+    /**
+     * Gets the track information for a video.
+     *
+     * @param videoName the video name
+     * @return the track info
+     */
+    @Operation(summary = "Gets the track information for a video.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Track info.",
+                    content = {@Content(mediaType = "application/json")})
+    })
+    @GetMapping("/track/info/{videoName}")
+    public ResponseEntity<Map<String, String>> getTrackInfo(@PathVariable String videoName) {
+        return ResponseEntity.ok(service.getTrackInfo(videoName));
+    }
+
+    /**
+     * Gets a track from the track store.
+     *
+     * @param trackName the track name
+     * @return the track
+     */
+    @Operation(summary = "Gets a track from the track store.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Track.",
+                    content = {@Content(mediaType = "text/vtt")})
+    })
+    @GetMapping("/track/{trackName}")
+    public ResponseEntity<FileSystemResource> getTrack(@PathVariable String trackName) throws TrackMissingException {
+        return ResponseEntity.ok(new FileSystemResource(service.getTrack(trackName)));
     }
 
 }

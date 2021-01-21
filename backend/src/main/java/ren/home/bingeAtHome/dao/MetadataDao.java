@@ -14,19 +14,19 @@ public interface MetadataDao {
     /**
      * Reads a specific metadata.
      *
-     * @param fileName the video name
+     * @param videoName the video name
      * @return the metadata
-     * @throws IOException the io exception
+     * @throws IOException thrown when the metadata does not exist or cannot be read
      */
-    Metadata readMetadata(String fileName) throws IOException;
+    Metadata readMetadata(String videoName) throws IOException;
 
     /**
      * Saves a metadata.
      *
-     * @param fileName the file name
-     * @param metadata the metadata
-     * @throws IOException the io exception
+     * @param videoName the file name
+     * @param metadata  the metadata
+     * @throws IOException thrown when the metadata cannot be saved
      */
-    String saveMetadata(String fileName, Metadata metadata) throws IOException;
+    String saveMetadata(String videoName, Metadata metadata) throws IOException;
 
 }

@@ -21,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class ImageDaoTest {
 
     private static final String videoRoot = "./videos";
-    private static final String imageRoot = videoRoot + "/image";
+    private static final String imageRoot = videoRoot + "/images";
     private static final String testFileImage = "best_mp4_for_test.mp4.webp";
     private static final String notExistsName = "not_exists.mp4.webp";
 
