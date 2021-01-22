@@ -118,7 +118,10 @@ public class VideoServiceImpl implements VideoService {
      * {@inheritDoc}
      */
     @Override
-    public Map<String, String> getTrackInfo(String videoName) {
+    public Map<String, String> getTrackInfo(String videoName) throws VideoMissingException {
+        if (!videoDao.getVideoFile(videoName).exists()) {
+            throw new VideoMissingException();
+        }
         Map<String, String> tracks = new HashMap<>();
         for (File track : videoDao.getTrackFiles(videoName)) {
             String fileName = track.getName();
@@ -130,6 +133,9 @@ public class VideoServiceImpl implements VideoService {
         return tracks;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public File getTrack(String trackName) throws TrackMissingException {
         File track = videoDao.readTrack(trackName);

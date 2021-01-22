@@ -2,6 +2,7 @@ package ren.home.bingeAtHome.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FileUtils;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,13 +18,13 @@ import ren.home.bingeAtHome.controller.handlers.WebRestControllerAdvice;
 import ren.home.bingeAtHome.model.Metadata;
 import ren.home.bingeAtHome.model.Video;
 import ren.home.bingeAtHome.service.VideoService;
+import ren.home.bingeAtHome.service.exception.TrackMissingException;
 import ren.home.bingeAtHome.service.exception.VideoMissingException;
+import ren.home.bingeAtHome.util.ExternalConfigurationUtil;
 
 import java.io.File;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -40,6 +41,11 @@ class VideoControllerTest {
 
     @MockBean
     private VideoService service;
+
+    @BeforeAll
+    static void init() {
+        ExternalConfigurationUtil.init();
+    }
 
     @Test
     void listVideos_returnsCorrectArray() throws Exception {
@@ -130,5 +136,70 @@ class VideoControllerTest {
 
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(404);
         assertThat(mvcResult.getResponse().getContentAsString()).isEqualTo("{\"" + WebRestControllerAdvice.messageKey + "\":\"" + new VideoMissingException().getMessage() + "\"}");
+    }
+
+    @Test
+    void getTrackInfo_whenExistingTrack_ThenCorrectInfoJson() throws Exception {
+        String uri = "/api/track/info/" + video.getFileName();
+        String testTrack = "best_mp4_for_test.mp4-ENG.vtt";
+        String filepath = ExternalConfigurationUtil.trackStorePath + File.separator + testTrack;
+        URL resource = VideoControllerTest.class.getClassLoader().getResource(testTrack);
+        assert resource != null;
+        File trackFile = new File(filepath);
+        FileUtils.copyFile(new File(resource.toURI()), trackFile);
+        Map<String, String> trackInfo = new HashMap<>();
+        trackInfo.put("ENG", testTrack);
+
+
+        Mockito.when(service.getTrackInfo(video.getFileName())).thenReturn(trackInfo);
+
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get(uri).accept(MediaType.APPLICATION_JSON)).andReturn();
+
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(200);
+        assertThat(mvcResult.getResponse().getContentAsString()).isEqualTo(objectMapper.writeValueAsString(trackInfo));
+    }
+
+    @Test
+    void getTrackInfo_whenNotExistingVideo_ThenNotFoundAndCorrectMsg() throws Exception {
+        String uri = "/api/track/info/" + notExistingFileName;
+
+        Mockito.when(service.getTrackInfo(notExistingFileName)).thenThrow(new VideoMissingException());
+
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get(uri).accept(MediaType.APPLICATION_JSON)).andReturn();
+
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(404);
+        assertThat(mvcResult.getResponse().getContentAsString()).isEqualTo("{\"" + WebRestControllerAdvice.messageKey + "\":\"" + new VideoMissingException().getMessage() + "\"}");
+    }
+
+    @Test
+    void getTrack_whenExistingTrack_ThenCorrectVtt() throws Exception {
+        String testTrack = "best_mp4_for_test.mp4-ENG.vtt";
+        String uri = "/api/track/" + testTrack;
+        String filepath = ExternalConfigurationUtil.trackStorePath + File.separator + testTrack;
+        URL resource = VideoControllerTest.class.getClassLoader().getResource(testTrack);
+        assert resource != null;
+        File trackFile = new File(filepath);
+        FileUtils.copyFile(new File(resource.toURI()), trackFile);
+
+
+        Mockito.when(service.getTrack(testTrack)).thenReturn(trackFile);
+
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get(uri).accept(MediaType.APPLICATION_JSON)).andReturn();
+
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(200);
+        assertThat(mvcResult.getResponse().getContentLengthLong()).isEqualTo(trackFile.length());
+    }
+
+    @Test
+    void getTrack_whenNotExistingTrack_ThenNotFoundAndCorrectMsg() throws Exception {
+        String uri = "/api/track/" + notExistingFileName;
+
+        Mockito.when(service.getTrack(notExistingFileName)).thenThrow(new TrackMissingException());
+
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get(uri).accept(MediaType.APPLICATION_JSON)).andReturn();
+
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(404);
+        assertThat(mvcResult.getResponse().getContentAsString()).isEqualTo("{\"" + WebRestControllerAdvice.messageKey + "\":\"" + new TrackMissingException().getMessage() + "\"}");
+
     }
 }

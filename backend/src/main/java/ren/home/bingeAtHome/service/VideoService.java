@@ -51,7 +51,7 @@ public interface VideoService {
      * @param videoName the video name
      * @return map of tracks
      */
-    Map<String, String> getTrackInfo(String videoName);
+    Map<String, String> getTrackInfo(String videoName) throws VideoMissingException;
 
     /**
      * Retrieves a track file.

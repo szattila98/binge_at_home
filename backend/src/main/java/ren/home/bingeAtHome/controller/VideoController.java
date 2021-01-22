@@ -107,10 +107,12 @@ public class VideoController {
     @Operation(summary = "Gets the track information for a video.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Track info.",
+                    content = {@Content(mediaType = "application/json")}),
+            @ApiResponse(responseCode = "404", description = "Video not found.",
                     content = {@Content(mediaType = "application/json")})
     })
     @GetMapping("/track/info/{videoName}")
-    public ResponseEntity<Map<String, String>> getTrackInfo(@PathVariable String videoName) {
+    public ResponseEntity<Map<String, String>> getTrackInfo(@PathVariable String videoName) throws VideoMissingException {
         return ResponseEntity.ok(service.getTrackInfo(videoName));
     }
 
