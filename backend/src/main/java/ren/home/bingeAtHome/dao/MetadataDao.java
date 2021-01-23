@@ -25,6 +25,7 @@ public interface MetadataDao {
      *
      * @param videoName the file name
      * @param metadata  the metadata
+     * @return the video name
      * @throws IOException thrown when the metadata cannot be saved
      */
     String saveMetadata(String videoName, Metadata metadata) throws IOException;

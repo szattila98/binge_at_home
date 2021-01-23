@@ -28,8 +28,8 @@ import java.util.*;
 @Service
 public class VideoServiceImpl implements VideoService {
 
-    private VideoDao videoDao;
-    private MetadataDao metadataDao;
+    private final VideoDao videoDao;
+    private final MetadataDao metadataDao;
 
     /**
      * Instantiates a new Video service.
@@ -41,13 +41,6 @@ public class VideoServiceImpl implements VideoService {
     public VideoServiceImpl(VideoDao videoDao, MetadataDao metadataDao) {
         this.videoDao = videoDao;
         this.metadataDao = metadataDao;
-    }
-
-
-    /**
-     * Default constructor for Video service.
-     */
-    public VideoServiceImpl() {
     }
 
     /**

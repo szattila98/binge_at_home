@@ -21,12 +21,15 @@ import java.io.IOException;
 @Service
 public class MetadataServiceImpl implements MetadataService {
 
-    private MetadataDao metadataDao;
-    private VideoDao videoDao;
+    private final MetadataDao metadataDao;
+    private final VideoDao videoDao;
 
-    public MetadataServiceImpl() {
-    }
-
+    /**
+     * Instantiates a new Metadata service.
+     *
+     * @param metadataDao the metadata dao
+     * @param videoDao    the video dao
+     */
     @Autowired
     public MetadataServiceImpl(MetadataDao metadataDao, VideoDao videoDao) {
         this.metadataDao = metadataDao;

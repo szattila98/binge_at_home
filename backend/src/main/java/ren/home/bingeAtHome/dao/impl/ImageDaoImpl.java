@@ -2,7 +2,7 @@ package ren.home.bingeAtHome.dao.impl;
 
 import org.springframework.stereotype.Component;
 import ren.home.bingeAtHome.dao.ImageDao;
-import ren.home.bingeAtHome.util.ExternalConfigurationUtil;
+import ren.home.bingeAtHome.util.ExternalConfig;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,7 +22,7 @@ public class ImageDaoImpl implements ImageDao {
      */
     @Override
     public Path readImage(String imageName) throws IOException {
-        Path image = Paths.get(new File(ExternalConfigurationUtil.imageStorePath).getAbsolutePath(), imageName);
+        Path image = Paths.get(new File(ExternalConfig.IMAGE_STORE_PATH).getAbsolutePath(), imageName);
         if (!image.toFile().exists()) throw new IOException();
         return image;
     }

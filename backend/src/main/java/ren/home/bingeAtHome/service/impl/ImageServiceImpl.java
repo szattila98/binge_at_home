@@ -19,7 +19,7 @@ import java.nio.file.Path;
 @Service
 public class ImageServiceImpl implements ImageService {
 
-    private ImageDao imageDao;
+    private final ImageDao imageDao;
 
     /**
      * Instantiates a new Image service.

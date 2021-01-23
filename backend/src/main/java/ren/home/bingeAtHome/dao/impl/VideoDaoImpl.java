@@ -5,7 +5,7 @@ import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Component;
 import ren.home.bingeAtHome.dao.VideoDao;
-import ren.home.bingeAtHome.util.ExternalConfigurationUtil;
+import ren.home.bingeAtHome.util.ExternalConfig;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -28,7 +28,7 @@ public class VideoDaoImpl implements VideoDao {
      */
     @Override
     public List<File> findAllVideoFiles() {
-        return new ArrayList<>(FileUtils.listFiles(new File(ExternalConfigurationUtil.videoStorePath), ExternalConfigurationUtil.validExtensions, false));
+        return new ArrayList<>(FileUtils.listFiles(new File(ExternalConfig.VIDEO_STORE_PATH), ExternalConfig.VALID_EXTENSIONS, false));
     }
 
     /**
@@ -36,7 +36,7 @@ public class VideoDaoImpl implements VideoDao {
      */
     @Override
     public File getVideoFile(String fileName) {
-        return new File(ExternalConfigurationUtil.videoStorePath, fileName);
+        return new File(ExternalConfig.VIDEO_STORE_PATH, fileName);
     }
 
     /**
@@ -44,7 +44,7 @@ public class VideoDaoImpl implements VideoDao {
      */
     @Override
     public UrlResource findResourceByName(String name) throws MalformedURLException, InvalidPathException {
-        return new UrlResource("file:" + Paths.get(new File(ExternalConfigurationUtil.videoStorePath).getAbsolutePath(), name).toString());
+        return new UrlResource("file:" + Paths.get(new File(ExternalConfig.VIDEO_STORE_PATH).getAbsolutePath(), name).toString());
     }
 
     /**
@@ -53,7 +53,7 @@ public class VideoDaoImpl implements VideoDao {
     @Override
     public List<File> getTrackFiles(String videoName) {
         return new ArrayList<>(FileUtils.listFiles(
-                new File(ExternalConfigurationUtil.trackStorePath),
+                new File(ExternalConfig.TRACK_STORE_PATH),
                 new WildcardFileFilter(videoName + "-*.vtt"),
                 null
         ));
@@ -64,6 +64,6 @@ public class VideoDaoImpl implements VideoDao {
      */
     @Override
     public File readTrack(String trackName) {
-        return new File(new File(ExternalConfigurationUtil.trackStorePath).getAbsolutePath(), trackName);
+        return new File(new File(ExternalConfig.TRACK_STORE_PATH).getAbsolutePath(), trackName);
     }
 }
