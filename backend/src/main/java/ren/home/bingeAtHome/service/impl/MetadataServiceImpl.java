@@ -41,12 +41,16 @@ public class MetadataServiceImpl implements MetadataService {
      */
     @Override
     public String saveMetadata(String fileName, Metadata metadata) throws MetadataCannotBeSavedException, VideoMissingException {
-        if (!videoDao.getVideoFile(fileName).exists()) {
+        try {
+            videoDao.getVideoFile(fileName);
+        } catch (IOException e) {
+            log.debug("Video with this name does not exist: {}!", fileName);
             throw new VideoMissingException();
         }
         try {
-            log.debug("Metadata {} saved for file: {}!", metadata, fileName);
-            return metadataDao.saveMetadata(fileName, metadata);
+            String videoName = metadataDao.saveMetadata(fileName, metadata);
+            log.debug("Metadata {} saved for file: {}!", metadata, videoName);
+            return videoName;
         } catch (IOException e) {
             throw new MetadataCannotBeSavedException();
         }

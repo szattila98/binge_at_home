@@ -20,7 +20,6 @@ import ren.home.bingeAtHome.util.ExternalConfig;
 
 import java.io.File;
 import java.net.URL;
-import java.nio.file.Paths;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -53,14 +52,12 @@ class ImageControllerImplTest {
         assert imageResource != null;
         FileUtils.copyFile(new File(imageResource.toURI()), file);
 
-        Mockito.when(service.getPosterImage(FILE_NAME)).thenReturn(Paths.get(filepath));
+        Mockito.when(service.getPosterImage(FILE_NAME)).thenReturn(new File(filepath));
 
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get(URI).accept(MediaType.ALL_VALUE)).andReturn();
 
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(200);
         assertThat(mvcResult.getResponse().getContentLengthLong()).isEqualTo(file.length());
-
-        FileUtils.forceDelete(new File(ExternalConfig.VIDEO_STORE_PATH));
     }
 
     @Test

@@ -7,8 +7,8 @@ import ren.home.bingeAtHome.dao.ImageDao;
 import ren.home.bingeAtHome.service.ImageService;
 import ren.home.bingeAtHome.service.exception.ImageMissingException;
 
+import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 
 /**
  * Base implementation of VideoService.
@@ -19,6 +19,8 @@ import java.nio.file.Path;
 @Service
 public class ImageServiceImpl implements ImageService {
 
+    private static final String IMAGE_EXT = ".webp";
+    
     private final ImageDao imageDao;
 
     /**
@@ -35,10 +37,12 @@ public class ImageServiceImpl implements ImageService {
      * {@inheritDoc}
      */
     @Override
-    public Path getPosterImage(String videoFileName) throws ImageMissingException {
+    public File getPosterImage(String videoName) throws ImageMissingException {
         try {
-            log.debug("Reading image for video: {}!", videoFileName);
-            return imageDao.readImage(videoFileName + ".webp");
+            File image = imageDao.readImage(videoName + IMAGE_EXT);
+            log.debug("Read poster image for video: {}, image: {}!",
+                    videoName, image.getAbsolutePath());
+            return image;
         } catch (IOException e) {
             throw new ImageMissingException();
         }

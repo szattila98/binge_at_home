@@ -27,7 +27,7 @@ import javax.validation.Valid;
 @RequestMapping(path = "/api")
 public class MetadataController {
 
-    private MetadataService metadataService;
+    private final MetadataService metadataService;
 
     /**
      * Instantiates a new Metadata controller.

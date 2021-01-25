@@ -18,14 +18,14 @@ import java.io.IOException;
 public class MetadataDaoImpl implements MetadataDao {
 
     private final ObjectMapper mapper = new ObjectMapper();
-    private static final String metadataExt = ".json";
+    private static final String METADATA_EXT = ".json";
 
     /**
      * {@inheritDoc}
      */
     @Override
     public Metadata readMetadata(String videoName) throws IOException {
-        return mapper.readValue(new File(ExternalConfig.METADATA_STORE_PATH, videoName + metadataExt), Metadata.class);
+        return mapper.readValue(new File(ExternalConfig.METADATA_STORE_PATH, videoName + METADATA_EXT), Metadata.class);
     }
 
     /**
@@ -33,7 +33,7 @@ public class MetadataDaoImpl implements MetadataDao {
      */
     @Override
     public String saveMetadata(String videoName, Metadata metadata) throws IOException {
-        mapper.writeValue(new File(ExternalConfig.METADATA_STORE_PATH, videoName + metadataExt), metadata);
+        mapper.writeValue(new File(ExternalConfig.METADATA_STORE_PATH, videoName + METADATA_EXT), metadata);
         return videoName;
     }
 }

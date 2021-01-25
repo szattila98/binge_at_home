@@ -8,9 +8,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import ren.home.bingeAtHome.dao.ImageDao;
 import ren.home.bingeAtHome.service.exception.ImageMissingException;
 
+import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -30,11 +29,11 @@ class ImageServiceImplTest {
     void getPosterImage_whenExisting_thenReturnPath() throws Exception {
         String testFile = "best_mp4_for_test.mp4";
         String image = testFile + EXT;
-        Path path = Paths.get(image);
+        File file = new File(image);
 
-        Mockito.when(imageDao.readImage(image)).thenReturn(path);
+        Mockito.when(imageDao.readImage(image)).thenReturn(file);
 
-        assertThat(imageService.getPosterImage(testFile)).isEqualTo(path);
+        assertThat(imageService.getPosterImage(testFile)).isEqualTo(file);
     }
 
     @Test

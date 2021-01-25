@@ -23,7 +23,7 @@ import ren.home.bingeAtHome.service.exception.ImageMissingException;
 @RequestMapping(path = "/api")
 public class ImageController {
 
-    private ImageService service;
+    private final ImageService service;
 
     /**
      * Instantiates a new Image controller.
@@ -38,7 +38,7 @@ public class ImageController {
     /**
      * Gets a poster image.
      *
-     * @param videoFileName the video file name
+     * @param videoName the video file name
      * @return the poster
      * @throws ImageMissingException the image missing exception
      */
@@ -47,8 +47,8 @@ public class ImageController {
             @ApiResponse(responseCode = "200", description = "Image exists.", content = {@Content(mediaType = "image/webm")}),
             @ApiResponse(responseCode = "404", description = "Image not found!", content = {@Content(mediaType = "application/json")})
     })
-    @GetMapping("/poster/{videoFileName}")
-    public ResponseEntity<FileSystemResource> getPoster(@PathVariable String videoFileName) throws ImageMissingException {
-        return ResponseEntity.ok(new FileSystemResource(service.getPosterImage(videoFileName)));
+    @GetMapping("/poster/{videoName}")
+    public ResponseEntity<FileSystemResource> getPoster(@PathVariable String videoName) throws ImageMissingException {
+        return ResponseEntity.ok(new FileSystemResource(service.getPosterImage(videoName)));
     }
 }

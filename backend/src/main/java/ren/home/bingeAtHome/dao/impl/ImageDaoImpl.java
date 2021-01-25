@@ -6,8 +6,6 @@ import ren.home.bingeAtHome.util.ExternalConfig;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Basic implementation of the ImageDao interface.
@@ -19,11 +17,13 @@ public class ImageDaoImpl implements ImageDao {
 
     /**
      * {@inheritDoc}
+     *
+     * @return
      */
     @Override
-    public Path readImage(String imageName) throws IOException {
-        Path image = Paths.get(new File(ExternalConfig.IMAGE_STORE_PATH).getAbsolutePath(), imageName);
-        if (!image.toFile().exists()) throw new IOException();
+    public File readImage(String imageName) throws IOException {
+        File image = new File(ExternalConfig.IMAGE_STORE_PATH, imageName);
+        if (!image.exists()) throw new IOException();
         return image;
     }
 }

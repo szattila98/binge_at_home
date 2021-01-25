@@ -11,7 +11,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.UrlResource;
 import org.springframework.core.io.support.ResourceRegion;
-import org.springframework.http.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpRange;
+import org.springframework.http.MediaType;
+import org.springframework.http.MediaTypeFactory;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -123,7 +126,7 @@ class VideoControllerImplTest {
 
         // mock
         Mockito.when(service.prepareContent(Mockito.eq(testVideo), Mockito.any(HttpHeaders.class)))
-                .thenReturn(ResponseEntity.status(HttpStatus.PARTIAL_CONTENT).body(resourceRegion));
+                .thenReturn(resourceRegion);
 
         // sending request
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get(STREAM_REQUEST_URI)
@@ -133,9 +136,8 @@ class VideoControllerImplTest {
         // assertions
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(206);
         assertThat(mvcResult.getResponse().getContentLengthLong()).isEqualTo(resourceRegion.getCount());
-
-        // cleaning up resource
-        FileUtils.forceDelete(new File(ExternalConfig.VIDEO_STORE_PATH));
+        assertThat(mvcResult.getResponse().getContentType()).isEqualTo(MediaTypeFactory
+                .getMediaType(resourceRegion.getResource()).orElse(MediaType.APPLICATION_OCTET_STREAM).toString());
     }
 
     @Test

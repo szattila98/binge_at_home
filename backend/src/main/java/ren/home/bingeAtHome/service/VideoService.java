@@ -2,7 +2,6 @@ package ren.home.bingeAtHome.service;
 
 import org.springframework.core.io.support.ResourceRegion;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
 import ren.home.bingeAtHome.model.Video;
 import ren.home.bingeAtHome.service.exception.TrackMissingException;
 import ren.home.bingeAtHome.service.exception.VideoMissingException;
@@ -43,7 +42,7 @@ public interface VideoService {
      * @return ResponseEntity with the requested range of bytes and standard headers
      * @throws VideoMissingException thrown when there is no such video in the video store
      */
-    ResponseEntity<ResourceRegion> prepareContent(String videoName, HttpHeaders headers) throws VideoMissingException;
+    ResourceRegion prepareContent(String videoName, HttpHeaders headers) throws VideoMissingException;
 
     /**
      * Returns a key,value pair of track names and their language.

@@ -39,7 +39,7 @@ class ImageDaoImplTest {
         assert imageResource != null;
         FileUtils.copyFile(new File(imageResource.toURI()), testImageFile);
 
-        assertThat(FileUtils.readFileToByteArray(dao.readImage(testImage).toFile())).isEqualTo(FileUtils.readFileToByteArray(testImageFile));
+        assertThat(FileUtils.readFileToByteArray(dao.readImage(testImage))).isEqualTo(FileUtils.readFileToByteArray(testImageFile));
     }
 
     @Test

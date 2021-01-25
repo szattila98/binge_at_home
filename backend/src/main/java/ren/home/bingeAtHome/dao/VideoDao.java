@@ -3,6 +3,7 @@ package ren.home.bingeAtHome.dao;
 import org.springframework.core.io.UrlResource;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.InvalidPathException;
 import java.util.List;
@@ -28,17 +29,17 @@ public interface VideoDao {
      * @param fileName the file name
      * @return the video file
      */
-    File getVideoFile(String fileName);
+    File getVideoFile(String fileName) throws IOException;
 
     /**
-     * Retrieves a file resource by it's name from the video store directory.
+     * Retrieves a file resource by it's resourceName from the video store directory.
      *
-     * @param name name of the file
+     * @param resourceName resourceName of the file
      * @return the searched file
      * @throws MalformedURLException the malformed url exception
      * @throws InvalidPathException  the invalid path exception
      */
-    UrlResource findResourceByName(String name) throws MalformedURLException, InvalidPathException;
+    UrlResource findResourceByName(String resourceName) throws MalformedURLException, InvalidPathException;
 
     /**
      * Retrieves the track files.
@@ -54,5 +55,5 @@ public interface VideoDao {
      * @param trackName the name of the track
      * @return the track file
      */
-    File readTrack(String trackName);
+    File readTrack(String trackName) throws IOException;
 }

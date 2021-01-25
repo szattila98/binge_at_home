@@ -4,7 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.UrlResource;
 import org.springframework.core.io.support.ResourceRegion;
-import org.springframework.http.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpRange;
 import org.springframework.stereotype.Service;
 import ren.home.bingeAtHome.dao.MetadataDao;
 import ren.home.bingeAtHome.dao.VideoDao;
@@ -53,11 +54,11 @@ public class VideoServiceImpl implements VideoService {
             try {
                 storedVideos.add(new Video(file));
             } catch (IOException | InterruptedException e) {
-                log.warn("Video fetched is now missing somehow: {}!", file.getName());
+                log.warn("Video fetched is now missing somehow: {}!", file.getAbsolutePath());
             }
         }
         Collections.sort(storedVideos);
-        log.debug("Videos fetched: {}", storedVideos);
+        log.debug("Videos fetched: {}!", storedVideos);
         return storedVideos;
     }
 
@@ -66,10 +67,12 @@ public class VideoServiceImpl implements VideoService {
      */
     @Override
     public Video getVideo(String fileName) throws VideoMissingException {
-        File videoFile = videoDao.getVideoFile(fileName);
+        File videoFile;
         Metadata metadata = null;
-        if (!videoFile.exists()) {
-            log.warn("Video fetched is missing: {}!", fileName);
+        try {
+            videoFile = videoDao.getVideoFile(fileName);
+        } catch (IOException e) {
+            log.debug("Video with this name does not exist: {}!", fileName);
             throw new VideoMissingException();
         }
         try {
@@ -89,18 +92,16 @@ public class VideoServiceImpl implements VideoService {
 
     /**
      * {@inheritDoc}
+     *
+     * @return
      */
     @Override
-    public ResponseEntity<ResourceRegion> prepareContent(String videoName, HttpHeaders headers) throws VideoMissingException {
+    public ResourceRegion prepareContent(String videoName, HttpHeaders headers) throws VideoMissingException {
         try {
             UrlResource resource = videoDao.findResourceByName(videoName);
             ResourceRegion region = resourceRegion(resource, headers);
-            log.debug("Prepared video: {}", videoName);
-            return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT)
-                    .contentType(MediaTypeFactory
-                            .getMediaType(resource)
-                            .orElse(MediaType.APPLICATION_OCTET_STREAM))
-                    .body(region);
+            log.debug("Prepared video region {}, length: {}!", videoName, region.getCount());
+            return region;
         } catch (IOException | InvalidPathException e) {
             log.warn("Video fetched is missing: {}!", videoName);
             throw new VideoMissingException();
@@ -112,7 +113,10 @@ public class VideoServiceImpl implements VideoService {
      */
     @Override
     public Map<String, String> getTrackInfo(String videoName) throws VideoMissingException {
-        if (!videoDao.getVideoFile(videoName).exists()) {
+        try {
+            videoDao.getVideoFile(videoName);
+        } catch (IOException e) {
+            log.debug("Video with this name does not exist: {}!", videoName);
             throw new VideoMissingException();
         }
         Map<String, String> tracks = new HashMap<>();
@@ -122,7 +126,7 @@ public class VideoServiceImpl implements VideoService {
             langKey = langKey.substring(0, langKey.indexOf("."));
             tracks.put(langKey, fileName);
         }
-        log.debug("Track info {} sent for: {}!", tracks, videoName);
+        log.debug("Track info {} fetched for: {}!", tracks, videoName);
         return tracks;
     }
 
@@ -131,9 +135,14 @@ public class VideoServiceImpl implements VideoService {
      */
     @Override
     public File getTrack(String trackName) throws TrackMissingException {
-        File track = videoDao.readTrack(trackName);
-        if (!track.exists()) throw new TrackMissingException();
-        log.debug("Track sent: {}!", trackName);
+        File track;
+        try {
+            track = videoDao.readTrack(trackName);
+        } catch (IOException e) {
+            log.debug("Track like this does not exist: {}!", trackName);
+            throw new TrackMissingException();
+        }
+        log.debug("Track fetched: {}!", trackName);
         return track;
     }
 

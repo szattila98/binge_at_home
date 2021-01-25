@@ -9,8 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.support.ResourceRegion;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import ren.home.bingeAtHome.model.Video;
 import ren.home.bingeAtHome.service.VideoService;
@@ -60,7 +59,7 @@ public class VideoController {
     /**
      * Gets video.
      *
-     * @param fileName the file name
+     * @param videoName the file name
      * @return the video
      * @throws VideoMissingException the video missing exception
      */
@@ -71,9 +70,9 @@ public class VideoController {
             @ApiResponse(responseCode = "404", description = "Video not found.",
                     content = {@Content(mediaType = "application/json")})
     })
-    @GetMapping("/video/{fileName}")
-    public ResponseEntity<Video> getVideo(@PathVariable String fileName) throws VideoMissingException {
-        return ResponseEntity.ok(service.getVideo(fileName));
+    @GetMapping("/video/{videoName}")
+    public ResponseEntity<Video> getVideo(@PathVariable String videoName) throws VideoMissingException {
+        return ResponseEntity.ok(service.getVideo(videoName));
     }
 
     /**
@@ -94,7 +93,12 @@ public class VideoController {
     @GetMapping("/stream")
     public ResponseEntity<ResourceRegion> streamVideo(@RequestParam(name = "v") String videoName, @RequestHeader HttpHeaders headers)
             throws VideoMissingException {
-        return service.prepareContent(videoName, headers);
+        ResourceRegion region = service.prepareContent(videoName, headers);
+        return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT)
+                .contentType(MediaTypeFactory
+                        .getMediaType(region.getResource())
+                        .orElse(MediaType.APPLICATION_OCTET_STREAM))
+                .body(region);
     }
 
 

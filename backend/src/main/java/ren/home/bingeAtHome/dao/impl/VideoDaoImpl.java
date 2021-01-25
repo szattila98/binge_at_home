@@ -8,6 +8,7 @@ import ren.home.bingeAtHome.dao.VideoDao;
 import ren.home.bingeAtHome.util.ExternalConfig;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
@@ -23,6 +24,8 @@ import java.util.List;
 @Component
 public class VideoDaoImpl implements VideoDao {
 
+    private static final String TRACK_REGEX = "-*.vtt";
+
     /**
      * {@inheritDoc}
      */
@@ -35,16 +38,18 @@ public class VideoDaoImpl implements VideoDao {
      * {@inheritDoc}
      */
     @Override
-    public File getVideoFile(String fileName) {
-        return new File(ExternalConfig.VIDEO_STORE_PATH, fileName);
+    public File getVideoFile(String fileName) throws IOException {
+        File videoFile = new File(ExternalConfig.VIDEO_STORE_PATH, fileName);
+        if (!videoFile.exists()) throw new IOException();
+        return videoFile;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public UrlResource findResourceByName(String name) throws MalformedURLException, InvalidPathException {
-        return new UrlResource("file:" + Paths.get(new File(ExternalConfig.VIDEO_STORE_PATH).getAbsolutePath(), name).toString());
+    public UrlResource findResourceByName(String resourceName) throws MalformedURLException, InvalidPathException {
+        return new UrlResource("file:" + Paths.get(new File(ExternalConfig.VIDEO_STORE_PATH).getAbsolutePath(), resourceName).toString());
     }
 
     /**
@@ -54,7 +59,7 @@ public class VideoDaoImpl implements VideoDao {
     public List<File> getTrackFiles(String videoName) {
         return new ArrayList<>(FileUtils.listFiles(
                 new File(ExternalConfig.TRACK_STORE_PATH),
-                new WildcardFileFilter(videoName + "-*.vtt"),
+                new WildcardFileFilter(videoName + TRACK_REGEX),
                 null
         ));
     }
@@ -63,7 +68,9 @@ public class VideoDaoImpl implements VideoDao {
      * {@inheritDoc}
      */
     @Override
-    public File readTrack(String trackName) {
-        return new File(new File(ExternalConfig.TRACK_STORE_PATH).getAbsolutePath(), trackName);
+    public File readTrack(String trackName) throws IOException {
+        File track = new File(ExternalConfig.TRACK_STORE_PATH, trackName);
+        if (!track.exists()) throw new IOException();
+        return track;
     }
 }
