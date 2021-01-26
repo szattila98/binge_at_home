@@ -9,7 +9,7 @@ import java.nio.file.InvalidPathException;
 import java.util.List;
 
 /**
- * Handles basic filesystem operations with the videos.
+ * Handles basic filesystem operations with videos.
  *
  * @author Attila Szőke
  */
@@ -41,19 +41,4 @@ public interface VideoDao {
      */
     UrlResource findResourceByName(String resourceName) throws MalformedURLException, InvalidPathException;
 
-    /**
-     * Retrieves the track files.
-     *
-     * @param videoName the name of the video
-     * @return the path of the caption file
-     */
-    List<File> getTrackFiles(String videoName);
-
-    /**
-     * Retrieves a track file.
-     *
-     * @param trackName the name of the track
-     * @return the track file
-     */
-    File readTrack(String trackName) throws IOException;
 }

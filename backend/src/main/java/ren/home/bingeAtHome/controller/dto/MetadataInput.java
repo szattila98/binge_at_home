@@ -28,7 +28,7 @@ public class MetadataInput {
     @NotBlank(message = "description is mandatory")
     @Size(min = 1, max = 2000, message = "description min is 100 and max is 2000 characters long")
     private String description;
-    @Size(min = 1, max = 10, message = "tags min count is 1, max is 10")
+    @Size(max = 10, message = "tags min count is 1, max is 10")
     private List<String> tags;
     
 }

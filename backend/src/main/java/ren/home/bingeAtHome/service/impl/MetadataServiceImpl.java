@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ren.home.bingeAtHome.dao.MetadataDao;
 import ren.home.bingeAtHome.dao.VideoDao;
-import ren.home.bingeAtHome.model.Metadata;
+import ren.home.bingeAtHome.model.VideoMetadata;
 import ren.home.bingeAtHome.service.MetadataService;
 import ren.home.bingeAtHome.service.exception.MetadataCannotBeSavedException;
 import ren.home.bingeAtHome.service.exception.VideoMissingException;
@@ -40,7 +40,7 @@ public class MetadataServiceImpl implements MetadataService {
      * {@inheritDoc}
      */
     @Override
-    public String saveMetadata(String fileName, Metadata metadata) throws MetadataCannotBeSavedException, VideoMissingException {
+    public String saveMetadata(String fileName, VideoMetadata videoMetadata) throws MetadataCannotBeSavedException, VideoMissingException {
         try {
             videoDao.getVideoFile(fileName);
         } catch (IOException e) {
@@ -48,8 +48,8 @@ public class MetadataServiceImpl implements MetadataService {
             throw new VideoMissingException();
         }
         try {
-            String videoName = metadataDao.saveMetadata(fileName, metadata);
-            log.debug("Metadata {} saved for file: {}!", metadata, videoName);
+            String videoName = metadataDao.saveMetadata(fileName, videoMetadata);
+            log.debug("Metadata {} saved for file: {}!", videoMetadata, videoName);
             return videoName;
         } catch (IOException e) {
             throw new MetadataCannotBeSavedException();

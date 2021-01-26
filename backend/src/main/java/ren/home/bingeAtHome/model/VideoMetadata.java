@@ -15,7 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @EqualsAndHashCode
 @ToString
-public class Metadata {
+public class VideoMetadata {
 
     private String videoName;
     private String description;

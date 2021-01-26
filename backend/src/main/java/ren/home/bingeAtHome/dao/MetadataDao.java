@@ -1,6 +1,6 @@
 package ren.home.bingeAtHome.dao;
 
-import ren.home.bingeAtHome.model.Metadata;
+import ren.home.bingeAtHome.model.VideoMetadata;
 
 import java.io.IOException;
 
@@ -18,16 +18,16 @@ public interface MetadataDao {
      * @return the metadata
      * @throws IOException thrown when the metadata does not exist or cannot be read
      */
-    Metadata readMetadata(String videoName) throws IOException;
+    VideoMetadata readMetadata(String videoName) throws IOException;
 
     /**
      * Saves a metadata.
      *
-     * @param videoName the file name
-     * @param metadata  the metadata
+     * @param videoName     the file name
+     * @param videoMetadata the metadata
      * @return the video name
      * @throws IOException thrown when the metadata cannot be saved
      */
-    String saveMetadata(String videoName, Metadata metadata) throws IOException;
+    String saveMetadata(String videoName, VideoMetadata videoMetadata) throws IOException;
 
 }

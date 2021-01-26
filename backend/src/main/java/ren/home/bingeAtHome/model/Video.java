@@ -30,7 +30,7 @@ public class Video implements Comparable<Video> {
     private long size; // bytes
     private long duration; // microseconds
     private String extension;
-    private Metadata metadata;
+    private VideoMetadata videoMetadata;
 
     /**
      * Instantiates a new Video without metadata.
@@ -56,13 +56,13 @@ public class Video implements Comparable<Video> {
     /**
      * Instantiates a new Video.
      *
-     * @param file     the file
-     * @param metadata the metadata
+     * @param file          the file
+     * @param videoMetadata the metadata
      * @throws IOException the io exception
      */
-    public Video(File file, Metadata metadata) throws IOException, InterruptedException {
+    public Video(File file, VideoMetadata videoMetadata) throws IOException, InterruptedException {
         this(file);
-        this.metadata = metadata;
+        this.videoMetadata = videoMetadata;
     }
 
     @Override

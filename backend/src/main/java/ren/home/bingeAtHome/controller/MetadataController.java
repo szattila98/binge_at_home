@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ren.home.bingeAtHome.controller.dto.MetadataInput;
-import ren.home.bingeAtHome.model.Metadata;
+import ren.home.bingeAtHome.model.VideoMetadata;
 import ren.home.bingeAtHome.service.MetadataService;
 import ren.home.bingeAtHome.service.exception.MetadataCannotBeSavedException;
 import ren.home.bingeAtHome.service.exception.VideoMissingException;
@@ -57,6 +57,6 @@ public class MetadataController {
     @PostMapping("/metadata")
     public ResponseEntity<String> saveMetadata(@Valid @RequestBody MetadataInput metadataInput) throws MetadataCannotBeSavedException, VideoMissingException {
         return ResponseEntity.ok(metadataService.saveMetadata(metadataInput.getFileName(),
-                new Metadata(metadataInput.getVideoName(), metadataInput.getDescription(), metadataInput.getTags())));
+                new VideoMetadata(metadataInput.getVideoName(), metadataInput.getDescription(), metadataInput.getTags())));
     }
 }

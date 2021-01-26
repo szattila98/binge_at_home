@@ -1,4 +1,4 @@
-package ren.home.bingeAtHome.controller.impl;
+package ren.home.bingeAtHome.controller;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeAll;
@@ -12,8 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import ren.home.bingeAtHome.controller.ImageController;
-import ren.home.bingeAtHome.controller.impl.util.ErrorMsgJsonCreator;
+import ren.home.bingeAtHome.controller.util.ErrorMsgJsonCreator;
 import ren.home.bingeAtHome.service.ImageService;
 import ren.home.bingeAtHome.service.exception.ImageMissingException;
 import ren.home.bingeAtHome.util.ExternalConfig;
@@ -24,7 +23,7 @@ import java.net.URL;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @WebMvcTest(ImageController.class)
-class ImageControllerImplTest {
+class ImageControllerTest {
 
     private static final String FILE_NAME = "best_mp4_for_test.mp4";
     private static final String URI = "/api/poster/" + FILE_NAME;
@@ -48,7 +47,7 @@ class ImageControllerImplTest {
         String image = "best_mp4_for_test.mp4.webp";
         String filepath = ExternalConfig.IMAGE_STORE_PATH + File.separator + image;
         File file = new File(filepath);
-        URL imageResource = VideoControllerImplTest.class.getClassLoader().getResource(image);
+        URL imageResource = VideoControllerTest.class.getClassLoader().getResource(image);
         assert imageResource != null;
         FileUtils.copyFile(new File(imageResource.toURI()), file);
 

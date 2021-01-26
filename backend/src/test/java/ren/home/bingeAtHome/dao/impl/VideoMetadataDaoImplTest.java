@@ -9,7 +9,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import ren.home.bingeAtHome.dao.MetadataDao;
-import ren.home.bingeAtHome.model.Metadata;
+import ren.home.bingeAtHome.model.VideoMetadata;
 import ren.home.bingeAtHome.util.ExternalConfig;
 
 import java.io.File;
@@ -21,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
-class MetadataDaoImplTest {
+class VideoMetadataDaoImplTest {
 
     private static final String TEST_VIDEO = "best_mp4_for_test.mp4";
     private static final String TEST_METADATA = "best_mp4_for_test.mp4.json";
@@ -42,7 +42,7 @@ class MetadataDaoImplTest {
     void readMetadata_whenExisting_thenReturnsCorrectMetadata() throws Exception {
         File testVideoFile = new File(ExternalConfig.VIDEO_STORE_PATH + File.separator + TEST_VIDEO);
         File testMetadataFile = new File(ExternalConfig.METADATA_STORE_PATH + File.separator + TEST_METADATA);
-        Metadata shouldBeMetadata = new Metadata("Never", "Gonna", TAGS);
+        VideoMetadata shouldBeVideoMetadata = new VideoMetadata("Never", "Gonna", TAGS);
 
         URL videoResource = VideoDaoImplTest.class.getClassLoader().getResource(TEST_VIDEO);
         URL metadataResource = VideoDaoImplTest.class.getClassLoader().getResource(TEST_METADATA);
@@ -51,9 +51,9 @@ class MetadataDaoImplTest {
         FileUtils.copyFile(new File(metadataResource.toURI()), testMetadataFile);
 
         //dao.saveMetadata(TEST_VIDEO, shouldBeMetadata);
-        Metadata readMetadata = dao.readMetadata(TEST_VIDEO);
+        VideoMetadata readVideoMetadata = dao.readMetadata(TEST_VIDEO);
 
-        assertThat(readMetadata).isEqualTo(shouldBeMetadata);
+        assertThat(readVideoMetadata).isEqualTo(shouldBeVideoMetadata);
     }
 
     @Test
@@ -65,12 +65,12 @@ class MetadataDaoImplTest {
 
     @Test
     void saveMetadata_correctSave() throws Exception {
-        Metadata shouldBeMetadata = new Metadata("Always", "Gonna", TAGS);
+        VideoMetadata shouldBeVideoMetadata = new VideoMetadata("Always", "Gonna", TAGS);
         File shouldBeMetadataFile =
                 new File(ExternalConfig.METADATA_STORE_PATH + File.separator + TEST_METADATA);
 
-        assertThat(dao.saveMetadata(TEST_VIDEO, shouldBeMetadata)).isEqualTo(TEST_VIDEO);
+        assertThat(dao.saveMetadata(TEST_VIDEO, shouldBeVideoMetadata)).isEqualTo(TEST_VIDEO);
         assertThat(shouldBeMetadataFile.exists()).isTrue();
-        assertThat(new ObjectMapper().readValue(shouldBeMetadataFile, Metadata.class)).isEqualTo(shouldBeMetadata);
+        assertThat(new ObjectMapper().readValue(shouldBeMetadataFile, VideoMetadata.class)).isEqualTo(shouldBeVideoMetadata);
     }
 }

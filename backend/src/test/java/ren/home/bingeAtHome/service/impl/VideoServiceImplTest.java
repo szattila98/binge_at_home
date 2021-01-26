@@ -15,17 +15,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpRange;
 import ren.home.bingeAtHome.dao.VideoDao;
 import ren.home.bingeAtHome.model.Video;
-import ren.home.bingeAtHome.service.exception.TrackMissingException;
 import ren.home.bingeAtHome.service.exception.VideoMissingException;
 import ren.home.bingeAtHome.util.ExternalConfig;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -33,9 +29,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @SpringBootTest
 class VideoServiceImplTest {
 
-    private static final String TEST_TRACK = "best_mp4_for_test.mp4-ENG.vtt";
     private static final String NON_EXISTENT_FILE = "no_such.file";
-    private static final File TEST_TRACK_FILE = new File(TEST_TRACK);
     private static String TEST_VIDEO;
     private static File TEST_VIDEO_FILE;
     private static UrlResource VIDEO_URL_RESOURCE;
@@ -128,40 +122,6 @@ class VideoServiceImplTest {
         Mockito.when(videoDao.findResourceByName(NON_EXISTENT_FILE)).thenThrow(new MalformedURLException());
 
         assertThatThrownBy(() -> videoService.prepareContent(NON_EXISTENT_FILE, null)).isInstanceOf(VideoMissingException.class);
-    }
-
-    @Test
-    void getTrackInfo_whenExistingVideo_thenThrowCorrectMap() throws Exception {
-        Map<String, String> expectedMap = new HashMap<>();
-        expectedMap.put("ENG", "best_mp4_for_test.mp4-ENG.vtt");
-
-        Mockito.when(videoDao.getVideoFile(TEST_VIDEO)).thenReturn(TEST_VIDEO_FILE);
-        Mockito.when(videoDao.getTrackFiles(TEST_VIDEO)).thenReturn(Lists.newArrayList(new File(TEST_TRACK)));
-
-        assertThat(videoService.getTrackInfo(TEST_VIDEO)).isEqualTo(expectedMap);
-    }
-
-    @Test
-    void getTrackInfo_whenNotExistingVideo_throwException() throws Exception {
-        Mockito.when(videoDao.getVideoFile(NON_EXISTENT_FILE)).thenThrow(new IOException());
-
-        assertThatThrownBy(() -> videoService.getTrackInfo(NON_EXISTENT_FILE)).isInstanceOf(VideoMissingException.class);
-    }
-
-    @Test
-    void getTrack_whenExistingTrack_thenCorrectTrackReturned() throws Exception {
-        Mockito.when(videoDao.readTrack(TEST_TRACK)).thenReturn(TEST_TRACK_FILE);
-
-        assertThat(videoService.getTrack(TEST_TRACK)).isEqualTo(TEST_TRACK_FILE);
-    }
-
-    @Test
-    void getTrack_whenNotExistingTrack_thenException() throws Exception {
-        String notExistsTrack = "no_such_track.vtt";
-
-        Mockito.when(videoDao.readTrack(notExistsTrack)).thenThrow(new IOException());
-
-        assertThatThrownBy(() -> videoService.getTrack(notExistsTrack)).isInstanceOf(TrackMissingException.class);
     }
 
 }

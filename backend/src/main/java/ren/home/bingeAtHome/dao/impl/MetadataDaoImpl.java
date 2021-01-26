@@ -3,7 +3,7 @@ package ren.home.bingeAtHome.dao.impl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Component;
 import ren.home.bingeAtHome.dao.MetadataDao;
-import ren.home.bingeAtHome.model.Metadata;
+import ren.home.bingeAtHome.model.VideoMetadata;
 import ren.home.bingeAtHome.util.ExternalConfig;
 
 import java.io.File;
@@ -24,16 +24,16 @@ public class MetadataDaoImpl implements MetadataDao {
      * {@inheritDoc}
      */
     @Override
-    public Metadata readMetadata(String videoName) throws IOException {
-        return mapper.readValue(new File(ExternalConfig.METADATA_STORE_PATH, videoName + METADATA_EXT), Metadata.class);
+    public VideoMetadata readMetadata(String videoName) throws IOException {
+        return mapper.readValue(new File(ExternalConfig.METADATA_STORE_PATH, videoName + METADATA_EXT), VideoMetadata.class);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public String saveMetadata(String videoName, Metadata metadata) throws IOException {
-        mapper.writeValue(new File(ExternalConfig.METADATA_STORE_PATH, videoName + METADATA_EXT), metadata);
+    public String saveMetadata(String videoName, VideoMetadata videoMetadata) throws IOException {
+        mapper.writeValue(new File(ExternalConfig.METADATA_STORE_PATH, videoName + METADATA_EXT), videoMetadata);
         return videoName;
     }
 }

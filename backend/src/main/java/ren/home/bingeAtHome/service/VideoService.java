@@ -3,15 +3,12 @@ package ren.home.bingeAtHome.service;
 import org.springframework.core.io.support.ResourceRegion;
 import org.springframework.http.HttpHeaders;
 import ren.home.bingeAtHome.model.Video;
-import ren.home.bingeAtHome.service.exception.TrackMissingException;
 import ren.home.bingeAtHome.service.exception.VideoMissingException;
 
-import java.io.File;
 import java.util.List;
-import java.util.Map;
 
 /**
- * Defines the basic operations of this application.
+ * Defines the basic operations with videos.
  *
  * @author Attila Szőke
  */
@@ -44,19 +41,4 @@ public interface VideoService {
      */
     ResourceRegion prepareContent(String videoName, HttpHeaders headers) throws VideoMissingException;
 
-    /**
-     * Returns a key,value pair of track names and their language.
-     *
-     * @param videoName the video name
-     * @return map of tracks
-     */
-    Map<String, String> getTrackInfo(String videoName) throws VideoMissingException;
-
-    /**
-     * Retrieves a track file.
-     *
-     * @param trackName name of the track file
-     * @return the track file
-     */
-    File getTrack(String trackName) throws TrackMissingException;
 }

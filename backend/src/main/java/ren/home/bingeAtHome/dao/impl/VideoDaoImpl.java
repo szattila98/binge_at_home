@@ -1,7 +1,6 @@
 package ren.home.bingeAtHome.dao.impl;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Component;
 import ren.home.bingeAtHome.dao.VideoDao;
@@ -23,8 +22,6 @@ import java.util.List;
  */
 @Component
 public class VideoDaoImpl implements VideoDao {
-
-    private static final String TRACK_REGEX = "-*.vtt";
 
     /**
      * {@inheritDoc}
@@ -52,25 +49,4 @@ public class VideoDaoImpl implements VideoDao {
         return new UrlResource("file:" + Paths.get(new File(ExternalConfig.VIDEO_STORE_PATH).getAbsolutePath(), resourceName).toString());
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<File> getTrackFiles(String videoName) {
-        return new ArrayList<>(FileUtils.listFiles(
-                new File(ExternalConfig.TRACK_STORE_PATH),
-                new WildcardFileFilter(videoName + TRACK_REGEX),
-                null
-        ));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public File readTrack(String trackName) throws IOException {
-        File track = new File(ExternalConfig.TRACK_STORE_PATH, trackName);
-        if (!track.exists()) throw new IOException();
-        return track;
-    }
 }

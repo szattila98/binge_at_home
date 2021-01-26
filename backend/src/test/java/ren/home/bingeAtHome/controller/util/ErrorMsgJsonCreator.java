@@ -1,4 +1,4 @@
-package ren.home.bingeAtHome.controller.impl.util;
+package ren.home.bingeAtHome.controller.util;
 
 import ren.home.bingeAtHome.controller.handlers.WebRestControllerAdvice;
 
