@@ -1,8 +1,18 @@
 [package]
 name = "binge_at_home"
 version = "0.1.0"
-edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[workspace]
+members = ["api", "core", "domain"]
+
+[workspace.package]
+edition = "2021"
+authors = ["Attila Szőke"]
+readme = "./README.md"
+repository = "https://github.com/szattila98/binge_at_home"
+license = "MIT"
+
+[workspace.dependencies]
 
 [dependencies]
+api = { path = "./api" }
