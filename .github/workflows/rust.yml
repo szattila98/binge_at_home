@@ -1,0 +1,100 @@
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["**"]
+    types: [opened, synchronize]
+    paths:
+      - "server/**"
+  workflow_dispatch:
+
+name: Rust CI
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  check:
+    name: Server Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+
+      - name: Setup rust cache
+        uses: Swatinem/rust-cache@v2.2.0
+        with:
+          shared-key: whooosh
+          workspaces: server
+
+      - name: Run cargo check
+        uses: actions-rs/cargo@v1
+        with:
+          command: check
+          args: --manifest-path server/Cargo.toml
+
+  test:
+    name: Server Test Suite
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+
+      - name: Setup rust cache
+        uses: Swatinem/rust-cache@v2.2.0
+        with:
+          shared-key: whooosh
+          workspaces: server
+
+      - name: Run tests
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --workspace --manifest-path server/Cargo.toml
+
+  lints:
+    name: Server Lints
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+          components: rustfmt, clippy
+
+      - name: Setup rust cache
+        uses: Swatinem/rust-cache@v2.2.0
+        with:
+          shared-key: whooosh
+          workspaces: server
+
+      - name: Run cargo fmt
+        uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: --all --manifest-path server/Cargo.toml -- --check
+
+      - name: Run cargo clippy
+        uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: --manifest-path server/Cargo.toml -- -D warnings
