@@ -1,3 +1,4 @@
+just
 cargo
 node
 yarn3
