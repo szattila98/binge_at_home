@@ -1,0 +1,22 @@
+version: '3.9'
+
+services:
+  server:
+    container_name: binge-at-home-server
+    build:
+      context: ./server
+      dockerfile: ../docker/server/Dockerfile
+    ports:
+      - "8000:8000"
+
+  client:
+    container_name: binge-at-home-client
+    build:
+      context: ./client
+      dockerfile: ../docker/client/Dockerfile
+    ports:
+      - "4000:4000"
+    environment:
+      - PORT=4000
+    depends_on:
+      - server
