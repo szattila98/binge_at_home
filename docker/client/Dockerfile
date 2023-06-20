@@ -1,4 +1,4 @@
-FROM node:20.2.0-bullseye-slim as builder
+FROM node:20.2.0-alpine as builder
 
 WORKDIR /app
 COPY . ./
@@ -6,7 +6,7 @@ COPY . ./
 RUN npm ci --no-audit
 RUN npm run build
 
-FROM node:20.2.0-bullseye-slim
+FROM node:20.2.0-alpine
 
 WORKDIR /app
 

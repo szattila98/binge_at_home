@@ -1,0 +1,43 @@
+name: Vue
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "client/**"
+  pull_request:
+    branches: ["**"]
+    types: [opened, synchronize]
+    paths:
+      - "client/**"
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build and Check Client
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./client
+
+    strategy:
+      matrix:
+        node-version: [20.x]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check Styling
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
