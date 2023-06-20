@@ -39,3 +39,19 @@ install-cargo-tooling:
 setup-cocogitto-hook:
     # Cocogitto hook for pre-push
     cog install-hook pre-push
+
+docker-start-all:
+    # Starting client and dependencies in docker-compose
+    docker-compose up -d --build
+
+docker-start-server:
+    # Starting server and dependencies in docker-compose
+    docker-compose up server -d --build
+
+docker-start-dev:
+    # Starting development services (database)
+    docker-compose up database -d --build
+
+docker-stop:
+    # Stopping docker-compose environment
+    docker-compose down
