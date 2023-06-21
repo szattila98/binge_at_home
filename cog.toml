@@ -1,17 +1,24 @@
 from_latest_tag = false
-ignore_merge_commits = false
-branch_whitelist = []
+ignore_merge_commits = true
+branch_whitelist = ["main"]
 pre_bump_hooks = []
 post_bump_hooks = []
-pre_package_bump_hooks = []
-post_package_bump_hooks = []
 
 [commit_types]
 
 [changelog]
 path = "CHANGELOG.md"
-authors = []
+template = "remote"
+remote = "github.com"
+repository = "binge_at_home"
+owner = "szattila98"
+authors = [
+    { username = "szattila98", signature = "Attila Szőke" },
+    { username = "doleance", signature = "doleance" },
+]
 
 [bump_profiles]
 
 [packages]
+client = { path = "client", pre_bump_hooks = [ "npm version {{version}}" ] }
+server = { path = "server", pre_bump_hooks = [ "cargo set-version {{version}}" ] }
