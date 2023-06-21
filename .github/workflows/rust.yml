@@ -47,6 +47,7 @@ jobs:
   test:
     name: Server Test Suite
     runs-on: ubuntu-latest
+    needs: check
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3
@@ -73,6 +74,7 @@ jobs:
   lints:
     name: Server Lints
     runs-on: ubuntu-latest
+    needs: check
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3
