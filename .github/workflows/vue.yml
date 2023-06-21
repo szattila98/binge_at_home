@@ -36,8 +36,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Check Styling
+      - name: Check styling
         run: npm run lint
+
+      - name: Check type safety
+        run: npm run typecheck
 
       - name: Build
         run: npm run build
