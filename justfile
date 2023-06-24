@@ -55,3 +55,7 @@ docker-start-dev:
 docker-stop:
     # Stopping docker-compose environment
     docker-compose down
+
+lint-server-seriously:
+    # Scanning server files with pedantic and nursery clippy rules
+    @cd server && cargo clippy -- -W clippy::pedantic -W clippy::nursery -W clippy::unwrap_used
