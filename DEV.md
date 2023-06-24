@@ -1,15 +1,12 @@
-just
-cargo
 node
-yarn3
-docker
-docker compose
-
-opcionális
+cargo
+docker-compose
+yarn
 volta
 
-cargo plugin
-cargo-edit
+cargo-watch
 cargo-audit
-cocogitto
 cargo-llvm-cov
+cargo-edit
+sqlx-cli
+cocogitto

@@ -22,3 +22,9 @@ authors = [
 [packages]
 client = { path = "client", pre_bump_hooks = [ "npm version {{version}}" ] }
 server = { path = "server", pre_bump_hooks = [ "cargo set-version {{version}}" ] }
+
+[git_hooks.pre-push]
+script = """#!/bin/sh
+set -e
+cog check
+"""
