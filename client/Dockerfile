@@ -13,8 +13,10 @@ WORKDIR /app
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/.output ./
 
+RUN apk add dumb-init
+
 # clean install dependencies, no devDependencies, no prepare script
 RUN npm ci --omit=dev --ignore-scripts --no-audit --loglevel verbose
 
 EXPOSE 3000
-CMD ["node", "./server/index.mjs"]
+ENTRYPOINT ["dumb-init", "node", "./server/index.mjs"]
