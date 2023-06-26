@@ -2,6 +2,7 @@
   "recommendations": [
     "vue.volar",
     "rust-lang.rust-analyzer",
-    "github.vscode-github-actions"
+    "github.vscode-github-actions",
+    "vadimcn.vscode-lldb"
   ]
 }
