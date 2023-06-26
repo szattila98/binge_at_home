@@ -1,4 +1,4 @@
-name: Vue
+name: Client
 
 on:
   push:
