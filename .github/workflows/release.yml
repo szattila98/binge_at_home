@@ -23,13 +23,10 @@ jobs:
           git config --global user.name github-actions
 
       - name: Install stable toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
+        uses: dtolnay/rust-toolchain@stable
 
       - name: Install cargo-edit
-        uses: baptiste0928/cargo-install@v2
+        uses: dtolnay/install@master
         with:
           crate: cargo-edit
 
