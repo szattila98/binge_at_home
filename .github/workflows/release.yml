@@ -12,6 +12,13 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
+      - name: Wait on client checks
+        uses: lewagon/wait-on-check-action@master
+        with:
+          ref: ${{ github.sha }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          running-workflow-name: Conventional commits
+
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
@@ -37,7 +44,7 @@ jobs:
 
       - name: Bump
         id: release
-        uses: cocogitto/cocogitto-action@v3.4
+        uses: cocogitto/cocogitto-action@main
         with:
           check-latest-tag-only: true
           release: true
