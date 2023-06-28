@@ -1,5 +1,3 @@
-volta
-
 # General dev setup
 
 ## Prerequisites
