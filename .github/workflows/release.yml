@@ -33,7 +33,7 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
 
       - name: Install cargo-edit
-        uses: dtolnay/install@master
+        uses: baptiste0928/cargo-install@v2
         with:
           crate: cargo-edit
 
