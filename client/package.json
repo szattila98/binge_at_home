@@ -1,5 +1,6 @@
 {
   "name": "binge-at-home",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
     "build": "nuxt build",
@@ -31,6 +32,5 @@
   "volta": {
     "node": "20.3.1",
     "npm": "9.7.2"
-  },
-  "version": "0.1.0"
+  }
 }
