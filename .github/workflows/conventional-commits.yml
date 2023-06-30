@@ -17,14 +17,14 @@ jobs:
         with:
           ref: ${{ github.sha }}
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-          running-workflow-name: Client
+          check-name: "Build and Check Client (20.x)"
 
       - name: Wait on server checks
         uses: lewagon/wait-on-check-action@master
         with:
           ref: ${{ github.sha }}
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-          running-workflow-name: Server
+          check-name: "Server Test Suite"
 
       - uses: actions/checkout@v3
         with:
