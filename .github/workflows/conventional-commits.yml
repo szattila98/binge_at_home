@@ -12,23 +12,10 @@ jobs:
     runs-on: ubuntu-latest
     name: Check conventional commit compliance
     steps:
-      - name: Wait on client checks
-        uses: lewagon/wait-on-check-action@master
-        with:
-          ref: ${{ github.sha }}
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          check-name: "Build and Check Client (20.x)"
-
-      - name: Wait on server checks
-        uses: lewagon/wait-on-check-action@master
-        with:
-          ref: ${{ github.sha }}
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          check-name: "Server Test Suite"
-
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      - name: Conventional commit check
+      - name: Check commits
         uses: cocogitto/cocogitto-action@main
