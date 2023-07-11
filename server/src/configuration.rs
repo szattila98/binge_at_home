@@ -113,7 +113,7 @@ impl LogFile {
 fn create_config_template(config_path: &PathBuf) -> Result<(), anyhow::Error> {
     let config_template = yaml::template::<Configuration>(FormatOptions::default());
     let parent_dir = config_path.parent().unwrap_or(Path::new("."));
-    create_dir_all(&parent_dir)
+    create_dir_all(parent_dir)
         .with_context(|| format!("could not create directories: '{}'", parent_dir.display()))?;
     let mut file = OpenOptions::new()
         .write(true)
