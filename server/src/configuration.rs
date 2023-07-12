@@ -57,7 +57,7 @@ impl Configuration {
             Err(e) => match e {
                 env::VarError::NotPresent => PathBuf::from("./config/app.yml"),
                 env::VarError::NotUnicode(path) => {
-                    bail!("invalid CONFIG_PATH environmental variable: '{path:?}'")
+                    bail!("invalid CONFIG_PATH environmental variable, not unicode character found: '{path:?}'")
                 }
             },
         };
