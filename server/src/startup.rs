@@ -3,10 +3,10 @@ use std::net::SocketAddr;
 use axum::{Router, Server};
 use tokio::signal;
 
-use anyhow::{bail, Context};
+use anyhow::Context;
 use tracing::info;
 
-use crate::{configuration::Configuration, logging::is_logging_initialized};
+use crate::{configuration::Configuration, logging::Logger};
 
 pub struct Application {
     configuration: Configuration,
@@ -14,7 +14,7 @@ pub struct Application {
 }
 
 impl Application {
-    pub fn new(configuration: Configuration, router: Router) -> Self {
+    pub fn new(configuration: Configuration, router: Router, _: Logger) -> Self {
         Self {
             configuration,
             router,
@@ -22,10 +22,6 @@ impl Application {
     }
 
     pub async fn run_until_stopped(self) -> anyhow::Result<()> {
-        if !is_logging_initialized() {
-            bail!("logging should be initialized to run server");
-        }
-
         let server_address = SocketAddr::new(self.configuration.host(), self.configuration.port());
         info!("Starting server on {}...", server_address);
         Server::bind(&server_address)

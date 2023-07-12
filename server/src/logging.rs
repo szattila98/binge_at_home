@@ -1,4 +1,4 @@
-use std::str::FromStr;
+use std::{marker::PhantomData, str::FromStr};
 
 use anyhow::{bail, Context};
 use tracing::Level;
@@ -8,7 +8,19 @@ use tracing_subscriber::{
 
 use crate::configuration::Configuration;
 
-pub fn init(config: &Configuration) -> anyhow::Result<()> {
+pub struct Logger {
+    _no_constructor: PhantomData<Logger>,
+}
+
+impl Logger {
+    pub fn new() -> Self {
+        Self {
+            _no_constructor: PhantomData,
+        }
+    }
+}
+
+pub fn init(config: &Configuration) -> anyhow::Result<Logger> {
     let log_level =
         Level::from_str(config.logging().level()).context("log level could not be parsed")?;
 
@@ -64,9 +76,5 @@ pub fn init(config: &Configuration) -> anyhow::Result<()> {
     {
         bail!("logger could not be initialized: {e}")
     };
-    Ok(())
-}
-
-pub fn is_logging_initialized() -> bool {
-    tracing_subscriber::fmt().try_init().is_err()
+    Ok(Logger::new())
 }

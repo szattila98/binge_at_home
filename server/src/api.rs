@@ -1,14 +1,9 @@
-use anyhow::bail;
 use axum::{routing::get, Router};
 use tracing::debug;
 
-use crate::logging::is_logging_initialized;
+use crate::logging::Logger;
 
-pub fn init_router() -> anyhow::Result<Router> {
-    if !is_logging_initialized() {
-        bail!("logging should be initialized to create a router");
-    }
-
+pub fn init_router(_: &Logger) -> anyhow::Result<Router> {
     let router = Router::new().route(
         "/",
         get(|| async {
