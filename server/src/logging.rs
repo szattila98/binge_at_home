@@ -12,14 +12,6 @@ pub struct Logger {
     _no_constructor: PhantomData<Logger>,
 }
 
-impl Logger {
-    pub fn new() -> Self {
-        Self {
-            _no_constructor: PhantomData,
-        }
-    }
-}
-
 pub fn init(config: &Configuration) -> anyhow::Result<Logger> {
     let log_level =
         Level::from_str(config.logging().level()).context("log level could not be parsed")?;
@@ -76,5 +68,7 @@ pub fn init(config: &Configuration) -> anyhow::Result<Logger> {
     {
         bail!("logger could not be initialized: {e}")
     };
-    Ok(Logger::new())
+    Ok(Logger {
+        _no_constructor: PhantomData,
+    })
 }
