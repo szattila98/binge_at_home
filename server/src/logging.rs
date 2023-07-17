@@ -13,6 +13,8 @@ pub struct Logger {
 }
 
 pub fn init(config: &Configuration) -> anyhow::Result<Logger> {
+    // TODO optional pretty print
+
     let log_level =
         Level::from_str(config.logging().level()).context("log level could not be parsed")?;
 
