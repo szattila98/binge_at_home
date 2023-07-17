@@ -34,9 +34,12 @@
     clippy::wildcard_imports
 )]
 
+use std::net::SocketAddr;
+
 use binge_at_home::{
     api::init_router,
     configuration::Configuration,
+    database::init_database,
     logging::{self},
     startup::Application,
 };
@@ -46,10 +49,15 @@ use tracing::{debug, info};
 async fn main() -> anyhow::Result<()> {
     let config = Configuration::load()?;
     let logger = logging::init(&config)?;
-    info!("loaded config and intialized logging");
+    let address = SocketAddr::new(config.host(), config.port());
+    info!("loaded config and initialized logging");
     debug!("{config:#?}");
-    let router = init_router(&logger)?;
+    info!("connecting to database...");
+    let database = init_database(&config).await?;
+    info!("connected to database");
+    info!("initializing router...");
+    let router = init_router(config, database, &logger)?;
     info!("initialized router");
-    let app = Application::new(config, router, logger);
+    let app = Application::new(address, router, logger);
     app.run_until_stopped().await
 }

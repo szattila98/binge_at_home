@@ -6,25 +6,21 @@ use tokio::signal;
 use anyhow::Context;
 use tracing::info;
 
-use crate::{configuration::Configuration, logging::Logger};
+use crate::logging::Logger;
 
 pub struct Application {
-    configuration: Configuration,
+    address: SocketAddr,
     router: Router,
 }
 
 impl Application {
-    pub fn new(configuration: Configuration, router: Router, _: Logger) -> Self {
-        Self {
-            configuration,
-            router,
-        }
+    pub fn new(address: SocketAddr, router: Router, _: Logger) -> Self {
+        Self { address, router }
     }
 
     pub async fn run_until_stopped(self) -> anyhow::Result<()> {
-        let server_address = SocketAddr::new(self.configuration.host(), self.configuration.port());
-        info!("Starting server on {}...", server_address);
-        Server::bind(&server_address)
+        info!("Starting server on {}...", &self.address);
+        Server::bind(&self.address)
             .serve(self.router.into_make_service())
             .with_graceful_shutdown(shutdown_signal())
             .await

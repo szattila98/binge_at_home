@@ -25,6 +25,9 @@ pub struct Configuration {
     /// Logging configuration options.
     #[config(nested)]
     logging: Logging,
+    /// Database configuration options.
+    #[config(nested)]
+    database: Database,
 }
 
 #[derive(Debug, Config, Deserialize)]
@@ -48,6 +51,13 @@ pub struct LogFile {
     /// A separate log file in the configured parent directory, that will have debug level logging. Useful for development.
     #[config(default = false)]
     separate_debug_file: bool,
+}
+
+#[derive(Debug, Config, Deserialize)]
+pub struct Database {
+    /// The url of the postgres the data source.
+    #[config(env = "DATABASE_URL")]
+    url: String,
 }
 
 impl Configuration {
@@ -84,6 +94,10 @@ impl Configuration {
     pub fn logging(&self) -> &Logging {
         &self.logging
     }
+
+    pub fn database(&self) -> &Database {
+        &self.database
+    }
 }
 
 impl Logging {
@@ -107,6 +121,12 @@ impl LogFile {
 
     pub fn separate_debug_file(&self) -> bool {
         self.separate_debug_file
+    }
+}
+
+impl Database {
+    pub fn url(&self) -> &str {
+        self.url.as_ref()
     }
 }
 
