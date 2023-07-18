@@ -2,6 +2,23 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## [0.2.0](https://github.com/szattila98/binge_at_home/compare/0.1.0..0.2.0) - 2023-07-18
+### Package updates
+- [server](server) bumped to [server-0.1.0](https://github.com/szattila98/binge_at_home/compare/2399c6f6a128d954c6644f190614d3fee1f507a4..server-0.1.0)
+- [client](client) bumped to [client-0.1.0](https://github.com/szattila98/binge_at_home/compare/2399c6f6a128d954c6644f190614d3fee1f507a4..client-0.1.0)
+### Global changes
+#### Continuous Integration
+- **(client)** fixed npm versioning to allow same version if client not changed - ([adf034c](https://github.com/szattila98/binge_at_home/commit/adf034c2ba7b1f16dedfd9951a388d269a5b7704)) - [@szattila98](https://github.com/szattila98)
+- removed waiting on client and server checks as they might not run and fail the build - ([76e785b](https://github.com/szattila98/binge_at_home/commit/76e785b07367ef8a9fbd7e203abfa932f5a84066)) - [@szattila98](https://github.com/szattila98)
+#### Features
+- **(server)** implemented connecting to database - ([0b920a4](https://github.com/szattila98/binge_at_home/commit/0b920a412fe7f801e783729769971fea8c0dfa9e)) - [@szattila98](https://github.com/szattila98)
+- **(server)** added postgres database to compose file - ([034a307](https://github.com/szattila98/binge_at_home/commit/034a3077a8fbca4f40d98efb658af467db19aeb5)) - [@szattila98](https://github.com/szattila98)
+- **(server)** Application frame added - ([e6298cb](https://github.com/szattila98/binge_at_home/commit/e6298cb365cca854af7a57b5719b0ac3096fde18)) - [@szattila98](https://github.com/szattila98)
+#### Miscellaneous Chores
+- extended postman collection - ([043ccea](https://github.com/szattila98/binge_at_home/commit/043ccea7102134368eb648a84458bd0902523d43)) - [@doleance](https://github.com/doleance)
+
+- - -
+
 ## [0.1.0](https://github.com/szattila98/binge_at_home/compare/2399c6f6a128d954c6644f190614d3fee1f507a4..0.1.0) - 2023-06-30
 ### Package updates
 - [client](client) bumped to [client-0.1.0](https://github.com/szattila98/binge_at_home/compare/2399c6f6a128d954c6644f190614d3fee1f507a4..client-0.1.0)
