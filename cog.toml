@@ -22,8 +22,8 @@ authors = [
 [bump_profiles]
 
 [packages]
-client = { path = "client", pre_bump_hooks = [ "npm ci", "npm version {{version}}", "npm run build" ] }
-server = { path = "server", pre_bump_hooks = [ "cargo set-version {{version}}", "cargo build --release" ] }
+client = { path = "client", pre_bump_hooks = [ "npm ci", "npm version {{version}} --allow-same-version" ] }
+server = { path = "server", pre_bump_hooks = [ "cargo set-version {{version}}" ] }
 
 [git_hooks.pre-push]
 script = """#!/bin/sh
