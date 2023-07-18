@@ -17,6 +17,29 @@ All notable changes to this project will be documented in this file. See [conven
 - **(server)** Application frame added - (e6298cb) - *szattila98*
 - **(server)** server init - (947a5ee) - *szattila98*
 #### Miscellaneous Chores
+- **(version)** 0.2.0 - (1a1e1cd) - github-actions
+- **(version)** 0.1.0 - (4c7923f) - github-actions
+- Moved around dockerfiles and made some client optimizations with dumb-init - (51ac863) - szattila98
+#### Style
+- **(server)** more clippy rules added - (0843a12) - *szattila98*
+
+- - -
+
+## server-0.1.0 - 2023-07-18
+#### Bug Fixes
+- **(server)** clippy fixes - (791c8fd) - *szattila98*
+#### Continuous Integration
+- removed waiting on client and server checks as they might not run and fail the build - (76e785b) - szattila98
+- npm ci fix in cog pre-bumb - (6e0fe6a) - szattila98
+- Release fix - (2e6f21b) - szattila98
+- Action run commits - (4b83a78) - szattila98
+#### Features
+- **(server)** implemented connecting to database - (0b920a4) - *szattila98*
+- **(server)** added postgres database to compose file - (034a307) - *szattila98*
+- **(server)** compile time check for logger initialization - (2bf3d82) - *szattila98*
+- **(server)** Application frame added - (e6298cb) - *szattila98*
+- **(server)** server init - (947a5ee) - *szattila98*
+#### Miscellaneous Chores
 - **(version)** 0.1.0 - (4c7923f) - github-actions
 - Moved around dockerfiles and made some client optimizations with dumb-init - (51ac863) - szattila98
 #### Style

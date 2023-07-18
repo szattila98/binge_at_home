@@ -2,6 +2,16 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## [0.3.0](https://github.com/szattila98/binge_at_home/compare/0.2.0..0.3.0) - 2023-07-18
+### Package updates
+- [server](server) bumped to [server-0.1.0](https://github.com/szattila98/binge_at_home/compare/2399c6f6a128d954c6644f190614d3fee1f507a4..server-0.1.0)
+- [client](client) bumped to [client-0.1.0](https://github.com/szattila98/binge_at_home/compare/2399c6f6a128d954c6644f190614d3fee1f507a4..client-0.1.0)
+### Global changes
+#### Continuous Integration
+- **(client,server)** fixed pushing package tags for ci - ([0cd02ed](https://github.com/szattila98/binge_at_home/commit/0cd02ed1e8e9d2ec16d2e4afe79e94b1d1feffd9)) - [@szattila98](https://github.com/szattila98)
+
+- - -
+
 ## [0.2.0](https://github.com/szattila98/binge_at_home/compare/0.1.0..0.2.0) - 2023-07-18
 ### Package updates
 - [server](server) bumped to [server-0.1.0](https://github.com/szattila98/binge_at_home/compare/2399c6f6a128d954c6644f190614d3fee1f507a4..server-0.1.0)

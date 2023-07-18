@@ -6,6 +6,32 @@ All notable changes to this project will be documented in this file. See [conven
 #### Bug Fixes
 - **(client)** changelog prettier ignore - (c6bc233) - *szattila98*
 #### Continuous Integration
+- **(client,server)** fixed pushing package tags for ci - (0cd02ed) - *szattila98*
+- removed waiting on client and server checks as they might not run and fail the build - (76e785b) - szattila98
+- npm ci fix in cog pre-bumb - (6e0fe6a) - szattila98
+- Release fix - (2e6f21b) - szattila98
+- Action run commits - (4b83a78) - szattila98
+- cocogitto action setup - (0fd1f00) - szattila98
+- basic pipeline setup - (8096e6b) - szattila98
+#### Features
+- **(client)** added typed routes module and typescript type checking - (9c43f91) - *szattila98*
+- **(client)** npm config - (da2d673) - *szattila98*
+- **(client)** client init - (ac56914) - *doleance*
+#### Miscellaneous Chores
+- **(version)** 0.2.0 - (1a1e1cd) - github-actions
+- **(version)** 0.1.0 - (4c7923f) - github-actions
+- added windows specific prettier rule - (d8dc366) - doleance
+- Moved around dockerfiles and made some client optimizations with dumb-init - (51ac863) - szattila98
+- dockerization - (c686f53) - szattila98
+#### Style
+- **(client)** Added prettier and eslint configs - (9f59cd0) - *szattila98*
+
+- - -
+
+## client-0.1.0 - 2023-07-18
+#### Bug Fixes
+- **(client)** changelog prettier ignore - (c6bc233) - *szattila98*
+#### Continuous Integration
 - removed waiting on client and server checks as they might not run and fail the build - (76e785b) - szattila98
 - npm ci fix in cog pre-bumb - (6e0fe6a) - szattila98
 - Release fix - (2e6f21b) - szattila98
