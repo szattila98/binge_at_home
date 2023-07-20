@@ -1,9 +1,9 @@
 use anyhow::Context;
 use sqlx::{postgres::PgPoolOptions, PgPool};
 
-use crate::configuration::Configuration;
+use crate::{configuration::Configuration, logging::Logger};
 
-pub async fn init_database(config: &Configuration) -> anyhow::Result<PgPool> {
+pub async fn init_database(config: &Configuration, _: &Logger) -> anyhow::Result<PgPool> {
     let url = config.database().url();
     let pool = PgPoolOptions::new()
         .connect(url)

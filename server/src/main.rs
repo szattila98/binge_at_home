@@ -53,7 +53,7 @@ async fn main() -> anyhow::Result<()> {
     info!("loaded config and initialized logging");
     debug!("{config:#?}");
     info!("connecting to database...");
-    let database = init_database(&config).await?;
+    let database = init_database(&config, &logger).await?;
     info!("connected to database");
     info!("initializing router...");
     let router = init_router(config, database, &logger)?;
