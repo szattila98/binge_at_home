@@ -2,8 +2,10 @@ version: '3.9'
 
 services:
   database:
-    container_name: database
-    image: postgres
+    container_name: binge-at-home-database
+    build:
+      context: ./database
+      dockerfile: Dockerfile
     environment:
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=password
