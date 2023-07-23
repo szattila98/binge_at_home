@@ -1,9 +1,11 @@
 use std::net::SocketAddr;
 
-use axum::{Router, Server};
+use axum::{Router, Server, ServiceExt};
 use tokio::signal;
 
 use anyhow::Context;
+use tower::Layer;
+use tower_http::normalize_path::NormalizePathLayer;
 use tracing::info;
 
 use crate::logging::Logger;
@@ -21,7 +23,11 @@ impl Application {
     pub async fn run_until_stopped(self) -> anyhow::Result<()> {
         info!("Starting server on {}...", &self.address);
         Server::bind(&self.address)
-            .serve(self.router.into_make_service())
+            .serve(
+                NormalizePathLayer::trim_trailing_slash()
+                    .layer(self.router)
+                    .into_make_service(),
+            )
             .with_graceful_shutdown(shutdown_signal())
             .await
             .context("server failed to initialize")?;
