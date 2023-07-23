@@ -1,0 +1,46 @@
+# Host to bind to.
+#
+# Can also be specified via environment variable `HOST`.
+#
+# Default value: 0.0.0.0
+host: 0.0.0.0
+
+# Port to listen on.
+#
+# Can also be specified via environment variable `PORT`.
+#
+# Default value: 8080
+port: 8080
+
+# Logging configuration options.
+logging:
+  # Log level. An integer between 1-5 or the level as a string.
+  #
+  # Default value: info
+  level: debug
+
+  # File logging configuration.
+  file:
+    # The parent directory of the log file.
+    #
+    # Default value: logs
+    dir: logs
+
+    # The name of the log file. A date will be appended to the end of it.
+    #
+    # Default value: app.log
+    name: app.log
+
+    # A separate log file in the configured parent directory, that will have debug level logging. Useful for development.
+    #
+    # Default value: false
+    separate_debug_file: false
+
+# Database configuration options.
+database:
+  # The url of the postgres the data source.
+  #
+  # Can also be specified via environment variable `DATABASE_URL`.
+  #
+  # Required! This value must be specified.
+  url: postgresql://binge:password@binge-at-home-database:5432/binge-at-home
