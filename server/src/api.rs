@@ -19,7 +19,7 @@ use tower_http::{
     trace::{DefaultOnFailure, DefaultOnRequest, DefaultOnResponse, TraceLayer},
     LatencyUnit, ServiceBuilderExt,
 };
-use tracing::Level;
+use tracing::{info, instrument, Level};
 
 use crate::{configuration::Configuration, logging::Logger};
 
@@ -56,16 +56,17 @@ pub fn init_router(config: Configuration, database: PgPool, _: &Logger) -> anyho
     let request_timeout = Duration::from_secs(30);
 
     let middlewares = ServiceBuilder::new()
-        .set_x_request_id(MakeRequestUuid::default())
+        .set_x_request_id(MakeRequestUuid)
         .layer(
             TraceLayer::new_for_http()
                 .make_span_with(|request: &Request<Body>| {
+                    let method = request.method().as_ref();
                     let request_id = request
                         .headers()
                         .get(REQUEST_ID_HEADER)
                         .map(|value| value.to_str().unwrap_or(MISSING_REQUEST_ID))
                         .unwrap_or(MISSING_REQUEST_ID);
-                    tracing::info_span!("http", request_id)
+                    tracing::info_span!("http", method, request_id)
                 })
                 .on_request(DefaultOnRequest::new().level(traffic_log_level))
                 .on_response(
@@ -101,8 +102,9 @@ pub fn init_router(config: Configuration, database: PgPool, _: &Logger) -> anyho
     Ok(router)
 }
 
-// TODO instrument
+#[instrument]
 async fn health_check() -> &'static str {
+    info!("health check called, service is healthy");
     "I am healthy!"
 }
 
