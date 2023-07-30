@@ -3,38 +3,38 @@
 # Can also be specified via environment variable `HOST`.
 #
 # Default value: 0.0.0.0
-host: 0.0.0.0
+#host: 0.0.0.0
 
 # Port to listen on.
 #
 # Can also be specified via environment variable `PORT`.
 #
 # Default value: 8080
-port: 8080
+#port: 8080
 
 # Logging configuration options.
 logging:
   # Log level. An integer between 1-5 or the level as a string.
   #
   # Default value: info
-  level: debug
+  #level: info
 
   # File logging configuration.
   file:
     # The parent directory of the log file.
     #
     # Default value: logs
-    dir: logs
+    #dir: logs
 
     # The name of the log file. A date will be appended to the end of it.
     #
     # Default value: app.log
-    name: app.log
+    #name: app.log
 
     # A separate log file in the configured parent directory, that will have debug level logging. Useful for development.
     #
     # Default value: false
-    separate_debug_file: false
+    #separate_debug_file: false
 
 # Database configuration options.
 database:
@@ -44,3 +44,20 @@ database:
   #
   # Required! This value must be specified.
   url: postgresql://binge:password@binge-at-home-database:5432/binge-at-home
+
+# Server middleware configuration options.
+middlewares:
+  # The request body size limit in bytes.
+  #
+  # Default value: 4096
+  #body_size_limit: 4096
+
+  # The CORS policy for allowed origins.
+  #
+  # Default value: ['*']
+  #allowed_origins: ['*']
+
+  # The number of seconds after the request handling will timeout.
+  #
+  # Default value: 30
+  #request_timeout: 30

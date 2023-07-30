@@ -4,15 +4,18 @@ use std::{
     io::Write,
     net::IpAddr,
     path::{Path, PathBuf},
+    time::Duration,
 };
 
 use anyhow::{bail, Context};
+use axum::http::HeaderValue;
 use serde::Deserialize;
 
 use confique::{
     yaml::{self, FormatOptions},
     Config,
 };
+use tower_http::cors::AllowOrigin;
 
 #[derive(Debug, Config)]
 pub struct Configuration {
@@ -28,6 +31,9 @@ pub struct Configuration {
     /// Database configuration options.
     #[config(nested)]
     database: Database,
+    /// Server middleware configuration options.
+    #[config(nested)]
+    middlewares: Middlewares,
 }
 
 #[derive(Debug, Config, Deserialize)]
@@ -58,6 +64,19 @@ pub struct Database {
     /// The url of the postgres the data source.
     #[config(env = "DATABASE_URL")]
     url: String,
+}
+
+#[derive(Debug, Config, Deserialize)]
+pub struct Middlewares {
+    /// The request body size limit in bytes.
+    #[config(default = 4096)]
+    body_size_limit: usize,
+    /// The CORS policy for allowed origins.
+    #[config(default = ["*"])]
+    allowed_origins: Vec<String>,
+    /// The number of seconds after the request handling will timeout.
+    #[config(default = 30)]
+    request_timeout: u64,
 }
 
 impl Configuration {
@@ -98,6 +117,10 @@ impl Configuration {
     pub fn database(&self) -> &Database {
         &self.database
     }
+
+    pub fn middlewares(&self) -> &Middlewares {
+        &self.middlewares
+    }
 }
 
 impl Logging {
@@ -130,9 +153,35 @@ impl Database {
     }
 }
 
+impl Middlewares {
+    pub fn body_size_limit(&self) -> usize {
+        self.body_size_limit
+    }
+
+    pub fn allowed_origins(&self) -> anyhow::Result<AllowOrigin> {
+        if self.allowed_origins.contains(&"*".to_string()) {
+            return Ok(AllowOrigin::any());
+        }
+
+        let parsed: anyhow::Result<Vec<HeaderValue>> = self
+            .allowed_origins
+            .iter()
+            .map(|origin| {
+                HeaderValue::from_str(origin).map_err(|_| anyhow::anyhow!("cannot be parsed"))
+            })
+            .collect();
+
+        Ok(AllowOrigin::list(parsed?))
+    }
+
+    pub fn request_timeout(&self) -> Duration {
+        Duration::from_secs(self.request_timeout)
+    }
+}
+
 fn create_config_template(config_path: &PathBuf) -> Result<(), anyhow::Error> {
     let config_template = yaml::template::<Configuration>(FormatOptions::default());
-    let parent_dir = config_path.parent().unwrap_or(Path::new("."));
+    let parent_dir = config_path.parent().unwrap_or_else(|| Path::new("."));
     create_dir_all(parent_dir)
         .with_context(|| format!("could not create directories: '{}'", parent_dir.display()))?;
     let mut file = OpenOptions::new()

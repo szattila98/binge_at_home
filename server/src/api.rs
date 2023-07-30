@@ -1,4 +1,4 @@
-use std::{any::Any, sync::Arc, time::Duration};
+use std::{any::Any, sync::Arc};
 
 use axum::{
     body::Body,
@@ -41,56 +41,55 @@ impl AppState {
     }
 }
 
+// TODO extract layer adding to functions
 pub fn init_router(config: Configuration, database: PgPool, _: &Logger) -> anyhow::Result<Router> {
-    let state = AppState::new(config, database);
+    let latency_unit = LatencyUnit::Micros;
+    let http_tracing = TraceLayer::new_for_http()
+        .make_span_with(|request: &Request<Body>| {
+            let path = request.uri().path();
+            let method = request.method().as_ref();
+            let request_id = request
+                .headers()
+                .get(REQUEST_ID_HEADER)
+                .map_or(MISSING_REQUEST_ID, |value| {
+                    value.to_str().unwrap_or(MISSING_REQUEST_ID)
+                });
+            tracing::info_span!("http", path, method, request_id)
+        })
+        .on_request(DefaultOnRequest::new().level(Level::INFO))
+        .on_response(
+            DefaultOnResponse::new()
+                .level(Level::INFO)
+                .latency_unit(latency_unit),
+        )
+        .on_failure(
+            DefaultOnFailure::new()
+                .level(Level::INFO)
+                .latency_unit(latency_unit),
+        );
 
-    // TODO config
-    let traffic_log_level = Level::INFO;
+    let body_limit = RequestBodyLimitLayer::new(config.middlewares().body_size_limit());
 
-    let payload_size_limit = 4096;
+    let allowed_origins = config.middlewares().allowed_origins()?;
+    let cors = CorsLayer::permissive().allow_origin(allowed_origins);
 
-    let allowed_headers = ["content-type".parse().unwrap()];
-    let allowed_methods = ["GET".parse().unwrap(), "POST".parse().unwrap()];
-    let allowed_origins = ["http://localhost:4000".parse().unwrap()];
+    let timeout = TimeoutLayer::new(config.middlewares().request_timeout());
 
-    let request_timeout = Duration::from_secs(30);
+    let compression = CompressionLayer::new();
+
+    let panic_handling = CatchPanicLayer::custom(handle_panic);
 
     let middlewares = ServiceBuilder::new()
         .set_x_request_id(MakeRequestUuid)
-        .layer(
-            TraceLayer::new_for_http()
-                .make_span_with(|request: &Request<Body>| {
-                    let method = request.method().as_ref();
-                    let request_id = request
-                        .headers()
-                        .get(REQUEST_ID_HEADER)
-                        .map(|value| value.to_str().unwrap_or(MISSING_REQUEST_ID))
-                        .unwrap_or(MISSING_REQUEST_ID);
-                    tracing::info_span!("http", method, request_id)
-                })
-                .on_request(DefaultOnRequest::new().level(traffic_log_level))
-                .on_response(
-                    DefaultOnResponse::new()
-                        .level(traffic_log_level)
-                        .latency_unit(LatencyUnit::Micros),
-                )
-                .on_failure(
-                    DefaultOnFailure::new()
-                        .level(traffic_log_level)
-                        .latency_unit(LatencyUnit::Micros),
-                ),
-        )
+        .layer(http_tracing)
         .propagate_x_request_id()
-        .layer(RequestBodyLimitLayer::new(payload_size_limit))
-        .layer(
-            CorsLayer::new()
-                .allow_headers(allowed_headers)
-                .allow_methods(allowed_methods)
-                .allow_origin(allowed_origins),
-        )
-        .layer(TimeoutLayer::new(request_timeout))
-        .layer(CompressionLayer::new())
-        .layer(CatchPanicLayer::custom(handle_panic));
+        .layer(body_limit)
+        .layer(cors)
+        .layer(timeout)
+        .layer(compression)
+        .layer(panic_handling);
+
+    let state = AppState::new(config, database);
 
     let router = Router::new()
         .route("/", get(health_check))
@@ -104,7 +103,7 @@ pub fn init_router(config: Configuration, database: PgPool, _: &Logger) -> anyho
 
 #[instrument]
 async fn health_check() -> &'static str {
-    info!("health check called, service is healthy");
+    info!("health check called");
     "I am healthy!"
 }
 
@@ -126,11 +125,12 @@ fn handle_panic(err: Box<dyn Any + Send + 'static>) -> Response<Body> {
             "message": details,
         }
     });
-    let body = serde_json::to_string(&body).unwrap();
+    let body = serde_json::to_string(&body)
+        .expect("error in building response, handle_panic is probably misconfigured");
 
     Response::builder()
         .status(StatusCode::INTERNAL_SERVER_ERROR)
         .header(header::CONTENT_TYPE, "application/json")
         .body(Body::from(body))
-        .unwrap()
+        .expect("error in building response, handle_panic is probably misconfigured")
 }

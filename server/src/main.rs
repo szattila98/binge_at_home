@@ -39,7 +39,7 @@ use std::net::SocketAddr;
 use binge_at_home::{
     api::init_router,
     configuration::Configuration,
-    database::init_database,
+    database::{self},
     logging::{self},
     startup::Application,
 };
@@ -53,7 +53,7 @@ async fn main() -> anyhow::Result<()> {
     info!("loaded config and initialized logging");
     debug!("{config:#?}");
     info!("connecting to database...");
-    let database = init_database(&config, &logger).await?;
+    let database = database::init(&config, &logger).await?;
     info!("connected to database");
     info!("initializing router...");
     let router = init_router(config, database, &logger)?;
