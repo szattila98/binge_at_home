@@ -1,6 +1,7 @@
 use std::{marker::PhantomData, str::FromStr};
 
 use anyhow::{bail, Context};
+use tokio::task::JoinHandle;
 use tracing::Level;
 use tracing_subscriber::{
     filter::filter_fn, prelude::__tracing_subscriber_SubscriberExt, util::SubscriberInitExt, Layer,
@@ -8,13 +9,9 @@ use tracing_subscriber::{
 
 use crate::configuration::Configuration;
 
-pub struct Logger {
-    _no_constructor: PhantomData<Logger>,
-}
+pub struct Logger(PhantomData<Logger>);
 
 pub fn init(config: &Configuration) -> anyhow::Result<Logger> {
-    // TODO optional pretty print
-
     let log_level =
         Level::from_str(config.logging().level()).context("log level could not be parsed")?;
 
@@ -70,7 +67,14 @@ pub fn init(config: &Configuration) -> anyhow::Result<Logger> {
     {
         bail!("logger could not be initialized: {e}")
     };
-    Ok(Logger {
-        _no_constructor: PhantomData,
-    })
+    Ok(Logger(PhantomData))
+}
+
+pub fn spawn_blocking_with_tracing<F, R>(f: F) -> JoinHandle<R>
+where
+    F: FnOnce() -> R + Send + 'static,
+    R: Send + 'static,
+{
+    let current_span = tracing::Span::current();
+    tokio::task::spawn_blocking(move || current_span.in_scope(f))
 }

@@ -41,12 +41,14 @@ use binge_at_home::{
     configuration::Configuration,
     database::{self},
     logging::{self},
+    print_banner,
     startup::Application,
 };
 use tracing::{debug, info};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
+    print_banner();
     let config = Configuration::load()?;
     let logger = logging::init(&config)?;
     let address = SocketAddr::new(config.host(), config.port());
