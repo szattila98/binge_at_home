@@ -9,6 +9,7 @@ use std::{
 
 use anyhow::{bail, Context};
 use axum::http::HeaderValue;
+use secrecy::Secret;
 use serde::Deserialize;
 
 use confique::{
@@ -63,7 +64,7 @@ pub struct LogFile {
 pub struct Database {
     /// The url of the postgres the data source.
     #[config(env = "DATABASE_URL")]
-    url: String,
+    url: Secret<String>,
 }
 
 #[derive(Debug, Config, Deserialize)]
@@ -148,8 +149,8 @@ impl LogFile {
 }
 
 impl Database {
-    pub fn url(&self) -> &str {
-        self.url.as_ref()
+    pub fn url(&self) -> &Secret<String> {
+        &self.url
     }
 }
 
