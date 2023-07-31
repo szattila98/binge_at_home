@@ -154,12 +154,14 @@ impl Database {
 }
 
 impl Middlewares {
+    const ANY_ORIGIN: &str = "*";
+
     pub fn body_size_limit(&self) -> usize {
         self.body_size_limit
     }
 
     pub fn allowed_origins(&self) -> anyhow::Result<AllowOrigin> {
-        if self.allowed_origins.contains(&"*".to_string()) {
+        if self.allowed_origins.contains(&Self::ANY_ORIGIN.to_string()) {
             return Ok(AllowOrigin::any());
         }
 
@@ -167,7 +169,8 @@ impl Middlewares {
             .allowed_origins
             .iter()
             .map(|origin| {
-                HeaderValue::from_str(origin).map_err(|_| anyhow::anyhow!("cannot be parsed"))
+                HeaderValue::from_str(origin)
+                    .map_err(|_| anyhow::anyhow!("provided origin '{origin}' cannot be parsed"))
             })
             .collect();
 
