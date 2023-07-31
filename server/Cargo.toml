@@ -1,9 +1,8 @@
 [package]
 name = "binge-at-home"
 version = "0.1.0"
+description = "Self-hosted video streaming application"
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [lib]
 path = "src/lib.rs"
@@ -22,7 +21,9 @@ serde_json = "1.0.100"
 sqlx = { version = "0.7", features = ["runtime-tokio", "tls-rustls", "postgres", "macros", "migrate"] }
 tokio = { version = "1.29.1", features = ["full"] }
 tower = "0.4.13"
-tower-http = { version = "0.4.3", features = ["util", "compression-gzip", "cors", "limit", "normalize-path", "trace", "request-id", "timeout", "validate-request", "catch-panic"] }
+tower-http = { version = "0.4.3", features = ["util", "compression-gzip", "cors", "limit", "trace", "request-id", "timeout", "validate-request", "catch-panic"] }
 tracing = "0.1.37"
 tracing-appender = "0.2.2"
 tracing-subscriber = { version = "0.3.17", features = ["registry"] }
+utoipa = "3.4.3"
+utoipa-swagger-ui = { version = "3.1.4", features = ["axum"] }

@@ -1,3 +1,5 @@
+pub mod health_check;
+
 use std::{any::Any, sync::Arc};
 
 use axum::{
@@ -19,9 +21,10 @@ use tower_http::{
     trace::{DefaultOnFailure, DefaultOnRequest, DefaultOnResponse, TraceLayer},
     LatencyUnit, ServiceBuilderExt,
 };
-use tracing::{info, instrument, Level};
 
-use crate::{configuration::Configuration, logging::Logger};
+use crate::{configuration::Configuration, logging::Logger, swagger::add_swagger_ui};
+
+use self::health_check::health_check;
 
 static REQUEST_ID_HEADER: &str = "x-request-id";
 static MISSING_REQUEST_ID: &str = "missing_request_id";
@@ -41,7 +44,6 @@ impl AppState {
     }
 }
 
-// TODO extract layer adding to functions
 pub fn init_router(config: Configuration, database: PgPool, _: &Logger) -> anyhow::Result<Router> {
     let latency_unit = LatencyUnit::Micros;
     let http_tracing = TraceLayer::new_for_http()
@@ -56,17 +58,9 @@ pub fn init_router(config: Configuration, database: PgPool, _: &Logger) -> anyho
                 });
             tracing::info_span!("http", path, method, request_id)
         })
-        .on_request(DefaultOnRequest::new().level(Level::INFO))
-        .on_response(
-            DefaultOnResponse::new()
-                .level(Level::INFO)
-                .latency_unit(latency_unit),
-        )
-        .on_failure(
-            DefaultOnFailure::new()
-                .level(Level::INFO)
-                .latency_unit(latency_unit),
-        );
+        .on_request(DefaultOnRequest::new())
+        .on_response(DefaultOnResponse::new().latency_unit(latency_unit))
+        .on_failure(DefaultOnFailure::new().latency_unit(latency_unit));
 
     let body_limit = RequestBodyLimitLayer::new(config.middlewares().body_size_limit());
 
@@ -92,19 +86,13 @@ pub fn init_router(config: Configuration, database: PgPool, _: &Logger) -> anyho
     let state = AppState::new(config, database);
 
     let router = Router::new()
-        .route("/", get(health_check))
+        .route("/api", get(health_check))
         .layer(middlewares)
         .with_state(state);
 
-    // TODO add swagger and make it appear based on configuration
+    let router = add_swagger_ui(router);
 
     Ok(router)
-}
-
-#[instrument]
-async fn health_check() -> &'static str {
-    info!("health check called");
-    "I am healthy!"
 }
 
 fn handle_panic(err: Box<dyn Any + Send + 'static>) -> Response<Body> {
