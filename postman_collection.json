@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "24cfbe3d-86d4-4fa6-a9d4-e905d34e152a",
+		"_postman_id": "22e1f002-3a5f-4fe7-b54c-09599ae13870",
 		"name": "binge_at_home",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "12681692"
+		"_exporter_id": "22217881"
 	},
 	"item": [
 		{
@@ -12,11 +12,14 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "localhost:8080",
+					"raw": "localhost:8080/api",
 					"host": [
 						"localhost"
 					],
-					"port": "8080"
+					"port": "8080",
+					"path": [
+						"api"
+					]
 				}
 			},
 			"response": []

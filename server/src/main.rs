@@ -54,12 +54,8 @@ async fn main() -> anyhow::Result<()> {
     let address = SocketAddr::new(config.host(), config.port());
     info!("loaded config and initialized logging");
     debug!("{config:#?}");
-    info!("connecting to database...");
     let database = database::init(&config, &logger).await?;
-    info!("connected to database");
-    info!("initializing router...");
     let router = init_router(config, database, &logger)?;
-    info!("initialized router");
     let app = Application::new(address, router, logger);
     app.run_until_stopped().await
 }

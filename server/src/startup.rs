@@ -4,7 +4,7 @@ use axum::{Router, Server};
 use tokio::signal;
 
 use anyhow::Context;
-use tracing::info;
+use tracing::{info, instrument};
 
 use crate::logging::Logger;
 
@@ -18,6 +18,7 @@ impl Application {
         Self { address, router }
     }
 
+    #[instrument(skip_all)]
     pub async fn run_until_stopped(self) -> anyhow::Result<()> {
         info!("Starting server on {}...", &self.address);
         Server::bind(&self.address)
