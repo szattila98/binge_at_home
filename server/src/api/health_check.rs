@@ -1,6 +1,5 @@
 use tracing::{info, instrument};
 
-#[instrument]
 #[utoipa::path(
     get,
     path = "/api",
@@ -8,6 +7,7 @@ use tracing::{info, instrument};
         (status = 200, description = "Checks health of the service")
     )
 )]
+#[instrument]
 pub async fn health_check() -> &'static str {
     info!("health check called");
     "I am healthy!"

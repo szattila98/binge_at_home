@@ -21,6 +21,7 @@ use tower_http::{
     trace::{DefaultOnFailure, DefaultOnRequest, DefaultOnResponse, TraceLayer},
     LatencyUnit, ServiceBuilderExt,
 };
+use tracing::{info, instrument};
 
 use crate::{configuration::Configuration, logging::Logger, swagger::add_swagger_ui};
 
@@ -44,7 +45,9 @@ impl AppState {
     }
 }
 
+#[instrument(skip_all)]
 pub fn init_router(config: Configuration, database: PgPool, _: &Logger) -> anyhow::Result<Router> {
+    info!("initializing router...");
     let latency_unit = LatencyUnit::Micros;
     let http_tracing = TraceLayer::new_for_http()
         .make_span_with(|request: &Request<Body>| {
@@ -92,9 +95,11 @@ pub fn init_router(config: Configuration, database: PgPool, _: &Logger) -> anyho
 
     let router = add_swagger_ui(router);
 
+    info!("initialized router");
     Ok(router)
 }
 
+#[instrument(skip_all)]
 fn handle_panic(err: Box<dyn Any + Send + 'static>) -> Response<Body> {
     let details = if let Some(s) = err.downcast_ref::<String>() {
         s
