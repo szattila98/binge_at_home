@@ -86,6 +86,7 @@ pub fn init_router(config: Configuration, database: PgPool, _: &Logger) -> anyho
         .layer(compression)
         .layer(panic_handling);
 
+    let enable_swagger_ui = config.swagger_ui();
     let state = AppState::new(config, database);
 
     let router = Router::new()
@@ -93,7 +94,11 @@ pub fn init_router(config: Configuration, database: PgPool, _: &Logger) -> anyho
         .layer(middlewares)
         .with_state(state);
 
-    let router = add_swagger_ui(router);
+    let router = if enable_swagger_ui {
+        add_swagger_ui(router)
+    } else {
+        router
+    };
 
     info!("initialized router");
     Ok(router)
