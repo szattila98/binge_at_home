@@ -35,6 +35,9 @@ pub struct Configuration {
     /// Server middleware configuration options.
     #[config(nested)]
     middlewares: Middlewares,
+    /// Enables swagger ui.
+    #[config(default = true)]
+    swagger_ui: bool,
 }
 
 #[derive(Debug, Config, Deserialize)]
@@ -121,6 +124,10 @@ impl Configuration {
 
     pub fn middlewares(&self) -> &Middlewares {
         &self.middlewares
+    }
+
+    pub fn swagger_ui(&self) -> bool {
+        self.swagger_ui
     }
 }
 
