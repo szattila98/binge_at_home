@@ -17,6 +17,7 @@ use confique::{
     Config,
 };
 use tower_http::cors::AllowOrigin;
+use tracing::{info, instrument};
 
 #[derive(Debug, Config)]
 pub struct Configuration {
@@ -84,6 +85,7 @@ pub struct Middlewares {
 }
 
 impl Configuration {
+    #[instrument]
     pub fn load() -> anyhow::Result<Self> {
         let config_path = match env::var("BINGE_CONFIG_PATH") {
             Ok(path) => PathBuf::from(path),
@@ -94,7 +96,9 @@ impl Configuration {
                 }
             },
         };
+        info!("loading configuration from {}", config_path.display());
         if !config_path.exists() {
+            info!("creating configuration file template, make sure to provide required variables!");
             create_config_template(&config_path)?;
         }
         let config = Self::builder()
@@ -103,6 +107,7 @@ impl Configuration {
             .load()
             .context("could not load configuration")
             .with_context(|| format!("config search path was: {}", config_path.display()))?;
+        info!("loaded configuration");
         Ok(config)
     }
 

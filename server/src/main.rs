@@ -36,26 +36,29 @@
 
 use std::net::SocketAddr;
 
+use anyhow::Ok;
 use binge_at_home::{
-    api::init_router,
+    api::init,
     configuration::Configuration,
     database::{self},
-    logging::{self},
+    logging::{self, with_default_logging},
     print_banner,
     startup::Application,
 };
-use tracing::{debug, info};
+use tracing::debug;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     print_banner();
-    let config = Configuration::load()?;
-    let logger = logging::init(&config)?;
-    let address = SocketAddr::new(config.host(), config.port());
-    info!("loaded config and initialized logging");
+    let (config, logger) = with_default_logging(|| {
+        let config = Configuration::load()?;
+        let logger = logging::init(&config)?;
+        Ok((config, logger))
+    })?;
     debug!("{config:#?}");
     let database = database::init(&config, &logger).await?;
-    let router = init_router(config, database, &logger)?;
+    let address = SocketAddr::new(config.host(), config.port());
+    let router = init(config, database, &logger)?;
     let app = Application::new(address, router, logger);
     app.run_until_stopped().await
 }
