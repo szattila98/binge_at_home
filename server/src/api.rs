@@ -46,7 +46,7 @@ impl AppState {
 }
 
 #[instrument(skip_all)]
-pub fn init_router(config: Configuration, database: PgPool, _: &Logger) -> anyhow::Result<Router> {
+pub fn init(config: Configuration, database: PgPool, _: &Logger) -> anyhow::Result<Router> {
     info!("initializing router...");
     let latency_unit = LatencyUnit::Micros;
     let http_tracing = TraceLayer::new_for_http()
