@@ -7,9 +7,13 @@ pub mod swagger;
 
 pub fn print_banner() {
     print!("{}", include_str!("../resources/banner.txt"));
-    println!(
-        "{} - {}\n",
-        env!("CARGO_PKG_NAME"),
-        env!("CARGO_PKG_VERSION")
-    );
+    println!("{} - {}\n", get_app_name(), get_app_version());
+}
+
+pub const fn get_app_name() -> &'static str {
+    env!("CARGO_PKG_NAME")
+}
+
+pub const fn get_app_version() -> &'static str {
+    env!("CARGO_PKG_VERSION")
 }

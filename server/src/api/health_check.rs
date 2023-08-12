@@ -1,4 +1,8 @@
+use axum::{response::IntoResponse, Json};
+use serde::Serialize;
 use tracing::{info, instrument};
+
+use crate::{get_app_name, get_app_version};
 
 #[utoipa::path(
     get,
@@ -8,7 +12,24 @@ use tracing::{info, instrument};
     )
 )]
 #[instrument]
-pub async fn health_check() -> &'static str {
+pub async fn health_check() -> impl IntoResponse {
     info!("health check called");
-    "I am healthy!"
+    Json(HealthCheckResponse::default())
+}
+
+#[derive(Serialize)]
+struct HealthCheckResponse {
+    msg: &'static str,
+    app_name: &'static str,
+    app_version: &'static str,
+}
+
+impl Default for HealthCheckResponse {
+    fn default() -> Self {
+        Self {
+            msg: "I am a happy and healthy service! 🦦",
+            app_name: get_app_name(),
+            app_version: get_app_version(),
+        }
+    }
 }
