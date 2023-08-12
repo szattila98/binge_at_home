@@ -6,9 +6,9 @@ use axum::{
     body::Body,
     extract::FromRef,
     http::{header, Request, Response, StatusCode},
-    routing::get,
     Router,
 };
+use axum_extra::routing::RouterExt;
 use sqlx::PgPool;
 use tower::ServiceBuilder;
 use tower_http::{
@@ -89,8 +89,10 @@ pub fn init(config: Configuration, database: PgPool, _: &Logger) -> anyhow::Resu
     let enable_swagger_ui = config.swagger_ui();
     let state = AppState::new(config, database);
 
+    let api = Router::new().typed_get(health_check);
+
     let router = Router::new()
-        .route("/api", get(health_check))
+        .nest("/api", api)
         .layer(middlewares)
         .with_state(state);
 
