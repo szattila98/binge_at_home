@@ -42,6 +42,7 @@ use binge_at_home::{
     configuration::Configuration,
     database::{self},
     logging::{self, with_default_logging},
+    model::Catalog,
     print_banner,
     startup::Application,
 };
@@ -49,6 +50,7 @@ use tracing::debug;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
+    let catalog = Catalog {};
     print_banner();
     let (config, logger) = with_default_logging(|| {
         let config = Configuration::load()?;
