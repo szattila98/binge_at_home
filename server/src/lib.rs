@@ -2,6 +2,7 @@ pub mod api;
 pub mod configuration;
 pub mod database;
 pub mod logging;
+pub mod model;
 pub mod startup;
 pub mod swagger;
 
