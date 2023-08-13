@@ -31,7 +31,8 @@ pub struct Video {
     pub display_name: String,
     pub short_desc: String,
     pub long_desc: String,
-    pub sequent_id: ModelId,
+    pub catalog_id: ModelId,
+    pub sequent_id: Option<ModelId>,
 
     pub size: Bytes,
     pub duration: Duration,
@@ -40,15 +41,6 @@ pub struct Video {
     pub height: ScreenHeight,
     pub framerate: FramesPerSecond,
 
-    #[sqlx(skip)]
-    pub tracks: Vec<Track>,
-
     pub created_at: Instant,
     pub updated_at: Instant,
-}
-
-#[derive(sqlx::FromRow)]
-pub struct Track {
-    pub lang: String,
-    pub path: PathBuf,
 }

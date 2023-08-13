@@ -1,0 +1,2 @@
+DROP TABLE IF EXISTS video;
+DROP TABLE IF EXISTS catalog;
