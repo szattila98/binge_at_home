@@ -3,6 +3,7 @@
     "vue.volar",
     "rust-lang.rust-analyzer",
     "github.vscode-github-actions",
-    "vadimcn.vscode-lldb"
+    "vadimcn.vscode-lldb",
+    "tamasfe.even-better-toml"
   ]
 }

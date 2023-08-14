@@ -57,6 +57,10 @@ async fn main() -> anyhow::Result<()> {
     })?;
     debug!("{config:#?}");
     let database = database::init(&config, &logger).await?;
+
+    #[cfg(feature = "migrate")]
+    sqlx::migrate!().run(&database).await?;
+
     let address = SocketAddr::new(config.host(), config.port());
     let router = init(config, database, &logger)?;
     let app = Application::new(address, router, logger);
