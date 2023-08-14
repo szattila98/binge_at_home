@@ -19,12 +19,11 @@ confique = { version = "0.2.4", default-features = false, features = ["yaml"] }
 secrecy = { version = "0.8.0", features = ["serde"] }
 serde = { version = "1.0.183", features = ["derive"] }
 serde_json = "1.0.104"
-sqlx = { version = "0.7", features = [
+sqlx = { version = "0.7", default-features = false, features = [
     "runtime-tokio",
     "tls-rustls",
     "postgres",
     "macros",
-    "migrate",
     "time",
 ] }
 time = "0.3.25"
@@ -46,3 +45,8 @@ tracing-appender = "0.2.2"
 tracing-subscriber = { version = "0.3.17", features = ["registry"] }
 utoipa = "3.4.4"
 utoipa-swagger-ui = { version = "3.1.5", features = ["axum"] }
+
+[features]
+default = []
+# compiles migrations into the binary and runs them on migrations on startup
+migrate = ["sqlx/migrate"]
