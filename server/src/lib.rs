@@ -1,5 +1,6 @@
 pub mod api;
 pub mod configuration;
+pub mod crud;
 pub mod database;
 pub mod logging;
 pub mod model;

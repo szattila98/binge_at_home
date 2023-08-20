@@ -12,7 +12,7 @@ use tracing_subscriber::{
 
 use crate::configuration::Configuration;
 
-pub fn with_default_logging<T>(f: impl Fn() -> T) -> T {
+pub fn with_default_logger<T>(f: impl Fn() -> T) -> T {
     let default_logger = tracing_subscriber::fmt().pretty().finish();
     with_default(default_logger, f)
 }
