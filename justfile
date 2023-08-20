@@ -40,3 +40,7 @@ docker-down:
 lint-server-seriously:
     # Scanning server files with pedantic and nursery clippy rules
     @cd server && cargo clippy -- -W clippy::pedantic -W clippy::nursery -W clippy::unwrap_used -A clippy::missing_errors_doc -A clippy::missing_const_for_fn -A clippy::must_use_candidate
+
+prepare-offline-sqlx:
+    # Preparing sqlx for offline compilation
+    @cd server && cargo sqlx prepare
