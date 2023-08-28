@@ -1,0 +1,117 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            INSERT INTO video ( \n                path, display_name, short_desc, long_desc, catalog_id, sequent_id, \n                size, duration, bitrate, width, height, framerate \n            ) \n            VALUES ( $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12 ) \n            RETURNING *\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "path",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "display_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "short_desc",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "long_desc",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "catalog_id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 6,
+        "name": "sequent_id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 7,
+        "name": "size",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 8,
+        "name": "duration",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 9,
+        "name": "bitrate",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 10,
+        "name": "width",
+        "type_info": "Int2"
+      },
+      {
+        "ordinal": 11,
+        "name": "height",
+        "type_info": "Int2"
+      },
+      {
+        "ordinal": 12,
+        "name": "framerate",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 13,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 14,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Int8",
+        "Int8",
+        "Int8",
+        "Int8",
+        "Int8",
+        "Int2",
+        "Int2",
+        "Float8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "81aa9b28bcab90696db8a5493a24a6e291a272de3cead344ecbf54c63eae6b2c"
+}

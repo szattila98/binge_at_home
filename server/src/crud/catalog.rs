@@ -60,14 +60,14 @@ impl Entity<Self> for Catalog {
     #[instrument(skip(pool))]
     async fn create_many(
         pool: &PgPool,
-        request: Vec<CreateCatalogRequest>,
+        requests: Vec<CreateCatalogRequest>,
     ) -> Result<Vec<Self>, sqlx::Error> {
         let mut paths = vec![];
         let mut display_names = vec![];
         let mut short_descs = vec![];
         let mut long_descs = vec![];
 
-        for item in request {
+        for item in requests {
             paths.push(item.path);
             display_names.push(item.display_name);
             short_descs.push(item.short_desc);
@@ -132,7 +132,7 @@ impl Entity<Self> for Catalog {
         pool: &PgPool,
         request: UpdateCatalogRequest,
     ) -> Result<Option<Self>, sqlx::Error> {
-        let result = sqlx::query_as!(
+        let catalog = sqlx::query_as!(
         Self,
         "UPDATE catalog SET display_name = $1, short_desc = $2, long_desc = $3 WHERE id = $4 RETURNING *",
         request.display_name,
@@ -142,7 +142,7 @@ impl Entity<Self> for Catalog {
     )
     .fetch_optional(pool)
     .await?;
-        Ok(result)
+        Ok(catalog)
     }
 
     #[instrument(skip(pool))]

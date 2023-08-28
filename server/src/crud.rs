@@ -68,7 +68,7 @@ pub trait Entity<T> {
     async fn create(pool: &PgPool, request: Self::CreateRequest) -> Result<T, sqlx::Error>;
     async fn create_many(
         pool: &PgPool,
-        request: Vec<Self::CreateRequest>,
+        requests: Vec<Self::CreateRequest>,
     ) -> Result<Vec<T>, sqlx::Error>;
     async fn find(pool: &PgPool, id: EntityId) -> Result<Option<T>, sqlx::Error>;
     async fn find_all(

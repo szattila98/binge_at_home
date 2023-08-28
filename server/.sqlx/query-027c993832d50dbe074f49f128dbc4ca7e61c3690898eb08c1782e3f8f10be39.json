@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "DELETE FROM video WHERE id = ANY($1)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int8Array"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "027c993832d50dbe074f49f128dbc4ca7e61c3690898eb08c1782e3f8f10be39"
+}
