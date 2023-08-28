@@ -2,7 +2,10 @@ use async_trait::async_trait;
 use sqlx::PgPool;
 use tracing::instrument;
 
-use crate::model::{Catalog, EntityId};
+use crate::{
+    build_find_all_query,
+    model::{Catalog, EntityId},
+};
 
 use super::{Entity, OrderBy, Pagination};
 
@@ -106,21 +109,7 @@ impl Entity<Self> for Catalog {
         ordering: Vec<OrderBy<CatalogOrdering>>,
         pagination: Option<Pagination>,
     ) -> Result<Vec<Self>, sqlx::Error> {
-        let ordering_part = ordering
-            .iter()
-            .map(ToString::to_string)
-            .collect::<Vec<_>>()
-            .join(", ");
-        let pagination_part = pagination.map_or_else(String::new, |p| p.to_string());
-        let query = format!(
-            "SELECT * FROM catalog{}{ordering_part}{}{pagination_part}",
-            if ordering_part.is_empty() {
-                ""
-            } else {
-                " ORDER BY "
-            },
-            if pagination_part.is_empty() { "" } else { " " }
-        );
+        let query = build_find_all_query!("catalog", ordering, pagination);
 
         let catalogs = sqlx::query_as(&query).fetch_all(pool).await?;
 
