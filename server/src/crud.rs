@@ -81,42 +81,69 @@ pub trait Entity<T> {
     async fn delete_many(pool: &PgPool, ids: Vec<EntityId>) -> Result<u64, sqlx::Error>;
 }
 
-/* fn save() {
+#[macro_export]
+macro_rules! build_find_all_query {
+    ($table:literal, $ordering:ident, $pagination:ident) => {{
+        let ordering_part = $ordering
+            .iter()
+            .map(ToString::to_string)
+            .collect::<Vec<_>>()
+            .join(", ");
+        let pagination_part = $pagination.map_or_else(String::new, |p| p.to_string());
+        format!(
+            "SELECT * FROM {}{}{}{}{}",
+            $table,
+            if ordering_part.is_empty() {
+                ""
+            } else {
+                " ORDER BY "
+            },
+            ordering_part,
+            if pagination_part.is_empty() { "" } else { " " },
+            pagination_part
+        )
+    }};
+}
 
-    let record = sqlx::query!(
-        r#"INSERT INTO catalog ( path ,display_name,short_desc, long_desc, created_at, updated_at ) VALUES ( $1, $2, $3, $4, $5, $6) RETURNING id"#,
-        "/test",
-        "display_name",
-        "short_desc",
-        "long_desc",
-        time::OffsetDateTime::now_utc(),
-        time::OffsetDateTime::now_utc()
-    )
-    .fetch_one(&database)
-    .await?;
-    println!("{}", record.id);
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-    let catalog = sqlx::query_as!(Catalog, r#"SELECT * FROM catalog WHERE id = $1"#, record.id)
-        .fetch_one(&database)
-        .await?;
-    println!("{catalog:?}");
+    #[test]
+    fn test_build_find_all_query() {
+        let ordering: Vec<OrderBy<i32>> = vec![];
+        let pagination: Option<Pagination> = None;
+        let query = build_find_all_query!("test_table1", ordering, pagination);
+        assert_eq!(query, "SELECT * FROM test_table1");
 
-    let record = sqlx::query!(
-        r#"INSERT INTO video ( path, display_name, short_desc, long_desc, catalog_id, sequent_id, size, duration, bitrate, width, height, framerate ) VALUES ( $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING id"#,
-        "/test",
-        "display_name",
-        "short_desc",
-        "long_desc",
-        1,
-        None as Option<ModelId>,
-        100000,
-        2400,
-        120,
-        1280,
-        1024,
-        60.
-    )
-    .fetch_one(&database)
-    .await?;
-    println!("{}", record.id);
-} */
+        let ordering = vec![OrderBy(12, Direction::Asc)];
+        let pagination: Option<Pagination> = None;
+        let query = build_find_all_query!("test_table2", ordering, pagination);
+        assert_eq!(query, "SELECT * FROM test_table2 ORDER BY 12 ASC");
+
+        let ordering: Vec<OrderBy<i32>> = vec![];
+        let pagination = Some(Pagination::new(10, 5));
+        let query = build_find_all_query!("test_table3", ordering, pagination);
+        assert_eq!(query, "SELECT * FROM test_table3 LIMIT 10 OFFSET 40");
+
+        let ordering = vec![OrderBy(151, Direction::Asc)];
+        let pagination = Some(Pagination::new(10, 1));
+        let query = build_find_all_query!("test_table4", ordering, pagination);
+        assert_eq!(
+            query,
+            "SELECT * FROM test_table4 ORDER BY 151 ASC LIMIT 10 OFFSET 0"
+        );
+
+        let ordering = vec![
+            OrderBy(55, Direction::Asc),
+            OrderBy(12, Direction::Desc),
+            OrderBy(678, Direction::Asc),
+        ];
+        let pagination = Some(Pagination::new(5, 100));
+        let query = build_find_all_query!("test_table5", ordering, pagination);
+        assert_eq!(
+            query,
+            "SELECT * FROM test_table5 ORDER BY 55 ASC, 12 DESC, 678 ASC LIMIT 5 OFFSET 495"
+        );
+    }
+}
