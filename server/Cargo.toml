@@ -53,3 +53,7 @@ utoipa-swagger-ui = { version = "3.1.5", features = ["axum"] }
 default = []
 # compiles migrations into the binary and runs them on migrations on startup
 migrate = ["sqlx/migrate"]
+
+[dev-dependencies]
+fake = "2.8.0"
+pretty_assertions = "1.4.0"
