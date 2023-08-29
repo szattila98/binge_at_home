@@ -2,14 +2,11 @@ use async_trait::async_trait;
 use sqlx::PgPool;
 use tracing::instrument;
 
-use crate::{
-    build_find_all_query,
-    model::{
-        Bytes, BytesPerSecond, EntityId, FramesPerSecond, ScreenHeight, ScreenWidth, Seconds, Video,
-    },
+use crate::model::{
+    Bytes, BytesPerSecond, EntityId, FramesPerSecond, ScreenHeight, ScreenWidth, Seconds, Video,
 };
 
-use super::{Entity, OrderBy, Pagination};
+use super::{build_find_all_query, Entity, OrderBy, Pagination};
 
 #[derive(Debug)]
 pub struct CreateVideoRequest {
@@ -178,7 +175,7 @@ impl Entity<Self> for Video {
         ordering: Vec<OrderBy<VideoOrdering>>,
         pagination: Option<Pagination>,
     ) -> Result<Vec<Self>, sqlx::Error> {
-        let query = build_find_all_query!("video", ordering, pagination);
+        let query = build_find_all_query("video", ordering, pagination);
 
         let videos = sqlx::query_as(&query).fetch_all(pool).await?;
 

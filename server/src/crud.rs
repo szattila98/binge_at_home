@@ -9,7 +9,7 @@ use crate::model::EntityId;
 pub mod catalog;
 pub mod video;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct Pagination {
     limit: u64,
     offset: u64,
@@ -30,7 +30,7 @@ impl fmt::Display for Pagination {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct OrderBy<T: fmt::Debug>(T, Direction);
 
 impl<T: fmt::Debug> OrderBy<T> {
@@ -42,11 +42,12 @@ impl<T: fmt::Debug> OrderBy<T> {
 impl<T: fmt::Debug> fmt::Display for OrderBy<T> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let ordering = format!("{:?}", self.0).to_case(Case::Snake);
-        write!(f, "{ordering} {}", self.1)
+        let direction = &self.1;
+        write!(f, "{ordering} {direction}")
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum Direction {
     Asc,
     Desc,
@@ -81,69 +82,177 @@ pub trait Entity<T> {
     async fn delete_many(pool: &PgPool, ids: Vec<EntityId>) -> Result<u64, sqlx::Error>;
 }
 
-#[macro_export]
-macro_rules! build_find_all_query {
-    ($table:literal, $ordering:ident, $pagination:ident) => {{
-        let ordering_part = $ordering
-            .iter()
-            .map(ToString::to_string)
-            .collect::<Vec<_>>()
-            .join(", ");
-        let pagination_part = $pagination.map_or_else(String::new, |p| p.to_string());
-        format!(
-            "SELECT * FROM {}{}{}{}{}",
-            $table,
-            if ordering_part.is_empty() {
-                ""
-            } else {
-                " ORDER BY "
-            },
-            ordering_part,
-            if pagination_part.is_empty() { "" } else { " " },
-            pagination_part
-        )
-    }};
+fn build_find_all_query<T: fmt::Debug>(
+    table_name: &'static str,
+    ordering: Vec<OrderBy<T>>,
+    pagination: Option<Pagination>,
+) -> String {
+    let ordering_part = ordering
+        .iter()
+        .map(ToString::to_string)
+        .collect::<Vec<_>>()
+        .join(", ");
+    let pagination_part = pagination.map_or_else(String::new, |p| p.to_string());
+    format!(
+        "SELECT * FROM {}{}{}{}{}",
+        table_name,
+        if ordering_part.is_empty() {
+            ""
+        } else {
+            " ORDER BY "
+        },
+        ordering_part,
+        if pagination_part.is_empty() { "" } else { " " },
+        pagination_part
+    )
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use fake::{Fake, Faker};
+    use pretty_assertions::assert_eq;
 
     #[test]
-    fn test_build_find_all_query() {
-        let ordering: Vec<OrderBy<i32>> = vec![];
-        let pagination: Option<Pagination> = None;
-        let query = build_find_all_query!("test_table1", ordering, pagination);
-        assert_eq!(query, "SELECT * FROM test_table1");
-
-        let ordering = vec![OrderBy(12, Direction::Asc)];
-        let pagination: Option<Pagination> = None;
-        let query = build_find_all_query!("test_table2", ordering, pagination);
-        assert_eq!(query, "SELECT * FROM test_table2 ORDER BY 12 ASC");
-
-        let ordering: Vec<OrderBy<i32>> = vec![];
-        let pagination = Some(Pagination::new(10, 5));
-        let query = build_find_all_query!("test_table3", ordering, pagination);
-        assert_eq!(query, "SELECT * FROM test_table3 LIMIT 10 OFFSET 40");
-
-        let ordering = vec![OrderBy(151, Direction::Asc)];
-        let pagination = Some(Pagination::new(10, 1));
-        let query = build_find_all_query!("test_table4", ordering, pagination);
+    fn new_pagination() {
+        let size: u64 = Faker.fake::<u8>().into();
+        let page: u64 = Faker.fake::<u8>().into();
         assert_eq!(
-            query,
-            "SELECT * FROM test_table4 ORDER BY 151 ASC LIMIT 10 OFFSET 0"
+            Pagination::new(size, page),
+            Pagination {
+                limit: size,
+                offset: size * (page - 1)
+            }
         );
+    }
 
-        let ordering = vec![
-            OrderBy(55, Direction::Asc),
-            OrderBy(12, Direction::Desc),
-            OrderBy(678, Direction::Asc),
-        ];
-        let pagination = Some(Pagination::new(5, 100));
-        let query = build_find_all_query!("test_table5", ordering, pagination);
+    #[test]
+    fn display_pagination() {
+        let size: u64 = Faker.fake::<u8>().into();
+        let page: u64 = Faker.fake::<u8>().into();
+        assert_eq!(
+            Pagination::new(size, page).to_string(),
+            format!("LIMIT {} OFFSET {}", size, size * (page - 1))
+        );
+    }
+
+    #[test]
+    fn new_order_by() {
+        let field: String = Faker.fake();
+        assert_eq!(
+            OrderBy::new(&field, Direction::Asc),
+            OrderBy(&field, Direction::Asc)
+        );
+        assert_eq!(
+            OrderBy::new(&field, Direction::Desc),
+            OrderBy(&field, Direction::Desc)
+        );
+    }
+
+    #[test]
+    fn display_order_by() {
+        let field: String = Faker.fake();
+        let snake_field = field.to_case(Case::Snake);
+        assert_eq!(
+            OrderBy::new(&field, Direction::Asc).to_string(),
+            format!("{snake_field:?} {}", Direction::Asc)
+        );
+        assert_eq!(
+            OrderBy::new(&field, Direction::Desc).to_string(),
+            format!("{snake_field:?} {}", Direction::Desc)
+        );
+    }
+
+    #[test]
+    fn display_direction_asc() {
+        assert_eq!(Direction::Asc.to_string(), "ASC")
+    }
+
+    #[test]
+    fn display_direction_desc() {
+        assert_eq!(Direction::Desc.to_string(), "DESC")
+    }
+
+    #[test]
+    fn build_find_all_query_empty_params() {
+        let ordering: Vec<OrderBy<&str>> = vec![];
+        let pagination: Option<Pagination> = None;
+        let query = build_find_all_query("table", ordering, pagination);
+        assert_eq!(query, "SELECT * FROM table");
+    }
+
+    #[test]
+    fn build_find_all_query_only_ordering() {
+        let field: String = Faker.fake();
+        let ordering = vec![OrderBy(field.clone(), Direction::Asc)];
+        let pagination: Option<Pagination> = None;
+        let query = build_find_all_query("table", ordering, pagination);
         assert_eq!(
             query,
-            "SELECT * FROM test_table5 ORDER BY 55 ASC, 12 DESC, 678 ASC LIMIT 5 OFFSET 495"
+            format!(
+                "SELECT * FROM table ORDER BY {:?} ASC",
+                field.to_case(Case::Snake)
+            )
+        );
+    }
+
+    #[test]
+    fn build_find_all_query_only_pagination() {
+        let size: u64 = Faker.fake::<u8>().into();
+        let page: u64 = Faker.fake::<u8>().into();
+        let ordering: Vec<OrderBy<&str>> = vec![];
+        let pagination = Some(Pagination::new(size, page));
+        let query = build_find_all_query("table", ordering, pagination);
+        assert_eq!(
+            query,
+            format!(
+                "SELECT * FROM table LIMIT {size:?} OFFSET {}",
+                size * (page - 1)
+            )
+        );
+    }
+
+    #[test]
+    fn build_find_all_query_both_params() {
+        let field: String = Faker.fake();
+        let size: u64 = Faker.fake::<u8>().into();
+        let page: u64 = Faker.fake::<u8>().into();
+        let ordering = vec![OrderBy(field.clone(), Direction::Asc)];
+        let pagination = Some(Pagination::new(size, page));
+        let query = build_find_all_query("table", ordering, pagination);
+        assert_eq!(
+            query,
+            format!(
+                "SELECT * FROM table ORDER BY {:?} ASC LIMIT {size} OFFSET {}",
+                field.to_case(Case::Snake),
+                size * (page - 1)
+            )
+        );
+    }
+
+    #[test]
+    fn build_find_all_query_multiple_ordering_params_with_pagination() {
+        let field1: String = Faker.fake();
+        let field2: String = Faker.fake();
+        let field3: String = Faker.fake();
+        let size: u64 = Faker.fake::<u8>().into();
+        let page: u64 = Faker.fake::<u8>().into();
+        let ordering = vec![
+            OrderBy(field1.clone(), Direction::Asc),
+            OrderBy(field2.clone(), Direction::Desc),
+            OrderBy(field3.clone(), Direction::Asc),
+        ];
+        let pagination = Some(Pagination::new(size, page));
+        let query = build_find_all_query("table", ordering, pagination);
+        assert_eq!(
+            query,
+            format!(
+                "SELECT * FROM table ORDER BY {:?} ASC, {:?} DESC, {:?} ASC LIMIT {size} OFFSET {}",
+                field1.to_case(Case::Snake),
+                field2.to_case(Case::Snake),
+                field3.to_case(Case::Snake),
+                size * (page - 1)
+            )
         );
     }
 }
