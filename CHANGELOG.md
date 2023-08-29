@@ -2,6 +2,22 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## [0.4.0](https://github.com/szattila98/binge_at_home/compare/0.3.0..0.4.0) - 2023-08-29
+### Package updates
+- [server-0.2.0](server) bumped to [server-0.2.0](https://github.com/szattila98/binge_at_home/compare/server-0.1.0..server-0.2.0)
+### Global changes
+#### Features
+- **(server)** added catalog crud - ([74d663b](https://github.com/szattila98/binge_at_home/commit/74d663b527797607d5943f845e5685e9986c7a50)) - [@szattila98](https://github.com/szattila98)
+- **(server)** added migrate feature that inlines and run migrations - ([2138be0](https://github.com/szattila98/binge_at_home/commit/2138be0d46aa4f7e65f4b6627e350b98d8b8f0db)) - [@szattila98](https://github.com/szattila98)
+- **(server)** added migrations with sqlx cli and other necessities - ([d34770b](https://github.com/szattila98/binge_at_home/commit/d34770bf953fdb09a87312ab966f2d886a7fad74)) - [@szattila98](https://github.com/szattila98)
+- **(server)** added useful middlewares - ([709ef7b](https://github.com/szattila98/binge_at_home/commit/709ef7bdf9ca8ae05807d1c9a702efc573233442)) - [@szattila98](https://github.com/szattila98)
+- **(server)** added init.sql - ([0775dd4](https://github.com/szattila98/binge_at_home/commit/0775dd4fa2d9c343a8ffe1289a1b03808d9fef5d)) - [@szattila98](https://github.com/szattila98)
+#### Refactoring
+- **(server)** added instrumentation to startup functions - ([1cfe6b7](https://github.com/szattila98/binge_at_home/commit/1cfe6b72955c3e19d3db70011c8dcfb6cef1de95)) - [@szattila98](https://github.com/szattila98)
+- **(server)** refactored middleware logic, added config options - ([f549221](https://github.com/szattila98/binge_at_home/commit/f5492219aae16f43e650a34f89b4b003d9495e1f)) - [@szattila98](https://github.com/szattila98)
+
+- - -
+
 ## [0.3.0](https://github.com/szattila98/binge_at_home/compare/0.2.0..0.3.0) - 2023-07-18
 ### Package updates
 - [server](server) bumped to [server-0.1.0](https://github.com/szattila98/binge_at_home/compare/2399c6f6a128d954c6644f190614d3fee1f507a4..server-0.1.0)

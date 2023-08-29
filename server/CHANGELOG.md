@@ -2,6 +2,32 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## server-0.2.0 - 2023-08-29
+#### Bug Fixes
+- **(server)** fixed migrations and tried out some queries - (fbbfa0b) - *szattila98*
+#### Features
+- **(server)** added video crud - (a62c90e) - *szattila98*
+- **(server)** added catalog crud - (74d663b) - *szattila98*
+- **(server)** added migrate feature that inlines and run migrations - (2138be0) - *szattila98*
+- **(server)** added migrations with sqlx cli and other necessities - (d34770b) - *szattila98*
+- **(server)** added base entities - (23e8c6a) - *szattila98*
+- **(server)** added typed pathing - (c99d843) - *szattila98*
+- **(server)** added scheduling and made health check more professional - (c92ff26) - *szattila98*
+- **(server)** swagger ui config - (0518270) - *szattila98*
+- **(server)** added swagger via utoipa - (cf8924f) - *szattila98*
+- **(server)** added secrecy - (b63ff9f) - *szattila98*
+- **(server)** added banner and refactored logging a bit - (285f0d9) - *szattila98*
+- **(server)** added instrumentation - (3ca80f0) - *szattila98*
+- **(server)** added useful middlewares - (709ef7b) - *szattila98*
+- **(server)** added init.sql - (0775dd4) - *szattila98*
+#### Refactoring
+- **(server)** added find all query building macro and tests - (5a1eac7) - *szattila98*
+- **(server)** restructured server logging - (91c807d) - *szattila98*
+- **(server)** added instrumentation to startup functions - (1cfe6b7) - *szattila98*
+- **(server)** refactored middleware logic, added config options - (f549221) - *szattila98*
+
+- - -
+
 ## server-0.1.0 - 2023-07-18
 #### Bug Fixes
 - **(server)** clippy fixes - (791c8fd) - *szattila98*

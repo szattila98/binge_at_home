@@ -1,6 +1,6 @@
 [package]
 name = "binge-at-home"
-version = "0.1.0"
+version = "0.2.0"
 description = "Self-hosted video streaming application"
 edition = "2021"
 
