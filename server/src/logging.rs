@@ -6,8 +6,8 @@ use tracing::{
     info, instrument, subscriber::with_default, subscriber::Interest, Level, Subscriber,
 };
 use tracing_subscriber::{
-    filter::filter_fn, prelude::__tracing_subscriber_SubscriberExt, registry::LookupSpan,
-    util::SubscriberInitExt, Layer,
+    prelude::__tracing_subscriber_SubscriberExt, registry::LookupSpan, util::SubscriberInitExt,
+    Layer,
 };
 
 use crate::configuration::Configuration;
@@ -40,26 +40,6 @@ pub fn init(config: &Configuration) -> anyhow::Result<Logger> {
         ))
         .boxed();
     layers.push(file_logger);
-
-    if config.logging().file().separate_debug_file() {
-        let debug_logger = tracing_subscriber::fmt::layer()
-            .compact()
-            .with_ansi(false)
-            .with_writer(tracing_appender::rolling::never(
-                config.logging().file().dir(),
-                "debug.log",
-            ))
-            .with_filter(filter_fn(move |metadata| {
-                let is_under_debug = *metadata.level() <= Level::DEBUG;
-                let is_hyper_debug_log = metadata
-                    .module_path()
-                    .map_or(false, |path| path.starts_with("hyper"));
-                is_under_debug && !is_hyper_debug_log
-            }))
-            .boxed();
-        layers.push(debug_logger);
-        info!("added debug file logger");
-    }
 
     if let Err(e) = tracing_subscriber::registry()
         .with(global_filter)

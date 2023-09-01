@@ -59,9 +59,6 @@ pub struct LogFile {
     /// The name of the log file. A date will be appended to the end of it.
     #[config(default = "app.log")]
     name: String,
-    /// A separate log file in the configured parent directory, that will have debug level logging. Useful for development.
-    #[config(default = false)]
-    separate_debug_file: bool,
 }
 
 #[derive(Debug, Config, Deserialize)]
@@ -153,10 +150,6 @@ impl LogFile {
 
     pub fn name(&self) -> &str {
         self.name.as_ref()
-    }
-
-    pub fn separate_debug_file(&self) -> bool {
-        self.separate_debug_file
     }
 }
 
