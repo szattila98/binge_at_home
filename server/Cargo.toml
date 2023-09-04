@@ -11,6 +11,14 @@ path = "src/lib.rs"
 path = "src/main.rs"
 name = "binge-at-home"
 
+[workspace]
+members = ["macros"]
+
+[features]
+default = []
+# compiles migrations into the binary and runs them on migrations on startup
+migrate = ["sqlx/migrate"]
+
 [dependencies]
 anyhow = "1.0.75"
 # TODO remove after async trait staibilisation
@@ -20,6 +28,7 @@ axum-extra = { version = "0.7.7", features = ["typed-routing"] }
 confique = { version = "0.2.4", default-features = false, features = ["yaml"] }
 convert_case = "0.6.0"
 fake = { version = "2.8.0", features = ["time"] }
+macros = { version = "0.1.0", path = "macros" }
 secrecy = { version = "0.8.0", features = ["serde"] }
 serde = { version = "1.0.183", features = ["derive"] }
 serde_json = "1.0.105"
@@ -49,11 +58,6 @@ tracing-appender = "0.2.2"
 tracing-subscriber = { version = "0.3.17", features = ["registry"] }
 utoipa = "3.4.4"
 utoipa-swagger-ui = { version = "3.1.5", features = ["axum"] }
-
-[features]
-default = []
-# compiles migrations into the binary and runs them on migrations on startup
-migrate = ["sqlx/migrate"]
 
 [dev-dependencies]
 fake = "2.8.0"

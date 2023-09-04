@@ -14,6 +14,7 @@ owner = "szattila98"
 authors = [
     { username = "szattila98", signature = "Attila Szőke" },
     { username = "doleance", signature = "doleance" },
+    { username = "CsalaPeter", signature = "Péter Csala" }
 ]
 
 [bump_profiles]
@@ -24,6 +25,7 @@ client = { path = "client", pre_bump_hooks = [
     "npm version {{version}}",
 ] }
 server = { path = "server", pre_bump_hooks = ["cargo set-version {{version}}"] }
+macros = { path = "server/macros", pre_bump_hooks = ["cargo set-version {{version}}"] }
 
 [git_hooks.pre-push]
 script = """#!/bin/sh

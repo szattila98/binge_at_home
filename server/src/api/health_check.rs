@@ -1,5 +1,6 @@
 use axum::{response::IntoResponse, Json};
 use axum_extra::routing::TypedPath;
+use macros::random_emoji;
 use serde::Serialize;
 use tracing::{info, instrument};
 
@@ -12,6 +13,7 @@ pub struct HealthCheckEndpoint;
 #[derive(Serialize)]
 struct HealthCheckResponse {
     msg: &'static str,
+    emoji: &'static str,
     app_name: &'static str,
     app_version: &'static str,
 }
@@ -19,7 +21,8 @@ struct HealthCheckResponse {
 impl Default for HealthCheckResponse {
     fn default() -> Self {
         Self {
-            msg: "I am a happy and healthy service! 🦦",
+            msg: "I am a happy and healthy service!",
+            emoji: random_emoji!(),
             app_name: get_app_name(),
             app_version: get_app_version(),
         }
