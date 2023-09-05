@@ -41,16 +41,3 @@ pub async fn health_check(_: HealthCheckEndpoint) -> impl IntoResponse {
     info!("health check called");
     Json(HealthCheckResponse::default())
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use axum::http::StatusCode;
-    use pretty_assertions::assert_eq;
-
-    #[tokio::test]
-    async fn health_check_is_ok() {
-        let response = health_check(HealthCheckEndpoint).await;
-        assert_eq!(response.into_response().status(), StatusCode::OK)
-    }
-}

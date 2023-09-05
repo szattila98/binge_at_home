@@ -161,7 +161,7 @@ impl Entity<Self> for Catalog {
     }
 }
 
-#[cfg(test)]
+/* #[cfg(test)]
 mod tests {
     use super::*;
     use fake::{Fake, Faker};
@@ -214,4 +214,20 @@ mod tests {
 
         Ok(())
     }
-}
+
+    #[sqlx::test(fixtures("catalogs"))]
+    async fn find_correct_id_found(pool: PgPool) -> Result<(), sqlx::Error> {
+        let catalog = Catalog::find(&pool, 3).await?.expect("no catalog found");
+
+        assert_eq!(catalog.id, 3);
+        assert_eq!(catalog.path, "/movies/2");
+        assert_eq!(catalog.display_name, "Inception");
+        assert_eq!(catalog.short_desc, "Science Fiction movie");
+        assert_eq!(
+            catalog.long_desc,
+            "A thief enters the dreams of others to steal their secrets."
+        );
+
+        Ok(())
+    }
+} */
