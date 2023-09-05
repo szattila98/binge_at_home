@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": " SELECT * FROM catalog WHERE id = $1",
+  "query": "SELECT * FROM catalog WHERE id = $1",
   "describe": {
     "columns": [
       {
@@ -54,5 +54,5 @@
       false
     ]
   },
-  "hash": "2457ef6661e18f3ffcceda3bf183840e420fedcb426e240c9b99e1025004f42a"
+  "hash": "b6800e7ade35167d1b3091d584c21d5477fe1b9e5f646c0cd9ef568c4aa39c37"
 }

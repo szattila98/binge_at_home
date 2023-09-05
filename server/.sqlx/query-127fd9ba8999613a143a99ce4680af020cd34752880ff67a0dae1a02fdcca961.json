@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n            INSERT INTO video ( \n                path, display_name, short_desc, long_desc, catalog_id, sequent_id, \n                size, duration, bitrate, width, height, framerate \n            ) \n            VALUES ( $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12 ) \n            RETURNING *\n        ",
+  "query": "\n                INSERT INTO video ( \n                    path, display_name, short_desc, long_desc, catalog_id, sequent_id, \n                    size, duration, bitrate, width, height, framerate \n                ) \n                VALUES ( $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12 ) \n                RETURNING *\n            ",
   "describe": {
     "columns": [
       {
@@ -113,5 +113,5 @@
       false
     ]
   },
-  "hash": "81aa9b28bcab90696db8a5493a24a6e291a272de3cead344ecbf54c63eae6b2c"
+  "hash": "127fd9ba8999613a143a99ce4680af020cd34752880ff67a0dae1a02fdcca961"
 }

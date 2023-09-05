@@ -1,4 +1,6 @@
 use async_trait::async_trait;
+#[cfg(test)]
+use fake::Dummy;
 use sqlx::PgPool;
 use tracing::instrument;
 
@@ -9,6 +11,7 @@ use crate::model::{
 use super::{build_find_all_query, Entity, OrderBy, Pagination};
 
 #[derive(Debug)]
+#[cfg_attr(test, derive(Dummy))]
 pub struct CreateVideoRequest {
     pub path: String,
     pub display_name: String,
@@ -26,6 +29,7 @@ pub struct CreateVideoRequest {
 }
 
 #[derive(Debug)]
+#[cfg_attr(test, derive(Dummy))]
 pub enum VideoOrdering {
     Path,
     DisplayName,
@@ -44,6 +48,7 @@ pub enum VideoOrdering {
 }
 
 #[derive(Debug)]
+#[cfg_attr(test, derive(Dummy))]
 pub struct UpdateVideoRequest {
     pub id: EntityId,
     pub path: String,
@@ -74,13 +79,13 @@ impl Entity<Self> for Video {
         let video = sqlx::query_as!(
             Self,
             r#"
-            INSERT INTO video ( 
-                path, display_name, short_desc, long_desc, catalog_id, sequent_id, 
-                size, duration, bitrate, width, height, framerate 
-            ) 
-            VALUES ( $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12 ) 
-            RETURNING *
-        "#,
+                INSERT INTO video ( 
+                    path, display_name, short_desc, long_desc, catalog_id, sequent_id, 
+                    size, duration, bitrate, width, height, framerate 
+                ) 
+                VALUES ( $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12 ) 
+                RETURNING *
+            "#,
             request.path,
             request.display_name,
             request.short_desc,
@@ -133,16 +138,16 @@ impl Entity<Self> for Video {
         let videos = sqlx::query_as!(
             Self,
             r#"
-            INSERT INTO video ( 
-                path, display_name, short_desc, long_desc, catalog_id, size, 
-                duration, bitrate, width, height, framerate 
-            ) 
-            SELECT * FROM UNNEST(
-                $1::text[], $2::text[], $3::text[], $4::text[], $5::int8[], $6::int8[], 
-                $7::int8[], $8::int8[], $9::int2[], $10::int2[], $11::float8[]
-            )
-            RETURNING *
-        "#,
+                INSERT INTO video ( 
+                    path, display_name, short_desc, long_desc, catalog_id, size, 
+                    duration, bitrate, width, height, framerate 
+                ) 
+                SELECT * FROM UNNEST(
+                    $1::text[], $2::text[], $3::text[], $4::text[], $5::int8[], $6::int8[], 
+                    $7::int8[], $8::int8[], $9::int2[], $10::int2[], $11::float8[]
+                )
+                RETURNING *
+            "#,
             &paths[..],
             &display_names[..],
             &short_descs[..],
@@ -163,7 +168,7 @@ impl Entity<Self> for Video {
 
     #[instrument(skip(pool))]
     async fn find(pool: &PgPool, id: EntityId) -> Result<Option<Self>, sqlx::Error> {
-        let video = sqlx::query_as!(Self, " SELECT * FROM video WHERE id = $1", id)
+        let video = sqlx::query_as!(Self, "SELECT * FROM video WHERE id = $1", id)
             .fetch_optional(pool)
             .await?;
         Ok(video)
@@ -228,5 +233,13 @@ impl Entity<Self> for Video {
             .execute(pool)
             .await?;
         Ok(result.rows_affected())
+    }
+
+    #[instrument(skip(pool))]
+    async fn count_all(pool: &PgPool) -> Result<i64, sqlx::Error> {
+        let count = sqlx::query_scalar!(r#"SELECT COUNT(*) as "count!" FROM video"#)
+            .fetch_one(pool)
+            .await?;
+        Ok(count)
     }
 }

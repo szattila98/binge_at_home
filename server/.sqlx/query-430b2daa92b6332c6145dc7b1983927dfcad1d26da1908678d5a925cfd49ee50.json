@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n            INSERT INTO video ( \n                path, display_name, short_desc, long_desc, catalog_id, size, \n                duration, bitrate, width, height, framerate \n            ) \n            SELECT * FROM UNNEST(\n                $1::text[], $2::text[], $3::text[], $4::text[], $5::int8[], $6::int8[], \n                $7::int8[], $8::int8[], $9::int2[], $10::int2[], $11::float8[]\n            )\n            RETURNING *\n        ",
+  "query": "\n                INSERT INTO video ( \n                    path, display_name, short_desc, long_desc, catalog_id, size, \n                    duration, bitrate, width, height, framerate \n                ) \n                SELECT * FROM UNNEST(\n                    $1::text[], $2::text[], $3::text[], $4::text[], $5::int8[], $6::int8[], \n                    $7::int8[], $8::int8[], $9::int2[], $10::int2[], $11::float8[]\n                )\n                RETURNING *\n            ",
   "describe": {
     "columns": [
       {
@@ -112,5 +112,5 @@
       false
     ]
   },
-  "hash": "4a7e706bc5962cf25b65ed1f22f3eaaa81f25f47033ed2a95cd1d702ad008681"
+  "hash": "430b2daa92b6332c6145dc7b1983927dfcad1d26da1908678d5a925cfd49ee50"
 }

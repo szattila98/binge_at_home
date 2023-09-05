@@ -15,7 +15,7 @@ name = "binge-at-home"
 members = ["macros"]
 
 [features]
-default = []
+default = ["migrate"]
 # compiles migrations into the binary and runs them on migrations on startup
 migrate = ["sqlx/migrate"]
 
@@ -27,7 +27,6 @@ axum = { version = "0.6.20", features = ["macros"] }
 axum-extra = { version = "0.7.7", features = ["typed-routing"] }
 confique = { version = "0.2.4", default-features = false, features = ["yaml"] }
 convert_case = "0.6.0"
-fake = { version = "2.8.0", features = ["time"] }
 macros = { version = "0.1.0", path = "macros" }
 secrecy = { version = "0.8.0", features = ["serde"] }
 serde = { version = "1.0.183", features = ["derive"] }
@@ -60,5 +59,5 @@ utoipa = "3.4.4"
 utoipa-swagger-ui = { version = "3.1.5", features = ["axum"] }
 
 [dev-dependencies]
-fake = "2.8.0"
+fake = { version = "2.8.0", features = ["time", "derive"] }
 pretty_assertions = "1.4.0"

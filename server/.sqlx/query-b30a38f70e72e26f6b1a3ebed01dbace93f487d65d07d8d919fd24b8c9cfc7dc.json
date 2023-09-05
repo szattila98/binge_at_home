@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n            INSERT INTO catalog ( path, display_name, short_desc, long_desc ) \n            VALUES ( $1, $2, $3, $4) \n            RETURNING *\n        ",
+  "query": "\n                INSERT INTO catalog ( path, display_name, short_desc, long_desc ) \n                VALUES ( $1, $2, $3, $4) \n                RETURNING *\n            ",
   "describe": {
     "columns": [
       {
@@ -57,5 +57,5 @@
       false
     ]
   },
-  "hash": "71fd5cdb8743903586bf19c1e40c79117d32259bc0767d7249cfe578a8d43ab5"
+  "hash": "b30a38f70e72e26f6b1a3ebed01dbace93f487d65d07d8d919fd24b8c9cfc7dc"
 }
