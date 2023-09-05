@@ -2,6 +2,19 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## server-0.3.0 - 2023-09-05
+#### Continuous Integration
+- **(macros)** fixed versioning - (bdfa92f) - *szattila98*
+#### Features
+- **(macros)** Added macros crate and random emojis macro - (8967093) - *szattila98*
+#### Tests
+- **(server)** commented out crud tests as these are better as integration tests - (cf1e9d4) - *szattila98*
+- **(server)** added some catalog crud tests - (6c9b0d2) - *szattila98*
+- **(server)** Added some tests - (8e43b8c) - *szattila98*
+- **(server)** tested crud commons - (8751d15) - *szattila98*
+
+- - -
+
 ## server-0.2.0 - 2023-08-29
 #### Bug Fixes
 - **(server)** fixed migrations and tried out some queries - (fbbfa0b) - *szattila98*

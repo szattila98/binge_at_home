@@ -2,6 +2,22 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## [0.5.0](https://github.com/szattila98/binge_at_home/compare/0.4.0..0.5.0) - 2023-09-05
+### Package updates
+- [macros](server/macros) bumped to [macros-0.1.0](https://github.com/szattila98/binge_at_home/compare/2399c6f6a128d954c6644f190614d3fee1f507a4..macros-0.1.0)
+- [server-0.3.0](server) bumped to [server-0.3.0](https://github.com/szattila98/binge_at_home/compare/server-0.2.0..server-0.3.0)
+### Global changes
+#### Continuous Integration
+- **(macros)** fixed release again - ([af1b9a1](https://github.com/szattila98/binge_at_home/commit/af1b9a16c1c09d218f1d288c6ca15acb1dcfc53e)) - [@szattila98](https://github.com/szattila98)
+- **(server)** fixing postgres tests in github actions - ([8c6e1d9](https://github.com/szattila98/binge_at_home/commit/8c6e1d9ecb3ab110e13d9e69f51ec8e1e1487c02)) - [@szattila98](https://github.com/szattila98)
+#### Features
+- **(macros)** Added macros crate and random emojis macro - ([8967093](https://github.com/szattila98/binge_at_home/commit/89670930894d120ab90441306f25b84eeaa4d496)) - [@szattila98](https://github.com/szattila98)
+#### Tests
+- **(server)** added some catalog crud tests - ([6c9b0d2](https://github.com/szattila98/binge_at_home/commit/6c9b0d2fd40cdc6ad628d52e79590ee7175ee1cf)) - [@szattila98](https://github.com/szattila98)
+- **(server)** Added some tests - ([8e43b8c](https://github.com/szattila98/binge_at_home/commit/8e43b8c5d5121e3a604b72dc5d10a24244728131)) - [@szattila98](https://github.com/szattila98)
+
+- - -
+
 ## [0.4.0](https://github.com/szattila98/binge_at_home/compare/0.3.0..0.4.0) - 2023-08-29
 ### Package updates
 - [server-0.2.0](server) bumped to [server-0.2.0](https://github.com/szattila98/binge_at_home/compare/server-0.1.0..server-0.2.0)

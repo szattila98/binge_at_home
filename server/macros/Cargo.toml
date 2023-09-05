@@ -1,6 +1,6 @@
 [package]
 name = "macros"
-version = "0.0.0"
+version = "0.1.0"
 description = "Macro library used by the project"
 edition = "2021"
 
