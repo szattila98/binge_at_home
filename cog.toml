@@ -24,8 +24,8 @@ client = { path = "client", pre_bump_hooks = [
     "npm ci",
     "npm version {{version}}",
 ] }
-server = { path = "server", pre_bump_hooks = ["cargo set-version {{version}}"] }
-macros = { path = "server/macros", pre_bump_hooks = ["cargo set-version {{version}}"] }
+server = { path = "server", pre_bump_hooks = ["cargo set-version -p binge-at-home {{version}}"] }
+macros = { path = "server/macros", pre_bump_hooks = ["cargo set-version -p macros {{version}}"], public_api = false }
 
 [git_hooks.pre-push]
 script = """#!/bin/sh
