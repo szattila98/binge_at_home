@@ -80,6 +80,7 @@ pub trait Entity<T> {
     async fn update(pool: &PgPool, request: Self::UpdateRequest) -> Result<Option<T>, sqlx::Error>;
     async fn delete(pool: &PgPool, id: EntityId) -> Result<bool, sqlx::Error>;
     async fn delete_many(pool: &PgPool, ids: Vec<EntityId>) -> Result<u64, sqlx::Error>;
+    async fn count_all(pool: &PgPool) -> Result<i64, sqlx::Error>;
 }
 
 fn build_find_all_query<T: fmt::Debug>(

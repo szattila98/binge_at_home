@@ -9,6 +9,7 @@ FROM chef AS builder
 COPY --from=planner /app/recipe.json recipe.json
 RUN cargo chef cook --release --recipe-path recipe.json
 COPY . .
+COPY .env.dev .env
 RUN cargo build --release --bin binge-at-home --features migrate
 
 FROM debian:bullseye AS runtime
