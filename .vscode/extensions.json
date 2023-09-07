@@ -6,6 +6,7 @@
     "tamasfe.even-better-toml",
     "pranaygp.vscode-css-peek",
     "tarrow.css-class-intellisense",
-    "xabikos.javascriptsnippets"
+    "xabikos.javascriptsnippets",
+    "otovo-oss.htmx-tags"
   ]
 }

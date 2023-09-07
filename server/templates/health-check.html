@@ -5,6 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Health Check</title>
+    <script src="https://unpkg.com/htmx.org@1.9.5"
+        integrity="sha384-xcuj3WpfgjlKF+FXhSQFQ0ZNr39ln+hwjN3npfM9VBnUskLolQAcN80McRIVOPuO"
+        crossorigin="anonymous"></script>
     <link rel="stylesheet" href="assets/css/health-check.css">
 </head>
 
@@ -13,6 +16,9 @@
         <p class="text">{{ msg }}<span class="emoji">{{ emoji }}</span></p>
         <p class="small-print">{{ app_name }}</p>
         <p class="small-print">{{ app_version }}</p>
+        <div hx-get="/test" hx-trigger="load" hx-target="this" hx-swap="innerHTML">
+
+        </div>
     </div>
 </body>
 

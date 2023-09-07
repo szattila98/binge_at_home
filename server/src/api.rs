@@ -1,4 +1,5 @@
 pub mod health_check;
+pub mod test;
 
 use std::{any::Any, sync::Arc};
 
@@ -27,6 +28,7 @@ use tracing::{info, instrument};
 use crate::{configuration::Configuration, logging::Logger};
 
 use self::health_check::health_check;
+use self::test::test;
 
 static REQUEST_ID_HEADER: &str = "x-request-id";
 static MISSING_REQUEST_ID: &str = "missing_request_id";
@@ -94,6 +96,7 @@ pub fn init(config: Configuration, database: PgPool, _: &Logger) -> anyhow::Resu
 
     let router = Router::new()
         .typed_get(health_check)
+        .typed_get(test)
         .nest_service(
             "/assets",
             ServeDir::new(static_dir).call_fallback_on_method_not_allowed(true),
