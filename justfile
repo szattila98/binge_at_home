@@ -18,24 +18,24 @@ add-git-hook:
     @cog install-hook pre-push
 
 docker-up-all:
-    # Starting client and dependencies in docker-compose
-    @just _check-app docker-compose
-    @docker-compose up -d --build
+    # Starting client and dependencies in docker compose
+    @just _check-app docker compose
+    @docker compose up -d --build
 
 docker-up-server:
-    # Starting server and dependencies in docker-compose
-    @just _check-app docker-compose
-    @docker-compose up server -d --build
+    # Starting server and dependencies in docker compose
+    @just _check-app docker compose
+    @docker compose up server -d --build
 
 docker-up-dev:
     # Starting development services (database)
-    @just _check-app docker-compose
-    @docker-compose up database -d --build
+    @just _check-app docker compose
+    @docker compose up database -d --build
 
 docker-down:
-    # Stopping docker-compose environment
-    @just _check-app docker-compose
-    @docker-compose down
+    # Stopping docker compose environment
+    @just _check-app docker compose
+    @docker compose down
 
 lint-server-seriously:
     # Scanning server files with pedantic and nursery clippy rules
