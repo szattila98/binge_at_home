@@ -1,0 +1,65 @@
+# Host to bind to.
+#
+# Can also be specified via environment variable `HOST`.
+#
+# Default value: 0.0.0.0
+#host: 0.0.0.0
+
+# Port to listen on.
+#
+# Can also be specified via environment variable `PORT`.
+#
+# Default value: 8080
+#port: 8080
+
+# Static directory to server.
+#
+# Can also be specified via environment variable `STATIC`.
+#
+# Default value: ./templates/assets
+#static_dir: ./templates/assets
+
+# Logging configuration options.
+logging:
+  # Log level. An integer between 1-5 or the level as a string.
+  #
+  # Default value: info
+  level: info
+
+  # File logging configuration.
+  file:
+    # The parent directory of the log file.
+    #
+    # Default value: logs
+    #dir: logs
+
+    # The name of the log file. A date will be appended to the end of it.
+    #
+    # Default value: app.log
+    #name: app.log
+
+# Database configuration options.
+database:
+  # The url of the postgres the data source.
+  #
+  # Can also be specified via environment variable `DATABASE_URL`.
+  #
+  # Required! This value must be specified.
+  url: postgresql://root:password@localhost:5432/binge-at-home
+
+# Server middleware configuration options.
+middlewares:
+  # The request body size limit in bytes.
+  #
+  # Default value: 4096
+  #body_size_limit: 4096
+
+  # The CORS policy for allowed origins.
+  #
+  # Default value: ['*']
+  #allowed_origins: ['*']
+
+  # The number of seconds after the request handling will timeout.
+  #
+  # Default value: 30
+  #request_timeout: 30

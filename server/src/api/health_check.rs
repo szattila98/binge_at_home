@@ -1,4 +1,5 @@
-use axum::{response::IntoResponse, Json};
+use askama::Template;
+use axum::response::IntoResponse;
 use axum_extra::routing::TypedPath;
 use macros::random_emoji;
 use serde::Serialize;
@@ -7,18 +8,19 @@ use tracing::{info, instrument};
 use crate::{get_app_name, get_app_version};
 
 #[derive(TypedPath)]
-#[typed_path("/")]
+#[typed_path("/health-check")]
 pub struct HealthCheckEndpoint;
 
-#[derive(Serialize)]
-struct HealthCheckResponse {
+#[derive(Serialize, Template)]
+#[template(path = "health-check.html")]
+struct HealthCheckTemplate {
     msg: &'static str,
     emoji: &'static str,
     app_name: &'static str,
     app_version: &'static str,
 }
 
-impl Default for HealthCheckResponse {
+impl Default for HealthCheckTemplate {
     fn default() -> Self {
         Self {
             msg: "I am a happy and healthy service!",
@@ -29,15 +31,8 @@ impl Default for HealthCheckResponse {
     }
 }
 
-#[utoipa::path(
-    get,
-    path = "/api",
-    responses(
-        (status = 200, description = "Checks health of the service")
-    )
-)]
 #[instrument(skip_all)]
 pub async fn health_check(_: HealthCheckEndpoint) -> impl IntoResponse {
     info!("health check called");
-    Json(HealthCheckResponse::default())
+    HealthCheckTemplate::default()
 }

@@ -36,9 +36,9 @@ pub struct Configuration {
     /// Server middleware configuration options.
     #[config(nested)]
     middlewares: Middlewares,
-    /// Enables swagger ui.
-    #[config(default = true)]
-    swagger_ui: bool,
+    /// Static directory to server.
+    #[config(env = "STATIC", default = "./templates/assets")]
+    static_dir: String,
 }
 
 #[derive(Debug, Config, Deserialize)]
@@ -128,8 +128,8 @@ impl Configuration {
         &self.middlewares
     }
 
-    pub fn swagger_ui(&self) -> bool {
-        self.swagger_ui
+    pub fn static_dir(&self) -> &str {
+        self.static_dir.as_ref()
     }
 }
 

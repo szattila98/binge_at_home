@@ -1,9 +1,11 @@
 {
   "recommendations": [
-    "vue.volar",
     "rust-lang.rust-analyzer",
     "github.vscode-github-actions",
     "vadimcn.vscode-lldb",
-    "tamasfe.even-better-toml"
+    "tamasfe.even-better-toml",
+    "pranaygp.vscode-css-peek",
+    "tarrow.css-class-intellisense",
+    "xabikos.javascriptsnippets"
   ]
 }

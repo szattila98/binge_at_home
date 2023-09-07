@@ -3,6 +3,7 @@ name = "binge-at-home"
 version = "0.3.0"
 description = "Self-hosted video streaming application"
 edition = "2021"
+build = "build.rs"
 
 [lib]
 path = "src/lib.rs"
@@ -21,6 +22,8 @@ migrate = ["sqlx/migrate"]
 
 [dependencies]
 anyhow = "1.0.75"
+askama = { version = "0.12.0", features = ["with-axum"] }
+askama_axum = "0.3.0"
 # TODO remove after async trait staibilisation
 async-trait = "0.1.73"
 axum = { version = "0.6.20", features = ["macros"] }
@@ -42,6 +45,7 @@ time = "0.3.25"
 tokio = { version = "1.32.0", features = ["full"] }
 tower = "0.4.13"
 tower-http = { version = "0.4.3", features = [
+    "fs",
     "util",
     "compression-gzip",
     "cors",
@@ -52,11 +56,10 @@ tower-http = { version = "0.4.3", features = [
     "validate-request",
     "catch-panic",
 ] }
+tower-livereload = "0.8.1"
 tracing = "0.1.37"
 tracing-appender = "0.2.2"
 tracing-subscriber = { version = "0.3.17", features = ["registry"] }
-utoipa = "3.4.4"
-utoipa-swagger-ui = { version = "3.1.5", features = ["axum"] }
 
 [dev-dependencies]
 fake = { version = "2.8.0", features = ["time", "derive"] }

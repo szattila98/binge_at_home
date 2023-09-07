@@ -1,0 +1,16 @@
+.health-check {
+    background-color: yellowgreen;
+    height: 100vh;
+
+    .text {
+        font-size: 15px;
+    }
+
+    .small-print {
+        font-size: 10px;
+    }
+
+    .emoji {
+        font-size: 30px;
+    }
+}

@@ -17,13 +17,14 @@ use tower_http::{
     cors::CorsLayer,
     limit::RequestBodyLimitLayer,
     request_id::MakeRequestUuid,
+    services::ServeDir,
     timeout::TimeoutLayer,
     trace::{DefaultOnFailure, DefaultOnRequest, DefaultOnResponse, TraceLayer},
     LatencyUnit, ServiceBuilderExt,
 };
 use tracing::{info, instrument};
 
-use crate::{configuration::Configuration, logging::Logger, swagger::add_swagger_ui};
+use crate::{configuration::Configuration, logging::Logger};
 
 use self::health_check::health_check;
 
@@ -85,22 +86,20 @@ pub fn init(config: Configuration, database: PgPool, _: &Logger) -> anyhow::Resu
         .layer(timeout)
         .layer(compression)
         .layer(panic_handling);
+    #[cfg(debug_assertions)]
+    let middlewares = middlewares.layer(tower_livereload::LiveReloadLayer::new());
 
-    let enable_swagger_ui = config.swagger_ui();
+    let static_dir = config.static_dir().to_owned();
     let state = AppState::new(config, database);
 
-    let api = Router::new().typed_get(health_check);
-
     let router = Router::new()
-        .nest("/api", api)
+        .typed_get(health_check)
+        .nest_service(
+            "/assets",
+            ServeDir::new(static_dir).call_fallback_on_method_not_allowed(true),
+        )
         .layer(middlewares)
         .with_state(state);
-
-    let router = if enable_swagger_ui {
-        add_swagger_ui(router)
-    } else {
-        router
-    };
 
     info!("initialized router");
     Ok(router)

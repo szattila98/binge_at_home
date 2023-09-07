@@ -5,7 +5,6 @@ pub mod database;
 pub mod logging;
 pub mod model;
 pub mod startup;
-pub mod swagger;
 
 pub fn print_banner() {
     print!("{}", include_str!("../resources/banner.txt"));
