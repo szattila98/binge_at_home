@@ -13,6 +13,7 @@
     "editor.defaultFormatter": "vscode.css-language-features"
   },
   "cSpell.words": [
+    "askama",
     "livereload"
   ]
 }

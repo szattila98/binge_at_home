@@ -1,5 +1,9 @@
+pub mod catalog_explorer;
+pub mod catalogs;
 pub mod fragments;
 pub mod health_check;
+pub mod video_details;
+pub mod video_watch;
 
 use std::{any::Any, sync::Arc};
 
@@ -27,8 +31,12 @@ use tracing::{info, instrument};
 
 use crate::{configuration::Configuration, logging::Logger};
 
+use self::catalog_explorer::catalog_explorer;
+use self::catalogs::catalogs;
 use self::fragments::test::test;
 use self::health_check::health_check;
+use self::video_details::video_details;
+use self::video_watch::video_watch;
 
 static REQUEST_ID_HEADER: &str = "x-request-id";
 static MISSING_REQUEST_ID: &str = "missing_request_id";
@@ -108,6 +116,10 @@ pub fn init(config: Configuration, database: PgPool, _: &Logger) -> anyhow::Resu
 
     let router = Router::new()
         .typed_get(health_check)
+        .typed_get(catalogs)
+        .typed_get(catalog_explorer)
+        .typed_get(video_details)
+        .typed_get(video_watch)
         .nest("/fragments", fragments)
         .nest_service(
             "/assets",

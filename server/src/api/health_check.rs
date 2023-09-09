@@ -3,7 +3,7 @@ use axum::response::IntoResponse;
 use axum_extra::routing::TypedPath;
 use macros::random_emoji;
 use serde::Serialize;
-use tracing::{info, instrument};
+use tracing::{debug, instrument};
 
 use crate::{get_app_name, get_app_version};
 
@@ -33,6 +33,6 @@ impl Default for HealthCheckTemplate {
 
 #[instrument(skip_all)]
 pub async fn health_check(_: HealthCheckEndpoint) -> impl IntoResponse {
-    info!("health check called");
+    debug!("health check rendered");
     HealthCheckTemplate::default()
 }

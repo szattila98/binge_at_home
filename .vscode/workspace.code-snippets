@@ -28,5 +28,31 @@
     "prefix": "template-exp",
     "body": ["{% $0 %}"],
     "description": "Creates an Askama expression template symbol"
-  }
+  },
+  "Create new html renderer endpoint": {
+    "scope": "rust",
+    "prefix": "page-endpoint",
+    "body": [
+        "use askama::Template;",
+        "use axum::response::IntoResponse;",
+        "use axum_extra::routing::TypedPath;",
+        "use serde::Serialize;",
+        "use tracing::{debug, instrument};",
+        "",
+        "#[derive(TypedPath)]",
+        "#[typed_path(\"/\")]",
+        "pub struct Endpoint;",
+        "",
+        "#[derive(Serialize, Template)]",
+        "#[template(path = \".html\")]",
+        "struct Template;",
+        "",
+        "#[instrument(skip_all)]",
+        "pub async fn endpoint(_: Endpoint) -> impl IntoResponse {",
+        "\tdebug!(\"page rendered\");",
+        "\tTemplate",
+        "}"
+    ],
+    "description": "Creates a new html renderer endpoint with everything that is needed"
+}
 }
