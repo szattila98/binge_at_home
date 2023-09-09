@@ -30,6 +30,7 @@ axum = { version = "0.6.20", features = ["macros"] }
 axum-extra = { version = "0.7.7", features = ["typed-routing"] }
 confique = { version = "0.2.4", default-features = false, features = ["yaml"] }
 convert_case = "0.6.0"
+http = "0.2.9"
 macros = { version = "0.1.0", path = "macros" }
 secrecy = { version = "0.8.0", features = ["serde"] }
 serde = { version = "1.0.183", features = ["derive"] }
@@ -55,6 +56,7 @@ tower-http = { version = "0.4.3", features = [
     "timeout",
     "validate-request",
     "catch-panic",
+    "set-header",
 ] }
 tower-livereload = "0.8.1"
 tracing = "0.1.37"

@@ -1,5 +1,5 @@
+pub mod fragments;
 pub mod health_check;
-pub mod test;
 
 use std::{any::Any, sync::Arc};
 
@@ -27,8 +27,8 @@ use tracing::{info, instrument};
 
 use crate::{configuration::Configuration, logging::Logger};
 
+use self::fragments::test::test;
 use self::health_check::health_check;
-use self::test::test;
 
 static REQUEST_ID_HEADER: &str = "x-request-id";
 static MISSING_REQUEST_ID: &str = "missing_request_id";
@@ -89,14 +89,26 @@ pub fn init(config: Configuration, database: PgPool, _: &Logger) -> anyhow::Resu
         .layer(compression)
         .layer(panic_handling);
     #[cfg(debug_assertions)]
-    let middlewares = middlewares.layer(tower_livereload::LiveReloadLayer::new());
+    let middlewares = middlewares
+        .layer(tower_http::set_header::SetResponseHeaderLayer::overriding(
+            http::header::CACHE_CONTROL,
+            http::HeaderValue::from_static("no-cache, no-store, must-revalidate"),
+        ))
+        .layer(
+            tower_livereload::LiveReloadLayer::new()
+                .request_predicate::<String, live_reload_predicate::PathPredicate>(
+                    live_reload_predicate::PathPredicate,
+                ),
+        );
 
     let static_dir = config.static_dir().to_owned();
     let state = AppState::new(config, database);
 
+    let fragments = Router::new().typed_get(test);
+
     let router = Router::new()
         .typed_get(health_check)
-        .typed_get(test)
+        .nest("/fragments", fragments)
         .nest_service(
             "/assets",
             ServeDir::new(static_dir).call_fallback_on_method_not_allowed(true),
@@ -135,4 +147,19 @@ fn handle_panic(err: Box<dyn Any + Send + 'static>) -> Response<Body> {
         .header(header::CONTENT_TYPE, "application/json")
         .body(Body::from(body))
         .expect("error in building response, handle_panic is probably misconfigured")
+}
+
+#[cfg(debug_assertions)]
+mod live_reload_predicate {
+    use http::Request;
+    use tower_livereload::predicate::Predicate;
+
+    #[derive(Copy, Clone, Debug)]
+    pub struct PathPredicate;
+
+    impl<T> Predicate<Request<T>> for PathPredicate {
+        fn check(&mut self, request: &Request<T>) -> bool {
+            !(request.uri().to_string().starts_with("/fragments"))
+        }
+    }
 }

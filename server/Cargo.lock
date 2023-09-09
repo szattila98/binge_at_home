@@ -262,6 +262,7 @@ dependencies = [
  "confique",
  "convert_case",
  "fake",
+ "http",
  "macros",
  "pretty_assertions",
  "secrecy",
