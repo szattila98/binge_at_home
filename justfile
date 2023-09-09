@@ -18,14 +18,9 @@ add-git-hook:
     @cog install-hook pre-push
 
 docker-up-all:
-    # Starting client and dependencies in docker compose
-    @just _check-app 'docker compose'
-    @docker compose up -d --build
-
-docker-up-server:
     # Starting server and dependencies in docker compose
     @just _check-app 'docker compose'
-    @docker compose up server -d --build
+    @docker compose up -d --build
 
 docker-up-dev:
     # Starting development services (database)
@@ -44,3 +39,7 @@ lint-server-seriously:
 prepare-offline-sqlx:
     # Preparing sqlx for offline compilation
     @cd server && cargo sqlx prepare
+
+typecheck:
+    # Typechecking js files based on js docs
+    @tsc --noEmit && echo "No type errors found!"

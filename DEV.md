@@ -60,23 +60,4 @@ These will also rebuild containers on file changes, if ran again.
 
 ## Prerequisites
 
-- _docker_ 24.0.2 or higher
-- _docker-compose_ 2.18.1 or higher
-- _node_ 20.3.0 or higher
-- _npm_ 9.7.1 or higher
-
-### Recommended tool
-
-- [_volta_](https://volta.sh/) - a node version manager which automatically determines used tooling versions based on the `package.json` volta entry.
-
-## Starting backend for client
-
-- To run the complete backend (database & server), use `just docker-up-server`, the database will be available at port 3306 and the server on 8000
-- The build will take some time at first and on changes, consequent runs will be much faster thanks to docker caching
-- It can be used as a backend for frontend development, the server is built in release mode, so it is smaller and highly optimized
-
-## Starting Svelte dev server
-
-- `cd ./client`
-- `npm i`
-- `npm run dev`
+### Recommended tools

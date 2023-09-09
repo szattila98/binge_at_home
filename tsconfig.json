@@ -1,0 +1,11 @@
+{
+    "compilerOptions": {
+      "module": "ESNext",
+      "target": "es6",
+      "checkJs": true,
+      "baseUrl": ".",
+      "allowJs": true
+    },
+    "include": ["./server/templates/**/*.js"]
+}
+  

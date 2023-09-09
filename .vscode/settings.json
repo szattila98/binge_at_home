@@ -1,9 +1,14 @@
 {
+  "cSpell.words": [
+    "askama",
+    "livereload",
+    "Parens"
+  ],
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true
+    "source.fixAll": true,
+    "source.organizeImports": true
   },
-  "eslint.workingDirectories": ["./client"],
   "files.insertFinalNewline": true,
   "html.format.templating": true,
   "[html]": {
@@ -12,8 +17,7 @@
   "[css]": {
     "editor.defaultFormatter": "vscode.css-language-features"
   },
-  "cSpell.words": [
-    "askama",
-    "livereload"
-  ]
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }
