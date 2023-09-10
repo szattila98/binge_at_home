@@ -242,3 +242,19 @@ impl Entity<Self> for Video {
         Ok(count)
     }
 }
+
+impl Video {
+    pub async fn find_by_catalog_id(
+        pool: &PgPool,
+        catalog_id: EntityId,
+    ) -> Result<Vec<Video>, sqlx::Error> {
+        let video = sqlx::query_as!(
+            Self,
+            "SELECT * FROM video WHERE catalog_id = $1",
+            catalog_id
+        )
+        .fetch_all(pool)
+        .await?;
+        Ok(video)
+    }
+}

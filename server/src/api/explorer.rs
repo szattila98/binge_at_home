@@ -6,15 +6,15 @@ use tracing::{debug, instrument};
 
 #[derive(TypedPath)]
 #[typed_path("/")]
-pub struct CatalogsEndpoint;
+pub struct ExplorerEndpoint;
 
 #[derive(Serialize, Template)]
-#[template(path = "catalogs.html")]
-struct CatalogsTemplate;
+#[template(path = "explorer.html")]
+struct ExplorerTemplate;
 
-#[instrument(skip_all)]
-pub async fn catalogs(_: CatalogsEndpoint) -> impl IntoResponse {
-    let rendered = CatalogsTemplate;
+#[instrument]
+pub async fn explorer(_: ExplorerEndpoint) -> impl IntoResponse {
+    let rendered = ExplorerTemplate;
     debug!("catalogs rendered\n{rendered}");
     rendered
 }

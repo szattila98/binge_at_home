@@ -12,7 +12,7 @@ pub struct VideoWatchEndpoint;
 #[template(path = "video-watch.html")]
 struct VideoWatchTemplate;
 
-#[instrument(skip_all)]
+#[instrument]
 pub async fn video_watch(_: VideoWatchEndpoint) -> impl IntoResponse {
     debug!("video watch rendered");
     VideoWatchTemplate

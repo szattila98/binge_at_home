@@ -1,0 +1,106 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT * FROM video WHERE catalog_id = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "path",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "display_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "short_desc",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "long_desc",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "catalog_id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 6,
+        "name": "sequent_id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 7,
+        "name": "size",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 8,
+        "name": "duration",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 9,
+        "name": "bitrate",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 10,
+        "name": "width",
+        "type_info": "Int2"
+      },
+      {
+        "ordinal": 11,
+        "name": "height",
+        "type_info": "Int2"
+      },
+      {
+        "ordinal": 12,
+        "name": "framerate",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 13,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 14,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "53e72b4785ef8f7d305d03502a864747b95b199d5bc77bb97aaf8e25a7bc83ec"
+}

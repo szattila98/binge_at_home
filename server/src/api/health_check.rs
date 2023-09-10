@@ -31,7 +31,7 @@ impl Default for HealthCheckTemplate {
     }
 }
 
-#[instrument(skip_all)]
+#[instrument]
 pub async fn health_check(_: HealthCheckEndpoint) -> impl IntoResponse {
     let rendered = HealthCheckTemplate::default();
     debug!("health check rendered\n{rendered}");

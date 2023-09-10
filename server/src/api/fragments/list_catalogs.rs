@@ -24,7 +24,7 @@ struct ListCatalogsTemplate {
     catalogs: Vec<Catalog>,
 }
 
-#[instrument(skip_all)]
+#[instrument(skip(pool))]
 pub async fn list_catalogs(
     _: ListCatalogs,
     State(pool): State<PgPool>,

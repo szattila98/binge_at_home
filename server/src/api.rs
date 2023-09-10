@@ -1,5 +1,4 @@
-pub mod catalog_explorer;
-pub mod catalogs;
+pub mod explorer;
 pub mod fragments;
 pub mod health_check;
 pub mod video_details;
@@ -30,11 +29,13 @@ use tower_http::{
 use tracing::{info, instrument};
 
 use crate::{
-    api::fragments::list_catalogs::list_catalogs, configuration::Configuration, logging::Logger,
+    api::fragments::{browse::browse, list_catalogs::list_catalogs},
+    configuration::Configuration,
+    logging::Logger,
 };
 
-use self::catalog_explorer::catalog_explorer;
-use self::catalogs::catalogs;
+use self::explorer::explorer;
+
 use self::fragments::test::test;
 use self::health_check::health_check;
 use self::video_details::video_details;
@@ -114,12 +115,14 @@ pub fn init(config: Configuration, database: PgPool, _: &Logger) -> anyhow::Resu
     let static_dir = config.static_dir().to_owned();
     let state = AppState::new(config, database);
 
-    let fragments = Router::new().typed_get(test).typed_get(list_catalogs);
+    let fragments = Router::new()
+        .typed_get(test)
+        .typed_get(list_catalogs)
+        .typed_get(browse);
 
     let router = Router::new()
         .typed_get(health_check)
-        .typed_get(catalogs)
-        .typed_get(catalog_explorer)
+        .typed_get(explorer)
         .typed_get(video_details)
         .typed_get(video_watch)
         .nest("/fragments", fragments)

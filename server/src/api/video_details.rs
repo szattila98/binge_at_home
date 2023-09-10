@@ -12,7 +12,7 @@ pub struct VideoDetailsEndpoint;
 #[template(path = "video-details.html")]
 struct VideoDetailsTemplate;
 
-#[instrument(skip_all)]
+#[instrument]
 pub async fn video_details(_: VideoDetailsEndpoint) -> impl IntoResponse {
     debug!("video details rendered");
     VideoDetailsTemplate

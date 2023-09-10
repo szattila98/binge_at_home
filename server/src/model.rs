@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 #[cfg(test)]
 use fake::Dummy;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use time::OffsetDateTime;
 
 pub type EntityId = i64;
