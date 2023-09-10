@@ -1,12 +1,13 @@
 use async_trait::async_trait;
 #[cfg(test)]
 use fake::Dummy;
+use serde::Deserialize;
 use sqlx::PgPool;
 use tracing::instrument;
 
 use crate::model::{Catalog, EntityId};
 
-use super::{build_find_all_query, Entity, OrderBy, Pagination};
+use super::{build_find_all_query, Entity, Pagination, Sort};
 
 #[derive(Debug, Clone)]
 #[cfg_attr(test, derive(Dummy))]
@@ -17,9 +18,9 @@ pub struct CreateCatalogRequest {
     long_desc: String,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Deserialize)]
 #[cfg_attr(test, derive(Dummy))]
-pub enum CatalogOrdering {
+pub enum CatalogSort {
     Path,
     DisplayName,
     ShortDesc,
@@ -40,7 +41,7 @@ pub struct UpdateCatalogRequest {
 #[async_trait]
 impl Entity<Self> for Catalog {
     type CreateRequest = CreateCatalogRequest;
-    type Ordering = CatalogOrdering;
+    type Ordering = CatalogSort;
     type UpdateRequest = UpdateCatalogRequest;
 
     #[instrument(skip(pool))]
@@ -108,7 +109,7 @@ impl Entity<Self> for Catalog {
     #[instrument(skip(pool))]
     async fn find_all(
         pool: &PgPool,
-        ordering: Vec<OrderBy<CatalogOrdering>>,
+        ordering: Vec<Sort<CatalogSort>>,
         pagination: Option<Pagination>,
     ) -> Result<Vec<Self>, sqlx::Error> {
         let query = build_find_all_query("catalog", ordering, pagination);

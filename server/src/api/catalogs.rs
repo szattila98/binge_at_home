@@ -5,7 +5,7 @@ use serde::Serialize;
 use tracing::{debug, instrument};
 
 #[derive(TypedPath)]
-#[typed_path("/catalog")]
+#[typed_path("/")]
 pub struct CatalogsEndpoint;
 
 #[derive(Serialize, Template)]
@@ -14,6 +14,7 @@ struct CatalogsTemplate;
 
 #[instrument(skip_all)]
 pub async fn catalogs(_: CatalogsEndpoint) -> impl IntoResponse {
-    debug!("catalogs rendered");
-    CatalogsTemplate
+    let rendered = CatalogsTemplate;
+    debug!("catalogs rendered\n{rendered}");
+    rendered
 }

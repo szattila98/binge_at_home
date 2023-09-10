@@ -2,11 +2,12 @@ use std::path::PathBuf;
 
 #[cfg(test)]
 use fake::Dummy;
+use serde::Serialize;
 use time::OffsetDateTime;
 
 pub type EntityId = i64;
 
-#[derive(Debug, Clone, sqlx::FromRow)]
+#[derive(Debug, Clone, sqlx::FromRow, Serialize)]
 #[cfg_attr(test, derive(Dummy))]
 pub struct Catalog {
     pub id: EntityId,
@@ -32,7 +33,7 @@ pub type ScreenWidth = i16;
 pub type ScreenHeight = i16;
 pub type FramesPerSecond = f64;
 
-#[derive(Debug, Clone, sqlx::FromRow)]
+#[derive(Debug, Clone, sqlx::FromRow, Serialize)]
 #[cfg_attr(test, derive(Dummy))]
 pub struct Video {
     pub id: EntityId,

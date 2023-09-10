@@ -42,7 +42,8 @@ sqlx = { version = "0.7.1", default-features = false, features = [
     "macros",
     "time",
 ] }
-time = "0.3.25"
+thiserror = "1.0.48"
+time = { version = "0.3.25", features = ["serde"] }
 tokio = { version = "1.32.0", features = ["full"] }
 tower = "0.4.13"
 tower-http = { version = "0.4.3", features = [
@@ -66,3 +67,6 @@ tracing-subscriber = { version = "0.3.17", features = ["registry"] }
 [dev-dependencies]
 fake = { version = "2.8.0", features = ["time", "derive"] }
 pretty_assertions = "1.4.0"
+
+[profile.dev.package.askama_derive]
+opt-level = 3

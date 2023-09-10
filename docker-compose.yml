@@ -15,6 +15,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    volumes:
+      - ./dev/postgres-data:/var/lib/postgresql/data
 
   server:
     container_name: binge-at-home-server

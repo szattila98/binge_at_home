@@ -1,6 +1,7 @@
 use async_trait::async_trait;
 #[cfg(test)]
 use fake::Dummy;
+use serde::Deserialize;
 use sqlx::PgPool;
 use tracing::instrument;
 
@@ -8,7 +9,7 @@ use crate::model::{
     Bytes, BytesPerSecond, EntityId, FramesPerSecond, ScreenHeight, ScreenWidth, Seconds, Video,
 };
 
-use super::{build_find_all_query, Entity, OrderBy, Pagination};
+use super::{build_find_all_query, Entity, Pagination, Sort};
 
 #[derive(Debug)]
 #[cfg_attr(test, derive(Dummy))]
@@ -28,9 +29,9 @@ pub struct CreateVideoRequest {
     pub framerate: FramesPerSecond,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy, PartialEq, Deserialize)]
 #[cfg_attr(test, derive(Dummy))]
-pub enum VideoOrdering {
+pub enum VideoSort {
     Path,
     DisplayName,
     ShortDesc,
@@ -69,9 +70,7 @@ pub struct UpdateVideoRequest {
 #[async_trait]
 impl Entity<Self> for Video {
     type CreateRequest = CreateVideoRequest;
-
-    type Ordering = VideoOrdering;
-
+    type Ordering = VideoSort;
     type UpdateRequest = UpdateVideoRequest;
 
     #[instrument(skip(pool))]
@@ -177,7 +176,7 @@ impl Entity<Self> for Video {
     #[instrument(skip(pool))]
     async fn find_all(
         pool: &PgPool,
-        ordering: Vec<OrderBy<VideoOrdering>>,
+        ordering: Vec<Sort<VideoSort>>,
         pagination: Option<Pagination>,
     ) -> Result<Vec<Self>, sqlx::Error> {
         let query = build_find_all_query("video", ordering, pagination);

@@ -29,7 +29,9 @@ use tower_http::{
 };
 use tracing::{info, instrument};
 
-use crate::{configuration::Configuration, logging::Logger};
+use crate::{
+    api::fragments::list_catalogs::list_catalogs, configuration::Configuration, logging::Logger,
+};
 
 use self::catalog_explorer::catalog_explorer;
 use self::catalogs::catalogs;
@@ -112,7 +114,7 @@ pub fn init(config: Configuration, database: PgPool, _: &Logger) -> anyhow::Resu
     let static_dir = config.static_dir().to_owned();
     let state = AppState::new(config, database);
 
-    let fragments = Router::new().typed_get(test);
+    let fragments = Router::new().typed_get(test).typed_get(list_catalogs);
 
     let router = Router::new()
         .typed_get(health_check)

@@ -1,0 +1,5 @@
+<ul>
+    {% for catalog in catalogs %}
+    <li>{{ catalog.display_name }} - {{ catalog.short_desc }}</li>
+    {% endfor %}
+</ul>

@@ -1,58 +1,68 @@
 {
-  "Create tests module": {
-    "scope": "rust",
-    "prefix": "mod-tests",
-    "body": [
-      "#[cfg(test)]",
-      "mod tests {",
-      "\tuse super::*;",
-      "\tuse fake::{Fake, Faker};",
-      "\tuse pretty_assertions::assert_eq;",
-      "",
-      "\t#[test]",
-      "\tfn test() {",
-      "\t\t",
-      "\t}",
-      "}"
-    ],
-    "description": "Creates a standard Rust tests module"
-  },
-  "Add variable template symbols": {
-    "scope": "html",
-    "prefix": "template-var",
-    "body": ["{{ $0 }}"],
-    "description": "Creates an Askama variable template symbol"
-  },
-  "Add expression template symbols": {
-    "scope": "html",
-    "prefix": "template-exp",
-    "body": ["{% $0 %}"],
-    "description": "Creates an Askama expression template symbol"
-  },
-  "Create new html renderer endpoint": {
-    "scope": "rust",
-    "prefix": "page-endpoint",
-    "body": [
-        "use askama::Template;",
-        "use axum::response::IntoResponse;",
-        "use axum_extra::routing::TypedPath;",
-        "use serde::Serialize;",
-        "use tracing::{debug, instrument};",
-        "",
-        "#[derive(TypedPath)]",
-        "#[typed_path(\"/\")]",
-        "pub struct Endpoint;",
-        "",
-        "#[derive(Serialize, Template)]",
-        "#[template(path = \".html\")]",
-        "struct Template;",
-        "",
-        "#[instrument(skip_all)]",
-        "pub async fn endpoint(_: Endpoint) -> impl IntoResponse {",
-        "\tdebug!(\"page rendered\");",
-        "\tTemplate",
-        "}"
-    ],
-    "description": "Creates a new html renderer endpoint with everything that is needed"
-}
+	"Create tests module": {
+		"scope": "rust",
+		"prefix": "mod-tests",
+		"body": [
+			"#[cfg(test)]",
+			"mod tests {",
+			"\tuse super::*;",
+			"\tuse fake::{Fake, Faker};",
+			"\tuse pretty_assertions::assert_eq;",
+			"",
+			"\t#[test]",
+			"\tfn test() {",
+			"\t\t",
+			"\t}",
+			"}"
+		],
+		"description": "Creates a standard Rust tests module"
+	},
+	"Add variable template symbols": {
+		"scope": "html",
+		"prefix": "template-var",
+		"body": ["{{ $0 }}"],
+		"description": "Creates an Askama variable template symbol"
+	},
+	"Add expression template symbols": {
+		"scope": "html",
+		"prefix": "template-exp",
+		"body": ["{% $0 %}"],
+		"description": "Creates an Askama expression template symbol"
+	},
+	"Add for template symbols": {
+		"scope": "html",
+		"prefix": "template-for",
+		"body": [
+			"\t{% for item in items %}",
+			"\t$0",
+			"\t{% endfor %}"
+		],
+		"description": "Creates an Askama for expression template symbol"
+	},
+	"Create new html renderer endpoint": {
+		"scope": "rust",
+		"prefix": "template-endpoint",
+		"body": [
+			"use askama::Template;",
+			"use axum::response::IntoResponse;",
+			"use axum_extra::routing::TypedPath;",
+			"use serde::Serialize;",
+			"use tracing::{debug, instrument};",
+			"",
+			"#[derive(TypedPath)]",
+			"#[typed_path(\"/\")]",
+			"pub struct Endpoint;",
+			"",
+			"#[derive(Serialize, Template)]",
+			"#[template(path = \".html\")]",
+			"struct Template;",
+			"",
+			"#[instrument(skip_all)]",
+			"pub async fn endpoint(_: Endpoint) -> impl IntoResponse {",
+			"\tlet rendered = Template",
+			"\tdebug!(\"page rendered\\n{rendered}\");",
+			"}"
+		],
+		"description": "Creates a new html renderer endpoint with everything that is needed"
+	}
 }
