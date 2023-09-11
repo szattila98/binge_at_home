@@ -29,6 +29,12 @@
 		"body": ["{% $0 %}"],
 		"description": "Creates an Askama expression template symbol"
 	},
+	"Add expression template block": {
+		"scope": "html",
+		"prefix": "template-block",
+		"body": ["{% block $0 %}{% endblock %}"],
+		"description": "Creates an Askama block template symbol"
+	},
 	"Add for template symbols": {
 		"scope": "html",
 		"prefix": "template-for",

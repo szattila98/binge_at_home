@@ -1,16 +1,50 @@
 .health-check {
-    background-color: rgb(0, 162, 255);
-    height: 100vh;
+    min-height: 100vh;
+    width: 60vw;
+    margin: 0 20vw 0 20vw;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
 
-    .text {
-        font-size: 15px;
+    h1 {
+        text-align: center;
+        margin-top: 40vh;
+    }
+
+    .small-print:first-child {
+        text-align: end;
+    }
+
+    .small-print:last-child {
+        text-align: start;
     }
 
     .small-print {
-        font-size: 10px;
+        margin-inline: 10px;
     }
 
     .emoji {
-        font-size: 30px;
+        text-align: center;
+        font-size: 60px;
     }
+
+    .test-btn,
+    .test-target {
+        align-self: center;
+    }
+
+    .test-target li {
+        list-style: none;
+    }
+
+    .test-target ul {
+        padding: 0;
+    }
+
+}
+
+footer {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    margin-top: auto;
 }

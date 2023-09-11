@@ -1,25 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "partials/base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Health Check</title>
-    <script src="https://unpkg.com/htmx.org@1.9.5"
-        integrity="sha384-xcuj3WpfgjlKF+FXhSQFQ0ZNr39ln+hwjN3npfM9VBnUskLolQAcN80McRIVOPuO"
-        crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="assets/css/health-check.css">
-</head>
+{% block title %}Health Check{% endblock %}
 
-<body>
-    <div class="health-check">
-        <p class="text">{{ msg }}<span class="emoji">{{ emoji }}</span></p>
-        <p class="small-print">{{ app_name }}</p>
-        <p class="small-print">{{ app_version }}</p>
-        <div hx-get="/fragments/test" hx-trigger="load" hx-target="this" hx-swap="innerHTML">
+{% block head %}
+<link rel="stylesheet" href="assets/css/health-check.css" />
+{% endblock %}
 
-        </div>
+{% block body %}
+<div class="health-check">
+    <h1>{{ msg }}</h1>
+    <span class="emoji">{{ emoji }}</span>
+    <button class="test-btn" hx-get="/fragments/test" hx-target=".test-target">HTMX test</button>
+    <div class="test-target">
     </div>
-</body>
-
-</html>
+    <footer>
+        <p class="small-print">{{ app_version }}</p>
+        <p class="small-print">{{ app_name }}</p>
+    </footer>
+</div>
+{% endblock %}
