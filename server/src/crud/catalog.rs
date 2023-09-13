@@ -3,7 +3,7 @@ use async_trait::async_trait;
 use fake::Dummy;
 use serde::Deserialize;
 use sqlx::PgPool;
-use tracing::instrument;
+use tracing::{error, instrument};
 
 use crate::model::{Catalog, EntityId};
 
@@ -59,7 +59,11 @@ impl Entity<Self> for Catalog {
             request.long_desc
         )
         .fetch_one(pool)
-        .await?;
+        .await
+        .map_err(|e| {
+            error!("error while creating catalog: {e}");
+            e
+        })?;
         Ok(catalog)
     }
 
@@ -93,7 +97,11 @@ impl Entity<Self> for Catalog {
             &long_descs[..]
         )
         .fetch_all(pool)
-        .await?;
+        .await
+        .map_err(|e| {
+            error!("error while creating catalogs: {e}");
+            e
+        })?;
 
         Ok(catalogs)
     }
@@ -102,7 +110,11 @@ impl Entity<Self> for Catalog {
     async fn find(pool: &PgPool, id: EntityId) -> Result<Option<Self>, sqlx::Error> {
         let catalog = sqlx::query_as!(Self, "SELECT * FROM catalog WHERE id = $1", id)
             .fetch_optional(pool)
-            .await?;
+            .await
+            .map_err(|e| {
+                error!("error while finding catalog: {e}");
+                e
+            })?;
         Ok(catalog)
     }
 
@@ -113,9 +125,10 @@ impl Entity<Self> for Catalog {
         pagination: Option<Pagination>,
     ) -> Result<Vec<Self>, sqlx::Error> {
         let query = build_find_all_query("catalog", ordering, pagination);
-
-        let catalogs = sqlx::query_as(&query).fetch_all(pool).await?;
-
+        let catalogs = sqlx::query_as(&query).fetch_all(pool).await.map_err(|e| {
+            error!("error while finding catalogs: {e}");
+            e
+        })?;
         Ok(catalogs)
     }
 
@@ -125,15 +138,18 @@ impl Entity<Self> for Catalog {
         request: UpdateCatalogRequest,
     ) -> Result<Option<Self>, sqlx::Error> {
         let catalog = sqlx::query_as!(
-        Self,
-        "UPDATE catalog SET display_name = $1, short_desc = $2, long_desc = $3 WHERE id = $4 RETURNING *",
-        request.display_name,
-        request.short_desc,
-        request.long_desc,
-        request.id
-    )
-    .fetch_optional(pool)
-    .await?;
+            Self,
+            "UPDATE catalog SET display_name = $1, short_desc = $2, long_desc = $3 WHERE id = $4 RETURNING *",
+            request.display_name,
+            request.short_desc,
+            request.long_desc,
+            request.id
+        )
+        .fetch_optional(pool)
+        .await.map_err(|e| {
+            error!("error while updating catalog: {e}");
+            e
+        })?;
         Ok(catalog)
     }
 
@@ -141,7 +157,11 @@ impl Entity<Self> for Catalog {
     async fn delete(pool: &PgPool, id: EntityId) -> Result<bool, sqlx::Error> {
         let result = sqlx::query!("DELETE FROM catalog WHERE id = $1", id)
             .execute(pool)
-            .await?;
+            .await
+            .map_err(|e| {
+                error!("error while deleting catalog: {e}");
+                e
+            })?;
         Ok(result.rows_affected() == 1)
     }
 
@@ -149,7 +169,11 @@ impl Entity<Self> for Catalog {
     async fn delete_many(pool: &PgPool, ids: Vec<EntityId>) -> Result<u64, sqlx::Error> {
         let result = sqlx::query!("DELETE FROM catalog WHERE id = ANY($1)", &ids[..])
             .execute(pool)
-            .await?;
+            .await
+            .map_err(|e| {
+                error!("error while deleting catalogs: {e}");
+                e
+            })?;
         Ok(result.rows_affected())
     }
 
@@ -157,7 +181,11 @@ impl Entity<Self> for Catalog {
     async fn count_all(pool: &PgPool) -> Result<i64, sqlx::Error> {
         let count = sqlx::query_scalar!(r#"SELECT COUNT(*) as "count!" FROM catalog"#)
             .fetch_one(pool)
-            .await?;
+            .await
+            .map_err(|e| {
+                error!("error while counting catalogs: {e}");
+                e
+            })?;
         Ok(count)
     }
 }

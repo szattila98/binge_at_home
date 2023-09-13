@@ -1,15 +1,16 @@
 use std::path::PathBuf;
 
 use askama::Template;
-use axum::{extract::State, response::IntoResponse};
+use axum::{extract::State, response::IntoResponse, response::Response};
 use axum_extra::routing::TypedPath;
+use http::StatusCode;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
+use thiserror::Error;
 use tracing::{debug, error, instrument};
 
 use crate::{
     crud::Entity,
-    error::AppError,
     model::{Catalog, EntityId, Video},
 };
 
@@ -26,6 +27,28 @@ enum File {
     Video(Video),
 }
 
+#[derive(Error, Debug)]
+pub enum BrowseError {
+    #[error("catalog not found")]
+    CatalogNotFound,
+    #[error("invalid path")]
+    InvalidPath,
+    #[error("database error")]
+    DbErr(#[from] sqlx::Error),
+}
+
+impl IntoResponse for BrowseError {
+    fn into_response(self) -> Response {
+        let msg = self.to_string();
+        let status_code = match self {
+            BrowseError::CatalogNotFound => StatusCode::NOT_FOUND,
+            BrowseError::InvalidPath => StatusCode::NOT_FOUND,
+            BrowseError::DbErr(_) => StatusCode::INTERNAL_SERVER_ERROR,
+        };
+        (status_code, msg).into_response()
+    }
+}
+
 #[derive(Serialize, Template)]
 #[template(path = "fragments/browse.html")]
 struct BrowseTemplate {
@@ -37,47 +60,36 @@ struct BrowseTemplate {
 pub async fn browse(
     BrowseEndpoint { catalog_id, path }: BrowseEndpoint,
     State(pool): State<PgPool>,
-) -> Result<impl IntoResponse, AppError<sqlx::Error>> {
-    // TODO better error, and empty video struct handling
-    let catalog = Catalog::find(&pool, catalog_id)
-        .await
-        .map_err(|e| {
-            error!("error while listing catalogs: {e}");
-            e
-        })?
-        .unwrap();
-    let videos = Video::find_by_catalog_id(&pool, catalog_id)
-        .await
-        .map_err(|e| {
-            error!("error while listing catalogs: {e}");
-            e
-        })?;
-    let files = get_files(videos, PathBuf::from(path));
+) -> Result<impl IntoResponse, BrowseError> {
+    // TODO error handling into template - no need for pub - add to snippets
+    let Some(catalog) = Catalog::find(&pool, catalog_id).await? else {
+        return Err(BrowseError::CatalogNotFound);
+    };
+    let videos = Video::find_by_catalog_id(&pool, catalog_id).await?;
+    let Some(files) = get_files(videos, PathBuf::from(path)) else {
+        return Err(BrowseError::InvalidPath);
+    };
     let rendered = BrowseTemplate { catalog, files };
     debug!("browse rendered\n{rendered}");
     Ok(rendered)
 }
 
-fn get_files(videos: Vec<Video>, walked_path: PathBuf) -> Vec<File> {
-    // TODO legyen debug assert és debug log ha valami None
-    // TODO windows esetén is jó-e
-    debug_assert!(walked_path.components().count() >= 1);
-
-    // stripping catalog name
-    let walked_path = walked_path.components().collect::<Vec<_>>()[1..]
-        .iter()
-        .collect::<PathBuf>();
+fn get_files(videos: Vec<Video>, walked_path: PathBuf) -> Option<Vec<File>> {
     // filtering videos starting with the walked_path
     let videos = videos
         .into_iter()
         .filter(|video| video.path().starts_with(&walked_path))
         .collect::<Vec<_>>();
+    if videos.is_empty() {
+        return None;
+    };
     // collecting files at the current tree level
     let mut files = videos
         .into_iter()
         .filter_map(|video| {
             let video_path = video.path();
             let Ok(path) = video_path.strip_prefix(&walked_path) else {
+                error!("prefix of path '{video_path:?}' was not walked path '{walked_path:?}'");
                 return None;
             };
             let path = path.to_path_buf();
@@ -87,13 +99,14 @@ fn get_files(videos: Vec<Video>, walked_path: PathBuf) -> Vec<File> {
                 Some(File::Video(video))
             } else {
                 let Some(path) = path.iter().next() else {
-                    error!("path should never be empty, full path = {video_path:?} stripped_path = {path:?}");
+                    error!("path should never be empty, full path is '{video_path:?}' stripped_path is '{path:?}'");
                     return None;
                 };
                 Some(File::Directory(path.to_string_lossy().to_string()))
             }
         })
         .collect::<Vec<_>>();
+    // sorting and removing duplicates
     files.sort_by(|a, b| {
         use std::cmp::Ordering;
         match (a, b) {
@@ -106,5 +119,5 @@ fn get_files(videos: Vec<Video>, walked_path: PathBuf) -> Vec<File> {
         }
     });
     files.dedup();
-    files
+    Some(files)
 }

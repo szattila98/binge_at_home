@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n            UPDATE video SET \n                display_name = $1, short_desc = $2, long_desc = $3, catalog_id = $4, sequent_id = $5, \n                size = $6, duration = $7, bitrate = $8, width = $9, height = $10, framerate = $11\n            WHERE id = $12\n            RETURNING *\n        ",
+  "query": "\n                UPDATE video SET \n                    display_name = $1, short_desc = $2, long_desc = $3, catalog_id = $4, sequent_id = $5, \n                    size = $6, duration = $7, bitrate = $8, width = $9, height = $10, framerate = $11\n                WHERE id = $12\n                RETURNING *\n            ",
   "describe": {
     "columns": [
       {
@@ -113,5 +113,5 @@
       false
     ]
   },
-  "hash": "d69696471fdd06dc650ffc2c0f3d068d3da655012a71818ca05c692a06ed8b1c"
+  "hash": "d90c309ba70abf38af1d65d2815f790cf26ad5c25dd9ebb357b3619745a48af1"
 }

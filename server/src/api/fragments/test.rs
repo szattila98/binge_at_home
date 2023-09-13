@@ -15,5 +15,6 @@ struct TestTemplate;
 #[instrument(skip_all)]
 pub async fn test(_: TestEndpoint) -> impl IntoResponse {
     info!("test called");
+    // TODO remove after all endpoints are done
     TestTemplate
 }

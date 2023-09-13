@@ -8,8 +8,8 @@ VALUES
 
 INSERT INTO video (path, display_name, short_desc, long_desc, catalog_id, sequent_id, size, duration, bitrate, width, height, framerate)
 VALUES
-    ('test_folder/test_video.webm', 'The Fast and the Furious', 'High-octane car chases', 'Buckle up for an adrenaline-fueled ride with fast cars and intense action in this iconic film series.', 1, NULL, 1024000, 7200, 2000, 1280, 720, 30.0),
-    ('outer_test_folder/test_video.webm', 'Casablanca', 'A timeless romance', 'Experience the enduring love story set against the backdrop of World War II in the classic film "Casablanca."', 1, NULL, 2048000, 7200, 2500, 1920, 1080, 60.0),
-    ('test_folder/another_test_folder/another_test_video.webm', 'Toy Story', 'Toys come to life', 'Join Woody, Buzz Lightyear, and their toy friends in a heartwarming adventure filled with humor and imagination in "Toy Story."', 1, NULL, 3072000, 5400, 3000, 1920, 1080, 30.0),
-    ('test_folder/test_video.webm', 'The Lord of the Rings', 'Epic fantasy saga', 'Embark on a grand journey through Middle-earth with hobbits, wizards, and epic battles in "The Lord of the Rings" trilogy.', 2, NULL, 4096000, 10800, 3500, 1920, 1080, 24.0),
-    ('test_folder/test_video.webm', 'La La Land', 'A musical love story', 'Fall in love with the enchanting music and dance of "La La Land" as two aspiring artists pursue their dreams in Los Angeles.', 3, NULL, 5120000, 7200, 4000, 1920, 1080, 30.0);
+    ('test_catalog/test_folder/test_video.webm', 'The Fast and the Furious', 'High-octane car chases', 'Buckle up for an adrenaline-fueled ride with fast cars and intense action in this iconic film series.', 1, NULL, 1024000, 7200, 2000, 1280, 720, 30.0),
+    ('test_catalog/outer_test_folder/test_video.webm', 'Casablanca', 'A timeless romance', 'Experience the enduring love story set against the backdrop of World War II in the classic film "Casablanca."', 1, NULL, 2048000, 7200, 2500, 1920, 1080, 60.0),
+    ('test_catalog/test_folder/another_test_folder/another_test_video.webm', 'Toy Story', 'Toys come to life', 'Join Woody, Buzz Lightyear, and their toy friends in a heartwarming adventure filled with humor and imagination in "Toy Story."', 1, NULL, 3072000, 5400, 3000, 1920, 1080, 30.0),
+    ('test_catalog/test_folder/test_video.webm', 'The Lord of the Rings', 'Epic fantasy saga', 'Embark on a grand journey through Middle-earth with hobbits, wizards, and epic battles in "The Lord of the Rings" trilogy.', 2, NULL, 4096000, 10800, 3500, 1920, 1080, 24.0),
+    ('test_catalog/test_folder/test_video.webm', 'La La Land', 'A musical love story', 'Fall in love with the enchanting music and dance of "La La Land" as two aspiring artists pursue their dreams in Los Angeles.', 3, NULL, 5120000, 7200, 4000, 1920, 1080, 30.0);
