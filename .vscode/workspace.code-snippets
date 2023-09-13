@@ -39,9 +39,23 @@
 		"scope": "html",
 		"prefix": "template-for",
 		"body": [
-			"\t{% for item in items %}",
+			"{% for item in items %}",
 			"\t$0",
-			"\t{% endfor %}"
+			"{% endfor %}"
+		],
+		"description": "Creates an Askama for expression template symbol"
+	},
+	"Add match template symbols": {
+		"scope": "html",
+		"prefix": "template-match",
+		"body": [
+			"{% match item %}",
+			"\t{% when Some with (value) %}",
+			"\t\tFound literal foo",
+			"\t{% when None %}",
+			"\t\tFound {{ val }}",
+			"\t{% else %}",
+			"{% endmatch %}"
 		],
 		"description": "Creates an Askama for expression template symbol"
 	},

@@ -20,7 +20,7 @@ impl Application {
 
     #[instrument(skip_all)]
     pub async fn run_until_stopped(self) -> anyhow::Result<()> {
-        info!("Starting server on {}...", &self.address);
+        info!("Starting server on http://{} ...", &self.address);
         Server::bind(&self.address)
             .serve(self.router.into_make_service())
             .with_graceful_shutdown(shutdown_signal())

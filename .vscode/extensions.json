@@ -8,6 +8,7 @@
     "tarrow.css-class-intellisense",
     "xabikos.javascriptsnippets",
     "otovo-oss.htmx-tags",
-    "esbenp.prettier-vscode"
+    "esbenp.prettier-vscode",
+    "wholroyd.jinja"
   ]
 }

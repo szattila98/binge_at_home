@@ -10,9 +10,8 @@
     "source.organizeImports": true
   },
   "files.insertFinalNewline": true,
-  "html.format.templating": true,
   "[html]": {
-    "editor.defaultFormatter": "vscode.html-language-features"
+    "editor.defaultFormatter": null
   },
   "[css]": {
     "editor.defaultFormatter": "vscode.css-language-features"
