@@ -1,14 +1,14 @@
 {% match state %}
-    {% when TemplateState::Success with { catalogs } %}
+    {% when TemplateState::Ok with { catalogs } %}
         <ul>
             {% for catalog in catalogs %}
             <li>{{ catalog.display_name }} - {{ catalog.short_desc }}</li>
             {% endfor %}
         </ul>
     {% when TemplateState::NoCatalogsFound %}
-        <p>Nincsenek katalógusok</p>
+        <p>Nem találhatóak katalógusok</p>
     {% when TemplateState::DbErr(_) %}
-        <p> Technikai hiba történt!</p>
+        <p>Technikai hiba történt!</p>
 {% endmatch %}
 
 

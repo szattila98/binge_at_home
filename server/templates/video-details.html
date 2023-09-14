@@ -8,8 +8,16 @@
 </head>
 
 <body>
-    <h1>{{ video.display_name }}</h1>
-    <p>infókák a vidinyóról</p>
+    {% match state %}
+        {% when TemplateState::Ok with { video } %}
+            <h1>{{ video.display_name }}</h1>
+            <p>infókák a vidinyóról</p>
+        {% when TemplateState::VideoNotFound %}
+            <p>A keresett videó nem található</p>
+        {% when TemplateState::DbErr(_) %}
+            <p>Technikai hiba történt</p>
+        {% else %}
+    {% endmatch %}
 </body>
 
 </html>

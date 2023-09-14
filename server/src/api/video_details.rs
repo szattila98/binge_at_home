@@ -1,13 +1,8 @@
 use askama::Template;
-use axum::{
-    extract::State,
-    response::{IntoResponse, Response},
-};
+use axum::extract::State;
 use axum_extra::routing::TypedPath;
-use http::StatusCode;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
-use thiserror::Error;
 use tracing::{debug, instrument};
 
 use crate::{
@@ -17,44 +12,40 @@ use crate::{
 
 #[derive(TypedPath, Deserialize)]
 #[typed_path("/video/:id")]
-pub struct VideoDetailsEndpoint {
+pub struct Endpoint {
     id: EntityId,
+}
+
+#[derive(Serialize)]
+pub enum TemplateState {
+    Ok { video: Video },
+    VideoNotFound,
+    DbErr(String),
 }
 
 #[derive(Serialize, Template)]
 #[template(path = "video-details.html")]
-struct VideoDetailsTemplate {
-    video: Video,
+pub struct PageTemplate {
+    state: TemplateState,
 }
 
-#[derive(Error, Debug)]
-pub enum VideoDetailsError {
-    #[error("video not found")]
-    VideoNotFound,
-    #[error("database error")]
-    DbErr(#[from] sqlx::Error),
-}
-
-impl IntoResponse for VideoDetailsError {
-    fn into_response(self) -> Response {
-        let msg = self.to_string();
-        let status_code = match self {
-            VideoDetailsError::VideoNotFound => StatusCode::NOT_FOUND,
-            VideoDetailsError::DbErr(_) => StatusCode::INTERNAL_SERVER_ERROR,
-        };
-        (status_code, msg).into_response()
+impl PageTemplate {
+    pub fn new(state: TemplateState) -> Self {
+        Self { state }
     }
 }
 
 #[instrument]
-pub async fn video_details(
-    VideoDetailsEndpoint { id }: VideoDetailsEndpoint,
-    State(pool): State<PgPool>,
-) -> Result<impl IntoResponse, VideoDetailsError> {
-    let Some(video) = Video::find(&pool, id).await? else {
-        return Err(VideoDetailsError::VideoNotFound);
+pub async fn video_details(Endpoint { id }: Endpoint, State(pool): State<PgPool>) -> PageTemplate {
+    let result = Video::find(&pool, id).await;
+    let Ok(opt) = result else {
+        return PageTemplate::new(TemplateState::DbErr(result.unwrap_err().to_string()));
     };
-    let rendered = VideoDetailsTemplate { video };
+    let Some(video) = opt else {
+        return PageTemplate::new(TemplateState::VideoNotFound);
+    };
+
+    let rendered = PageTemplate::new(TemplateState::Ok { video });
     debug!("video details rendered\n{rendered}");
-    Ok(rendered)
+    rendered
 }

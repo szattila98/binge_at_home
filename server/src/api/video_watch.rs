@@ -14,6 +14,7 @@ struct VideoWatchTemplate;
 
 #[instrument]
 pub async fn video_watch(_: VideoWatchEndpoint) -> impl IntoResponse {
-    debug!("video watch rendered");
-    VideoWatchTemplate
+    let rendered = VideoWatchTemplate;
+    debug!("video watch rendered\n{rendered}");
+    rendered
 }

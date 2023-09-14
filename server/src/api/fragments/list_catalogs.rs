@@ -3,7 +3,7 @@ use axum::extract::{Query, State};
 use axum_extra::routing::TypedPath;
 use serde::Serialize;
 use sqlx::PgPool;
-use tracing::{debug, error, instrument, warn};
+use tracing::{debug, instrument, warn};
 
 use crate::{
     crud::{catalog::CatalogSort, Entity, Pagination, Sort},
@@ -16,7 +16,7 @@ pub struct Endpoint;
 
 #[derive(Serialize)]
 enum TemplateState {
-    Success { catalogs: Vec<Catalog> },
+    Ok { catalogs: Vec<Catalog> },
     NoCatalogsFound,
     DbErr(String),
 }
@@ -41,13 +41,11 @@ pub async fn list_catalogs(
     sort: Option<Query<Sort<CatalogSort>>>,
 ) -> PageTemplate {
     let pagination = pagination.map(|Query(p)| p);
-    let sort = sort.map(|Query(o)| vec![o]).unwrap_or_else(|| vec![]);
+    let sort = sort.map(|Query(o)| vec![o]).unwrap_or_else(Vec::new);
 
     let result = Catalog::find_all(&pool, sort, pagination).await;
     let Ok(catalogs) = result else {
-        let error = result.unwrap_err().to_string();
-        error!("database error: {error}");
-        return PageTemplate::new(TemplateState::DbErr(error));
+        return PageTemplate::new(TemplateState::DbErr(result.unwrap_err().to_string()));
     };
 
     if catalogs.is_empty() {
@@ -56,7 +54,7 @@ pub async fn list_catalogs(
     };
 
     let rendered = PageTemplate {
-        state: TemplateState::Success { catalogs },
+        state: TemplateState::Ok { catalogs },
     };
     debug!("list catalogs rendered\n{rendered}");
     rendered

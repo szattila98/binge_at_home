@@ -1,12 +1,10 @@
 use std::path::PathBuf;
 
 use askama::Template;
-use axum::{extract::State, response::IntoResponse, response::Response};
+use axum::extract::State;
 use axum_extra::routing::TypedPath;
-use http::StatusCode;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
-use thiserror::Error;
 use tracing::{debug, error, instrument};
 
 use crate::{
@@ -16,66 +14,69 @@ use crate::{
 
 #[derive(TypedPath, Deserialize)]
 #[typed_path("/catalog/:catalog_id/browse/*path")]
-pub struct BrowseEndpoint {
+pub struct Endpoint {
     catalog_id: EntityId,
     path: String,
 }
 
 #[derive(Debug, Serialize, PartialEq)]
-enum File {
+pub enum File {
     Directory(String),
     Video(Video),
 }
 
-#[derive(Error, Debug)]
-pub enum BrowseError {
-    #[error("catalog not found")]
+#[derive(Serialize)]
+pub enum TemplateState {
+    Ok { catalog: Catalog, files: Vec<File> },
     CatalogNotFound,
-    #[error("invalid path")]
     InvalidPath,
-    #[error("database error")]
-    DbErr(#[from] sqlx::Error),
-}
-
-impl IntoResponse for BrowseError {
-    fn into_response(self) -> Response {
-        let msg = self.to_string();
-        let status_code = match self {
-            BrowseError::CatalogNotFound => StatusCode::NOT_FOUND,
-            BrowseError::InvalidPath => StatusCode::NOT_FOUND,
-            BrowseError::DbErr(_) => StatusCode::INTERNAL_SERVER_ERROR,
-        };
-        (status_code, msg).into_response()
-    }
+    DbErr(String),
 }
 
 #[derive(Serialize, Template)]
 #[template(path = "fragments/browse.html")]
-struct BrowseTemplate {
-    catalog: Catalog,
-    files: Vec<File>,
+pub struct PageTemplate {
+    state: TemplateState,
+}
+
+impl PageTemplate {
+    fn new(state: TemplateState) -> Self {
+        Self { state }
+    }
 }
 
 #[instrument(skip(pool))]
 pub async fn browse(
-    BrowseEndpoint { catalog_id, path }: BrowseEndpoint,
+    Endpoint { catalog_id, path }: Endpoint,
     State(pool): State<PgPool>,
-) -> Result<impl IntoResponse, BrowseError> {
-    // TODO error handling into template - no need for pub - add to snippets
-    let Some(catalog) = Catalog::find(&pool, catalog_id).await? else {
-        return Err(BrowseError::CatalogNotFound);
+) -> PageTemplate {
+    // TODO add to snippets
+    let (catalog_result, videos_result) = tokio::join!(
+        Catalog::find(&pool, catalog_id),
+        Video::find_by_catalog_id(&pool, catalog_id)
+    );
+
+    let Ok(catalog_opt) = catalog_result else {
+        return PageTemplate::new(TemplateState::DbErr(catalog_result.unwrap_err().to_string()));
     };
-    let videos = Video::find_by_catalog_id(&pool, catalog_id).await?;
+    let Ok(videos) = videos_result else {
+        return PageTemplate::new(TemplateState::DbErr(videos_result.unwrap_err().to_string()));
+    };
+
+    let Some(catalog) = catalog_opt else {
+        return PageTemplate::new(TemplateState::CatalogNotFound);
+    };
+
     let Some(files) = get_files(videos, PathBuf::from(path)) else {
-        return Err(BrowseError::InvalidPath);
+        return PageTemplate::new(TemplateState::InvalidPath);
     };
-    let rendered = BrowseTemplate { catalog, files };
+
+    let rendered = PageTemplate::new(TemplateState::Ok { catalog, files });
     debug!("browse rendered\n{rendered}");
-    Ok(rendered)
+    rendered
 }
 
 fn get_files(videos: Vec<Video>, walked_path: PathBuf) -> Option<Vec<File>> {
-    // filtering videos starting with the walked_path
     let videos = videos
         .into_iter()
         .filter(|video| video.path().starts_with(&walked_path))
