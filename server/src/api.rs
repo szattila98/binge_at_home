@@ -36,7 +36,6 @@ use crate::{
 
 use self::explorer::explorer;
 
-use self::fragments::test::test;
 use self::health_check::health_check;
 use self::video_details::video_details;
 use self::video_watch::video_watch;
@@ -115,10 +114,7 @@ pub fn init(config: Configuration, database: PgPool, _: &Logger) -> anyhow::Resu
     let static_dir = config.static_dir().to_owned();
     let state = AppState::new(config, database);
 
-    let fragments = Router::new()
-        .typed_get(test)
-        .typed_get(list_catalogs)
-        .typed_get(browse);
+    let fragments = Router::new().typed_get(list_catalogs).typed_get(browse);
 
     let router = Router::new()
         .typed_get(health_check)
