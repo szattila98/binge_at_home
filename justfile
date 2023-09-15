@@ -43,3 +43,7 @@ prepare-offline-sqlx:
 typecheck:
     # Typechecking js files based on js docs
     @tsc --noEmit && echo "No type errors found!"
+
+watch:
+    # Runs and Watches the server files for changes
+    @cd server && cargo watch -x run
