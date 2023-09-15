@@ -1,4 +1,64 @@
+:root {
+    --background: hsla(217, 100%, 5%, 1);
+    --primary: hsla(202, 60%, 50%, 1);
+    --secondary: hsla(204, 79%, 20%, 1);
+    --orange: hsla(23, 86%, 40%, 1);
+    --text: hsla(190, 76%, 82%, 1);
+}
+
 body {
     margin: 0;
-    background-color: hsl(210, 14%, 83%);
+    background-color: var(--background);
+}
+
+p {
+    margin: 0;
+}
+
+header {
+    font-size: 1.4rem;
+}
+
+#content {
+    margin: 20px 0 0 0;
+}
+
+/* For Desktop View */
+@media (1200px < width) {
+    #content {
+        width: 70vw;
+        margin-inline: 15vw;
+    }
+}
+
+/* For Small Screen and Laptops */
+@media (1024px <=width < 1200px) {
+    #content {
+        width: 75vw;
+        margin-inline: 12.5vw;
+    }
+}
+
+/* For Tablet View */
+@media (768px <=width < 1025px) {
+    #content {
+        width: 80vw;
+        margin-inline: 10vw;
+    }
+}
+
+/* For Mobile Landscape View */
+@media (480px <=width < 767px) {
+    #content {
+        width: 85vw;
+        margin-inline: 7.5vw;
+    }
+}
+
+/* For Mobile Portrait View */
+@media (width < 480px) {
+    #content {
+        width: 90vw;
+        margin-inline: 5vw;
+    }
 }
