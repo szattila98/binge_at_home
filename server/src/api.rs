@@ -1,5 +1,6 @@
 pub mod explorer;
-pub mod fragments;
+pub mod file;
+pub mod fragment;
 pub mod health_check;
 pub mod video_details;
 pub mod video_watch;
@@ -29,7 +30,10 @@ use tower_http::{
 use tracing::{info, instrument};
 
 use crate::{
-    api::fragments::{browse::browse, list_catalogs::list_catalogs},
+    api::{
+        file::stream::stream,
+        fragment::{browse::browse, list_catalogs::list_catalogs},
+    },
     configuration::Configuration,
     logging::Logger,
 };
@@ -114,14 +118,17 @@ pub fn init(config: Configuration, database: PgPool, _: &Logger) -> anyhow::Resu
     let static_dir = config.static_dir().to_owned();
     let state = AppState::new(config, database);
 
-    let fragments = Router::new().typed_get(list_catalogs).typed_get(browse);
+    let fragment = Router::new().typed_get(list_catalogs).typed_get(browse);
+
+    let file = Router::new().typed_get(stream);
 
     let router = Router::new()
         .typed_get(health_check)
         .typed_get(explorer)
         .typed_get(video_details)
         .typed_get(video_watch)
-        .nest("/fragments", fragments)
+        .nest("/fragment", fragment)
+        .nest("/file", file)
         .nest_service(
             "/assets",
             ServeDir::new(static_dir).call_fallback_on_method_not_allowed(true),
@@ -172,7 +179,7 @@ mod live_reload_predicate {
 
     impl<T> Predicate<Request<T>> for PathPredicate {
         fn check(&mut self, request: &Request<T>) -> bool {
-            !(request.uri().to_string().starts_with("/fragments"))
+            !(request.uri().to_string().starts_with("/fragment"))
         }
     }
 }

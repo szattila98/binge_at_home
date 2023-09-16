@@ -19,6 +19,8 @@
 # Default value: ./templates/assets
 #static_dir: ./templates/assets
 
+store: ../dev/store
+
 # Logging configuration options.
 logging:
   # Log level. An integer between 1-5 or the level as a string.

@@ -25,27 +25,27 @@ pub enum TemplateState {
 
 #[derive(Serialize, Template)]
 #[template(path = "video-details.html")]
-pub struct PageTemplate {
+pub struct HtmlTemplate {
     state: TemplateState,
 }
 
-impl PageTemplate {
+impl HtmlTemplate {
     pub fn new(state: TemplateState) -> Self {
         Self { state }
     }
 }
 
 #[instrument]
-pub async fn video_details(Endpoint { id }: Endpoint, State(pool): State<PgPool>) -> PageTemplate {
+pub async fn video_details(Endpoint { id }: Endpoint, State(pool): State<PgPool>) -> HtmlTemplate {
     let result = Video::find(&pool, id).await;
     let Ok(opt) = result else {
-        return PageTemplate::new(TemplateState::DbErr(result.unwrap_err().to_string()));
+        return HtmlTemplate::new(TemplateState::DbErr(result.unwrap_err().to_string()));
     };
     let Some(video) = opt else {
-        return PageTemplate::new(TemplateState::VideoNotFound);
+        return HtmlTemplate::new(TemplateState::VideoNotFound);
     };
 
-    let rendered = PageTemplate::new(TemplateState::Ok { video });
+    let rendered = HtmlTemplate::new(TemplateState::Ok { video });
     debug!("video details rendered\n{rendered}");
     rendered
 }

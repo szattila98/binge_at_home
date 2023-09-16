@@ -36,9 +36,12 @@ pub struct Configuration {
     /// Server middleware configuration options.
     #[config(nested)]
     middlewares: Middlewares,
-    /// Static directory to server.
+    /// Static directory to serve.
     #[config(env = "STATIC", default = "./templates/assets")]
     static_dir: String,
+    /// File store path.
+    #[config(env = "STORE")]
+    store: String,
 }
 
 #[derive(Debug, Config, Deserialize)]
@@ -130,6 +133,10 @@ impl Configuration {
 
     pub fn static_dir(&self) -> &str {
         self.static_dir.as_ref()
+    }
+
+    pub fn store(&self) -> PathBuf {
+        PathBuf::from(&self.store)
     }
 }
 

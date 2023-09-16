@@ -35,11 +35,11 @@ pub enum TemplateState {
 
 #[derive(Serialize, Template)]
 #[template(path = "fragments/browse.html")]
-pub struct PageTemplate {
+pub struct HtmlTemplate {
     state: TemplateState,
 }
 
-impl PageTemplate {
+impl HtmlTemplate {
     fn new(state: TemplateState) -> Self {
         Self { state }
     }
@@ -49,7 +49,7 @@ impl PageTemplate {
 pub async fn browse(
     Endpoint { catalog_id, path }: Endpoint,
     State(pool): State<PgPool>,
-) -> PageTemplate {
+) -> HtmlTemplate {
     // TODO add to snippets
     let (catalog_result, videos_result) = tokio::join!(
         Catalog::find(&pool, catalog_id),
@@ -57,21 +57,23 @@ pub async fn browse(
     );
 
     let Ok(catalog_opt) = catalog_result else {
-        return PageTemplate::new(TemplateState::DbErr(catalog_result.unwrap_err().to_string()));
+        return HtmlTemplate::new(TemplateState::DbErr(
+            catalog_result.unwrap_err().to_string(),
+        ));
     };
     let Ok(videos) = videos_result else {
-        return PageTemplate::new(TemplateState::DbErr(videos_result.unwrap_err().to_string()));
+        return HtmlTemplate::new(TemplateState::DbErr(videos_result.unwrap_err().to_string()));
     };
 
     let Some(catalog) = catalog_opt else {
-        return PageTemplate::new(TemplateState::CatalogNotFound);
+        return HtmlTemplate::new(TemplateState::CatalogNotFound);
     };
 
     let Some(files) = get_files(videos, PathBuf::from(path)) else {
-        return PageTemplate::new(TemplateState::InvalidPath);
+        return HtmlTemplate::new(TemplateState::InvalidPath);
     };
 
-    let rendered = PageTemplate::new(TemplateState::Ok { catalog, files });
+    let rendered = HtmlTemplate::new(TemplateState::Ok { catalog, files });
     debug!("browse rendered\n{rendered}");
     rendered
 }

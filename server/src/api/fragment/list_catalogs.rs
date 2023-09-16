@@ -23,11 +23,11 @@ enum TemplateState {
 
 #[derive(Serialize, Template)]
 #[template(path = "fragments/list-catalogs.html")]
-pub struct PageTemplate {
+pub struct HtmlTemplate {
     state: TemplateState,
 }
 
-impl PageTemplate {
+impl HtmlTemplate {
     fn new(state: TemplateState) -> Self {
         Self { state }
     }
@@ -39,21 +39,21 @@ pub async fn list_catalogs(
     State(pool): State<PgPool>,
     pagination: Option<Query<Pagination>>,
     sort: Option<Query<Sort<CatalogSort>>>,
-) -> PageTemplate {
+) -> HtmlTemplate {
     let pagination = pagination.map(|Query(p)| p);
     let sort = sort.map(|Query(o)| vec![o]).unwrap_or_else(Vec::new);
 
     let result = Catalog::find_all(&pool, sort, pagination).await;
     let Ok(catalogs) = result else {
-        return PageTemplate::new(TemplateState::DbErr(result.unwrap_err().to_string()));
+        return HtmlTemplate::new(TemplateState::DbErr(result.unwrap_err().to_string()));
     };
 
     if catalogs.is_empty() {
         warn!("no catalogs found");
-        return PageTemplate::new(TemplateState::NoCatalogsFound);
+        return HtmlTemplate::new(TemplateState::NoCatalogsFound);
     };
 
-    let rendered = PageTemplate {
+    let rendered = HtmlTemplate {
         state: TemplateState::Ok { catalogs },
     };
     debug!("list catalogs rendered\n{rendered}");
