@@ -1,9 +1,22 @@
-:root {
-    --background: hsla(217, 100%, 5%, 1);
-    --primary: hsla(202, 60%, 50%, 1);
-    --secondary: hsla(204, 79%, 20%, 1);
-    --orange: hsla(23, 86%, 40%, 1);
-    --text: hsla(190, 76%, 82%, 1);
+@media (prefers-color-scheme: dark) {
+    :root {
+        --background: hsla(217, 100%, 5%, 1);
+        --primary: hsla(202, 60%, 50%, 1);
+        --secondary: hsla(204, 79%, 20%, 1);
+        --orange: hsla(23, 86%, 40%, 1);
+        --text: hsla(190, 76%, 82%, 1);
+        --table-primary: hsla(217, 100%, 10%, 1);
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    :root {
+        --background: hsla(190, 76%, 82%, 1);
+        --primary: hsla(202, 60%, 50%, 1);
+        --secondary: hsla(204, 79%, 20%, 1);
+        --orange: hsla(23, 86%, 40%, 1);
+        --text: hsla(217, 100%, 5%, 1);
+    }
 }
 
 body {
@@ -17,10 +30,6 @@ p {
 
 header {
     font-size: 1.4rem;
-}
-
-#content {
-    margin: 20px 0 0 0;
 }
 
 /* For Desktop View */

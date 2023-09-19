@@ -1,0 +1,34 @@
+table {
+    color: var(--text);
+    border: 2px solid var(--secondary);
+    border-radius: 10px;
+    width: 80%;
+    margin-inline: 10%;
+    box-shadow: 0 0 3px 3px var(--secondary);
+    border-spacing: 0;
+
+    & th {
+        text-align: left;
+        padding: 10px;
+        border-bottom: 2px solid var(--secondary);
+    }
+
+    & td {
+        padding: 10px;
+    }
+
+    & tbody tr:nth-child(2n +1) {
+        background-color: var(--table-primary);
+    }
+
+    & tbody tr:hover {
+        cursor: pointer;
+        background-color: var(--secondary);
+    }
+
+}
+
+.header {
+    text-align: center;
+    color: var(--text);
+}

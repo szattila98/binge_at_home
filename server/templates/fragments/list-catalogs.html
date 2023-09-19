@@ -1,10 +1,34 @@
 {% match state %}
     {% when TemplateState::Ok with { catalogs } %}
-        <ul>
-            {% for catalog in catalogs %}
-            <li>{{ catalog.display_name }} - {{ catalog.short_desc }}</li>
-            {% endfor %}
-        </ul>
+        <h2 class="header">Catalog</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Created</th>
+                    <th>Updated</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for catalog in catalogs %}
+                <tr hx-get="/fragment/catalog/{{catalog.id}}/browse/{{catalog.path}}" hx-trigger="click" hx-swap="innerHTML" hx-target=".list" hx-push-url="true">
+                    <td>
+                        {{ catalog.display_name }}
+                    </td>
+                    <td>
+                        {{ catalog.short_desc }}
+                    </td>
+                    <td>
+                        {{ catalog.created_at }}
+                    </td>
+                    <td>
+                        {{ catalog.updated_at}}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     {% when TemplateState::NoCatalogsFound %}
         <p>Nem találhatóak katalógusok</p>
     {% when TemplateState::DbErr(_) %}
