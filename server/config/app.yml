@@ -26,7 +26,7 @@ logging:
   # Log level. An integer between 1-5 or the level as a string.
   #
   # Default value: info
-  level: debug
+  level: info
 
   # File logging configuration.
   file:

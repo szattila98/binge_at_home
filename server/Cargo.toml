@@ -26,11 +26,12 @@ askama = { version = "0.12.0", features = ["with-axum"] }
 askama_axum = "0.3.0"
 # TODO remove after async trait staibilisation
 async-trait = "0.1.73"
-axum = { version = "0.6.20", features = ["macros"] }
+axum = { version = "0.6.20", features = ["macros", "headers"] }
 axum-extra = { version = "0.7.7", features = ["typed-routing"] }
 confique = { version = "0.2.4", default-features = false, features = ["yaml"] }
 convert_case = "0.6.0"
 http = "0.2.9"
+http-body = "0.4.5"
 macros = { version = "0.1.0", path = "macros" }
 secrecy = { version = "0.8.0", features = ["serde"] }
 serde = { version = "1.0.183", features = ["derive"] }

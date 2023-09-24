@@ -138,6 +138,7 @@ dependencies = [
  "bitflags 1.3.2",
  "bytes",
  "futures-util",
+ "headers",
  "http",
  "http-body",
  "hyper",
@@ -230,6 +231,12 @@ dependencies = [
 
 [[package]]
 name = "base64"
+version = "0.13.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9e1b586273c5702936fe7b7d6896644d8be71e6314cfe09d3167c95f712589e8"
+
+[[package]]
+name = "base64"
 version = "0.21.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "604178f6c5c21f02dc555784810edfb88d34ac2c73b2eae109655649ee73ce3d"
@@ -263,6 +270,7 @@ dependencies = [
  "convert_case",
  "fake",
  "http",
+ "http-body",
  "macros",
  "pretty_assertions",
  "secrecy",
@@ -772,6 +780,31 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "312f66718a2d7789ffef4f4b7b213138ed9f1eb3aa1d0d82fc99f88fb3ffd26f"
 dependencies = [
  "hashbrown",
+]
+
+[[package]]
+name = "headers"
+version = "0.3.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f3e372db8e5c0d213e0cd0b9be18be2aca3d44cf2fe30a9d46a65581cd454584"
+dependencies = [
+ "base64 0.13.1",
+ "bitflags 1.3.2",
+ "bytes",
+ "headers-core",
+ "http",
+ "httpdate",
+ "mime",
+ "sha1",
+]
+
+[[package]]
+name = "headers-core"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e7f66481bfee273957b1f20485a4ff3362987f85b2c236580d81b4eb7a326429"
+dependencies = [
+ "http",
 ]
 
 [[package]]
@@ -1447,7 +1480,7 @@ version = "1.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2d3987094b1d07b653b7dfdc3f70ce9a1da9c51ac18c1b06b662e4f9a0e9f4b2"
 dependencies = [
- "base64",
+ "base64 0.21.2",
 ]
 
 [[package]]
@@ -1807,7 +1840,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8ca69bf415b93b60b80dc8fda3cb4ef52b2336614d8da2de5456cc942a110482"
 dependencies = [
  "atoi",
- "base64",
+ "base64 0.21.2",
  "bitflags 2.4.0",
  "byteorder",
  "bytes",
@@ -1850,7 +1883,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a0db2df1b8731c3651e204629dd55e52adbae0462fa1bdcbed56a2302c18181e"
 dependencies = [
  "atoi",
- "base64",
+ "base64 0.21.2",
  "bitflags 2.4.0",
  "byteorder",
  "crc",

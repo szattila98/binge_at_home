@@ -46,4 +46,4 @@ typecheck:
 
 watch:
     # Runs and Watches the server files for changes
-    @cd server && cargo watch -x run
+    @cd server && cargo watch -c -x run

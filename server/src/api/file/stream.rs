@@ -1,14 +1,18 @@
-use std::sync::Arc;
+use std::{io::SeekFrom, ops::Bound, sync::Arc};
 
 use axum::{
-    body::StreamBody,
+    body::{Body, Bytes, StreamBody},
     extract::State,
-    response::{AppendHeaders, IntoResponse},
+    headers::Range,
+    response::{AppendHeaders, IntoResponse, Response},
+    TypedHeader,
 };
 use axum_extra::routing::TypedPath;
-use http::{header, StatusCode};
+use http::{header, HeaderMap, StatusCode};
+use http_body::Full;
 use serde::Deserialize;
 use sqlx::PgPool;
+use tokio::io::{AsyncReadExt, AsyncSeekExt};
 use tokio_util::io::ReaderStream;
 use tracing::instrument;
 
@@ -27,19 +31,24 @@ pub struct Endpoint {
 #[instrument(skip(pool))]
 pub async fn stream(
     Endpoint { id }: Endpoint,
+    headers: HeaderMap,
+    //TypedHeader(range): TypedHeader<Range>,
     State(pool): State<PgPool>,
     State(config): State<Arc<Configuration>>,
-) -> impl IntoResponse {
-    // TODO legyenek matchek ahol resultot unwrapelek és átírt HtmlTemplate-re máshol is
-    // TODO ne webm legyen hanem dinamikus itt és a browsenál is
-    let result = Video::find(&pool, id).await;
-    let Ok(opt) = result else {
-        return Err((
-            StatusCode::INTERNAL_SERVER_ERROR,
-            format!("database error: {}", result.unwrap_err().to_string()),
-        ));
+) -> Result<Response<Full<Bytes>>, impl IntoResponse> {
+    // TODO better error handling
+    // TODO type should be dynamic
+    // TODO refactor
+    let option = match Video::find(&pool, id).await {
+        Ok(option) => option,
+        Err(e) => {
+            return Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("database error: {e}"),
+            ));
+        }
     };
-    let Some(video) = opt else {
+    let Some(video) = option else {
         return Err((
             StatusCode::NOT_FOUND,
             "video not found in database".to_string(),
@@ -48,7 +57,7 @@ pub async fn stream(
 
     let mut video_path = config.store();
     video_path.push(video.path());
-    let file = match tokio::fs::File::open(video_path).await {
+    let mut file = match tokio::fs::File::open(video_path).await {
         Ok(file) => file,
         Err(err) => {
             return Err((
@@ -57,10 +66,70 @@ pub async fn stream(
             ))
         }
     };
-    let stream = ReaderStream::new(file);
-    let body = StreamBody::new(stream);
 
-    let headers = AppendHeaders([(header::CONTENT_TYPE, "text/webm")]);
+    static CHUNK_SIZE: u64 = 314700;
 
-    Ok((headers, body))
+    let mut range_start = 0;
+    let mut range_end = CHUNK_SIZE;
+    let file_size = file.metadata().await.unwrap().len();
+
+    let Some(range) = headers.get("range") else {
+        file.seek(SeekFrom::Start(range_start)).await.unwrap();
+        let range_size = (range_end - range_start + 1) as usize;
+        let mut buffer = vec![0u8; range_size];
+        file.read_exact(&mut buffer).await.unwrap();
+
+        let response = Response::builder()
+            .status(StatusCode::PARTIAL_CONTENT)
+            .header("Content-Type", "video/webm")
+            .header("Accept-Ranges", "bytes")
+            .header("Content-Length", range_end)
+            .header(
+                "Content-Range",
+                format!("bytes {range_start}-{range_end}/{file_size}"),
+            )
+            .header("Content-Length", file_size)
+            .body(Full::from(buffer))
+            .unwrap();
+        return Ok(response);
+    };
+
+    let ranges = range
+        .to_str()
+        .unwrap()
+        .trim_start_matches("bytes=")
+        .split('-')
+        .collect::<Vec<_>>();
+    range_start = ranges[0].parse().unwrap();
+    if ranges.len() > 1 {
+        range_end = ranges[1].parse().unwrap_or(range_start + CHUNK_SIZE);
+    } else {
+        range_end = range_start + CHUNK_SIZE;
+    }
+    range_end = u64::min(range_end, file_size - 1);
+
+    file.seek(SeekFrom::Start(range_start)).await.unwrap();
+    let range_size = (range_end - range_start + 1) as usize;
+    let mut data = vec![0u8; range_size];
+    file.read_exact(&mut data).await.unwrap();
+
+    let content_length = range_end - range_start + 1;
+    let status = if range_end >= file_size {
+        StatusCode::OK
+    } else {
+        StatusCode::PARTIAL_CONTENT
+    };
+
+    let response = Response::builder()
+        .status(status)
+        .header("Content-Type", "video/webm")
+        .header("Accept-Ranges", "bytes")
+        .header("Content-Length", content_length)
+        .header(
+            "Content-Range",
+            format!("bytes {range_start}-{range_end}/{file_size}"),
+        )
+        .body(Full::from(data))
+        .unwrap();
+    Ok(response)
 }
