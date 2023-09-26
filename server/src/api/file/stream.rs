@@ -1,10 +1,10 @@
 use std::{io::SeekFrom, ops::Bound, sync::Arc};
 
 use axum::{
-    body::{Body, Bytes, StreamBody},
+    body::Bytes,
     extract::State,
     headers::Range,
-    response::{AppendHeaders, IntoResponse, Response},
+    response::{IntoResponse, Response},
     TypedHeader,
 };
 use axum_extra::routing::TypedPath;
@@ -13,7 +13,6 @@ use http_body::Full;
 use serde::Deserialize;
 use sqlx::PgPool;
 use tokio::io::{AsyncReadExt, AsyncSeekExt};
-use tokio_util::io::ReaderStream;
 use tracing::instrument;
 
 use crate::{
@@ -21,6 +20,8 @@ use crate::{
     crud::Entity,
     model::{EntityId, Video},
 };
+
+static MAX_CHUNK_SIZE: u64 = 1024 * 1024;
 
 #[derive(TypedPath, Deserialize)]
 #[typed_path("/video/:id/stream")]
@@ -31,14 +32,11 @@ pub struct Endpoint {
 #[instrument(skip(pool))]
 pub async fn stream(
     Endpoint { id }: Endpoint,
-    headers: HeaderMap,
-    //TypedHeader(range): TypedHeader<Range>,
+    TypedHeader(range_header): TypedHeader<Range>,
     State(pool): State<PgPool>,
     State(config): State<Arc<Configuration>>,
-) -> Result<Response<Full<Bytes>>, impl IntoResponse> {
-    // TODO better error handling
-    // TODO type should be dynamic
-    // TODO refactor
+) -> impl IntoResponse {
+    // TODO better error handling, unwraps
     let option = match Video::find(&pool, id).await {
         Ok(option) => option,
         Err(e) => {
@@ -55,7 +53,7 @@ pub async fn stream(
         ));
     };
 
-    let mut video_path = config.store();
+    let mut video_path = config.store(); // TODO video store struct may be needed
     video_path.push(video.path());
     let mut file = match tokio::fs::File::open(video_path).await {
         Ok(file) => file,
@@ -67,66 +65,35 @@ pub async fn stream(
         }
     };
 
-    static CHUNK_SIZE: u64 = 314700;
+    let file_size = file.metadata().await.unwrap().len(); // TODO use stored length
 
-    let mut range_start = 0;
-    let mut range_end = CHUNK_SIZE;
-    let file_size = file.metadata().await.unwrap().len();
-
-    let Some(range) = headers.get("range") else {
-        file.seek(SeekFrom::Start(range_start)).await.unwrap();
-        let range_size = (range_end - range_start + 1) as usize;
-        let mut buffer = vec![0u8; range_size];
-        file.read_exact(&mut buffer).await.unwrap();
-
-        let response = Response::builder()
-            .status(StatusCode::PARTIAL_CONTENT)
-            .header("Content-Type", "video/webm")
-            .header("Accept-Ranges", "bytes")
-            .header("Content-Length", range_end)
-            .header(
-                "Content-Range",
-                format!("bytes {range_start}-{range_end}/{file_size}"),
-            )
-            .header("Content-Length", file_size)
-            .body(Full::from(buffer))
-            .unwrap();
-        return Ok(response);
+    let (range_start, range_end) = range_header.iter().next().unwrap();
+    let range_start = match range_start {
+        Bound::Included(range_start) | Bound::Excluded(range_start) => range_start,
+        Bound::Unbounded => 0,
     };
-
-    let ranges = range
-        .to_str()
-        .unwrap()
-        .trim_start_matches("bytes=")
-        .split('-')
-        .collect::<Vec<_>>();
-    range_start = ranges[0].parse().unwrap();
-    if ranges.len() > 1 {
-        range_end = ranges[1].parse().unwrap_or(range_start + CHUNK_SIZE);
-    } else {
-        range_end = range_start + CHUNK_SIZE;
-    }
-    range_end = u64::min(range_end, file_size - 1);
+    let range_end = match range_end {
+        Bound::Included(range_end) | Bound::Excluded(range_end) => range_end,
+        Bound::Unbounded => u64::min(range_start + MAX_CHUNK_SIZE, file_size - 1),
+    };
 
     file.seek(SeekFrom::Start(range_start)).await.unwrap();
     let range_size = (range_end - range_start + 1) as usize;
     let mut data = vec![0u8; range_size];
     file.read_exact(&mut data).await.unwrap();
 
-    let content_length = range_end - range_start + 1;
-    let status = if range_end >= file_size {
+    let status_code = if range_end >= file_size {
         StatusCode::OK
     } else {
         StatusCode::PARTIAL_CONTENT
     };
-
     let response = Response::builder()
-        .status(status)
-        .header("Content-Type", "video/webm")
-        .header("Accept-Ranges", "bytes")
-        .header("Content-Length", content_length)
+        .status(status_code)
+        .header(header::CONTENT_TYPE, "video/webm") // TODO type should be dynamic from stored data
+        .header(header::ACCEPT_RANGES, "bytes")
+        .header(header::CONTENT_LENGTH, range_end - range_start + 1)
         .header(
-            "Content-Range",
+            header::CONTENT_RANGE,
             format!("bytes {range_start}-{range_end}/{file_size}"),
         )
         .body(Full::from(data))
