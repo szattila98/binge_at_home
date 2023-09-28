@@ -12,6 +12,8 @@ use axum::{
     body::Body,
     extract::FromRef,
     http::{header, Request, Response, StatusCode},
+    response::Redirect,
+    routing::get,
     Router,
 };
 use axum_extra::routing::RouterExt;
@@ -121,6 +123,7 @@ pub fn init(config: Configuration, database: PgPool, _: &Logger) -> anyhow::Resu
     let file = Router::new().typed_get(stream);
 
     let router = Router::new()
+        .route("/", get(|| async { Redirect::permanent("/catalog") }))
         .typed_get(health_check)
         .typed_get(catalogs)
         .typed_get(browse)
