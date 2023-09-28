@@ -1,0 +1,31 @@
+{% extends "partials/explorer.html" %}
+
+{% block title %}Browse{% endblock %}
+
+{% block content %}
+    {% match state %}
+        {% when TemplateState::Ok with { catalog, files } %}
+            <h1>{{ catalog.display_name }}</h1>
+            <div>
+                {% for file in files %}
+                    {% match file %}
+                        {% when File::Directory with { path, display_name } %}
+                            <a hx-boost="true" href="/catalog/{{ catalog.id }}/browse/{{ path }}">mappa - {{ display_name }}</a>
+                        {% when File::Video with (video) %}
+                            <a 
+                                hx-boost="true" 
+                                href="/video/{{ video.id }}"
+                            >videó - {{ video.path }} - {{ video.display_name }} - {{ video.short_desc }}</a>
+                        {% else %}
+                    {% endmatch %}
+                {% endfor %}
+            </div>
+        {% when TemplateState::CatalogNotFound %}
+            A keresett katalógus nem található!
+        {% when TemplateState::InvalidPath %}
+            A keresett útvonalon nem található file!
+        {% when TemplateState::DbErr(_) %}
+            Technikai hiba történt!
+        {% else %}
+    {% endmatch %}
+{% endblock %}

@@ -1,14 +1,13 @@
 use std::{io::SeekFrom, ops::Bound, sync::Arc};
 
 use axum::{
-    body::Bytes,
     extract::State,
     headers::Range,
     response::{IntoResponse, Response},
     TypedHeader,
 };
 use axum_extra::routing::TypedPath;
-use http::{header, HeaderMap, StatusCode};
+use http::{header, StatusCode};
 use http_body::Full;
 use serde::Deserialize;
 use sqlx::PgPool;

@@ -3,16 +3,13 @@
 {% block title %}Health Check{% endblock %}
 
 {% block head %}
-<link rel="stylesheet" href="assets/css/health-check.css" />
+<link rel="stylesheet" href="/assets/css/health-check.css" />
 {% endblock %}
 
 {% block content %}
 <div class="health-check">
     <h1>{{ msg }}</h1>
     <span class="emoji">{{ emoji }}</span>
-    <button class="test-btn" hx-get="/fragment/test" hx-target=".test-target">HTMX test</button>
-    <div class="test-target">
-    </div>
     <footer>
         <p class="small-print">{{ app_version }}</p>
         <p class="small-print">{{ app_name }}</p>

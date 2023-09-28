@@ -1,13 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "partials/base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
+{% block title %}Video watch{% endblock %}
 
-<body>
+{% block content %}
     {% match state %}
         {% when TemplateState::Ok with { video } %}
             <h1>{{ video.display_name }}</h1>
@@ -20,6 +15,4 @@
             <p>Technikai hiba történt</p>
         {% else %}
     {% endmatch %}
-</body>
-
-</html>
+{% endblock %}

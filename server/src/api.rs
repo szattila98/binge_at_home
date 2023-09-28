@@ -1,4 +1,5 @@
-pub mod explorer;
+pub mod browse;
+pub mod catalogs;
 pub mod file;
 pub mod fragment;
 pub mod health_check;
@@ -30,15 +31,12 @@ use tower_http::{
 use tracing::{info, instrument};
 
 use crate::{
-    api::{
-        file::stream::stream,
-        fragment::{browse::browse, list_catalogs::list_catalogs},
-    },
+    api::{browse::browse, file::stream::stream},
     configuration::Configuration,
     logging::Logger,
 };
 
-use self::explorer::explorer;
+use self::catalogs::catalogs;
 
 use self::health_check::health_check;
 use self::video_details::video_details;
@@ -110,21 +108,22 @@ pub fn init(config: Configuration, database: PgPool, _: &Logger) -> anyhow::Resu
         ))
         .layer(
             tower_livereload::LiveReloadLayer::new()
-                .request_predicate::<String, live_reload_predicate::PathPredicate>(
-                    live_reload_predicate::PathPredicate,
+                .request_predicate::<String, live_reload_predicate::RequestPredicate>(
+                    live_reload_predicate::RequestPredicate,
                 ),
         );
 
     let static_dir = config.static_dir().to_owned();
     let state = AppState::new(config, database);
 
-    let fragment = Router::new().typed_get(list_catalogs).typed_get(browse);
+    let fragment = Router::new();
 
     let file = Router::new().typed_get(stream);
 
     let router = Router::new()
         .typed_get(health_check)
-        .typed_get(explorer)
+        .typed_get(catalogs)
+        .typed_get(browse)
         .typed_get(video_details)
         .typed_get(video_watch)
         .nest("/fragment", fragment)
@@ -175,11 +174,11 @@ mod live_reload_predicate {
     use tower_livereload::predicate::Predicate;
 
     #[derive(Copy, Clone, Debug)]
-    pub struct PathPredicate;
+    pub struct RequestPredicate;
 
-    impl<T> Predicate<Request<T>> for PathPredicate {
+    impl<T> Predicate<Request<T>> for RequestPredicate {
         fn check(&mut self, request: &Request<T>) -> bool {
-            !(request.uri().to_string().starts_with("/fragment"))
+            request.headers().get("Hx-Request").is_none()
         }
     }
 }

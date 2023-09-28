@@ -22,7 +22,7 @@ enum TemplateState {
 }
 
 #[derive(Serialize, Template)]
-#[template(path = "fragments/list-catalogs.html")]
+#[template(path = "catalogs.html")]
 pub struct HtmlTemplate {
     state: TemplateState,
 }
@@ -34,7 +34,7 @@ impl HtmlTemplate {
 }
 
 #[instrument(skip(pool))]
-pub async fn list_catalogs(
+pub async fn catalogs(
     _: Endpoint,
     State(pool): State<PgPool>,
     pagination: Option<Query<Pagination>>,

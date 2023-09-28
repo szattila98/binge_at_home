@@ -21,7 +21,7 @@ pub struct Endpoint {
 
 #[derive(Debug, Serialize, PartialEq)]
 pub enum File {
-    Directory(String),
+    Directory { path: String, display_name: String },
     Video(Video),
 }
 
@@ -34,7 +34,7 @@ pub enum TemplateState {
 }
 
 #[derive(Serialize, Template)]
-#[template(path = "fragments/browse.html")]
+#[template(path = "browse.html")]
 pub struct HtmlTemplate {
     state: TemplateState,
 }
@@ -101,11 +101,13 @@ fn get_files(videos: Vec<Video>, walked_path: PathBuf) -> Option<Vec<File>> {
             {
                 Some(File::Video(video))
             } else {
-                let Some(path) = path.iter().next() else {
+                let Some(display_name) = path.iter().next() else {
                     error!("path should never be empty, full path is '{video_path:?}' stripped_path is '{path:?}'");
                     return None;
                 };
-                Some(File::Directory(path.to_string_lossy().to_string()))
+                let display_name = display_name.to_string_lossy().to_string();
+                let path = format!("{}/{}", walked_path.display(), display_name).replace('\\', "/");
+                Some(File::Directory { path, display_name })
             }
         })
         .collect::<Vec<_>>();
@@ -113,12 +115,14 @@ fn get_files(videos: Vec<Video>, walked_path: PathBuf) -> Option<Vec<File>> {
     files.sort_by(|a, b| {
         use std::cmp::Ordering;
         match (a, b) {
-            (File::Directory(dir1), File::Directory(dir2)) => dir1.cmp(dir2),
+            (File::Directory { path: dir1, .. }, File::Directory { path: dir2, .. }) => {
+                dir1.cmp(dir2)
+            }
             (File::Video(video1), File::Video(video2)) => {
                 video1.display_name.cmp(&video2.display_name)
             }
-            (File::Directory(_), File::Video(_)) => Ordering::Less,
-            (File::Video(_), File::Directory(_)) => Ordering::Greater,
+            (File::Directory { .. }, File::Video(_)) => Ordering::Less,
+            (File::Video(_), File::Directory { .. }) => Ordering::Greater,
         }
     });
     files.dedup();
