@@ -1,6 +1,7 @@
 use askama::Template;
 use axum::{extract::State, response::IntoResponse};
 use axum_extra::routing::TypedPath;
+use http::StatusCode;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 use tracing::{debug, instrument};
@@ -39,13 +40,21 @@ impl HtmlTemplate {
 pub async fn handler(Endpoint { id }: Endpoint, State(pool): State<PgPool>) -> impl IntoResponse {
     let opt = match Video::find(&pool, id).await {
         Ok(opt) => opt,
-        Err(e) => return HtmlTemplate::new(TemplateState::DbErr(e.to_string())),
+        Err(e) => {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                HtmlTemplate::new(TemplateState::DbErr(e.to_string())),
+            )
+        }
     };
     let Some(video) = opt else {
-        return HtmlTemplate::new(TemplateState::VideoNotFound);
+        return (
+            StatusCode::NOT_FOUND,
+            HtmlTemplate::new(TemplateState::VideoNotFound),
+        );
     };
 
     let rendered = HtmlTemplate::new(TemplateState::Ok { video });
     debug!("list catalogs rendered\n{rendered}");
-    rendered
+    (StatusCode::OK, rendered)
 }

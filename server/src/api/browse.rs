@@ -3,6 +3,7 @@ use std::path::PathBuf;
 use askama::Template;
 use axum::{extract::State, response::IntoResponse};
 use axum_extra::routing::TypedPath;
+use http::StatusCode;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 use tracing::{debug, error, instrument};
@@ -57,24 +58,40 @@ pub async fn handler(
 
     let catalog_opt = match catalog_result {
         Ok(catalog_opt) => catalog_opt,
-        Err(e) => return HtmlTemplate::new(TemplateState::DbErr(e.to_string())),
+        Err(e) => {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                HtmlTemplate::new(TemplateState::DbErr(e.to_string())),
+            )
+        }
     };
     let videos = match videos_result {
         Ok(videos) => videos,
-        Err(e) => return HtmlTemplate::new(TemplateState::DbErr(e.to_string())),
+        Err(e) => {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                HtmlTemplate::new(TemplateState::DbErr(e.to_string())),
+            )
+        }
     };
 
     let Some(catalog) = catalog_opt else {
-        return HtmlTemplate::new(TemplateState::CatalogNotFound);
+        return (
+            StatusCode::NOT_FOUND,
+            HtmlTemplate::new(TemplateState::CatalogNotFound),
+        );
     };
 
     let Some(files) = get_files(videos, PathBuf::from(path)) else {
-        return HtmlTemplate::new(TemplateState::InvalidPath);
+        return (
+            StatusCode::BAD_REQUEST,
+            HtmlTemplate::new(TemplateState::InvalidPath),
+        );
     };
 
     let rendered = HtmlTemplate::new(TemplateState::Ok { catalog, files });
     debug!("browse rendered\n{rendered}");
-    rendered
+    (StatusCode::OK, rendered)
 }
 
 fn get_files(videos: Vec<Video>, walked_path: PathBuf) -> Option<Vec<File>> {

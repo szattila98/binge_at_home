@@ -1,6 +1,7 @@
 use askama::Template;
 use axum::response::IntoResponse;
 use axum_extra::routing::TypedPath;
+use http::StatusCode;
 use macros::random_emoji;
 use serde::Serialize;
 use tracing::{debug, instrument};
@@ -35,5 +36,5 @@ impl Default for HealthCheckTemplate {
 pub async fn handler(_: HealthCheckEndpoint) -> impl IntoResponse {
     let rendered = HealthCheckTemplate::default();
     debug!("health check rendered\n{rendered}");
-    rendered
+    (StatusCode::OK, rendered)
 }

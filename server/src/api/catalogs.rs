@@ -4,6 +4,7 @@ use axum::{
     response::IntoResponse,
 };
 use axum_extra::routing::TypedPath;
+use http::StatusCode;
 use serde::Serialize;
 use sqlx::PgPool;
 use tracing::{debug, instrument, warn};
@@ -48,17 +49,23 @@ pub async fn handler(
 
     let catalogs = match Catalog::find_all(&pool, sort, pagination).await {
         Ok(catalogs) => catalogs,
-        Err(e) => return HtmlTemplate::new(TemplateState::DbErr(e.to_string())),
+        Err(e) => {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                HtmlTemplate::new(TemplateState::DbErr(e.to_string())),
+            )
+        }
     };
 
     if catalogs.is_empty() {
         warn!("no catalogs found");
-        return HtmlTemplate::new(TemplateState::NoCatalogsFound);
+        return (
+            StatusCode::NOT_FOUND,
+            HtmlTemplate::new(TemplateState::NoCatalogsFound),
+        );
     };
 
-    let rendered = HtmlTemplate {
-        state: TemplateState::Ok { catalogs },
-    };
+    let rendered = HtmlTemplate::new(TemplateState::Ok { catalogs });
     debug!("list catalogs rendered\n{rendered}");
-    rendered
+    (StatusCode::OK, rendered)
 }
