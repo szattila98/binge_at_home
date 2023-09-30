@@ -35,7 +35,6 @@ pub async fn handler(
     State(pool): State<PgPool>,
     State(config): State<Arc<Configuration>>,
 ) -> impl IntoResponse {
-    // TODO better error handling, unwraps
     let option = match Video::find(&pool, id).await {
         Ok(option) => option,
         Err(e) => {
@@ -66,7 +65,12 @@ pub async fn handler(
 
     let file_size = file.metadata().await.unwrap().len(); // TODO use stored length
 
-    let (range_start, range_end) = range_header.iter().next().unwrap();
+    let Some((range_start, range_end)) = range_header.iter().next() else {
+        return Err((
+            StatusCode::BAD_REQUEST,
+            "range header should have at least one part specified".to_owned(),
+        ));
+    };
     let range_start = match range_start {
         Bound::Included(range_start) | Bound::Excluded(range_start) => range_start,
         Bound::Unbounded => 0,
@@ -76,10 +80,21 @@ pub async fn handler(
         Bound::Unbounded => u64::min(range_start + MAX_CHUNK_SIZE, file_size - 1),
     };
 
-    file.seek(SeekFrom::Start(range_start)).await.unwrap();
+    if let Err(e) = file.seek(SeekFrom::Start(range_start)).await {
+        return Err((
+            StatusCode::BAD_REQUEST,
+            format!("invalid range start position, could not seek it in file: {e}"),
+        ));
+    };
     let range_size = (range_end - range_start + 1) as usize;
     let mut data = vec![0u8; range_size];
-    file.read_exact(&mut data).await.unwrap();
+    if let Err(e) = file.read_exact(&mut data).await {
+        // TODO what if reaches end of file - if writing tests check the case
+        return Err((
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("error while reading file bytes: {e}"),
+        ));
+    };
 
     let status_code = if range_end >= file_size {
         StatusCode::OK
@@ -96,6 +111,6 @@ pub async fn handler(
             format!("bytes {range_start}-{range_end}/{file_size}"),
         )
         .body(Full::from(data))
-        .unwrap();
+        .expect("error whhile building response");
     Ok(response)
 }
