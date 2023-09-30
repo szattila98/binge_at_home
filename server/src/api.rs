@@ -32,17 +32,7 @@ use tower_http::{
 };
 use tracing::{info, instrument};
 
-use crate::{
-    api::{browse::browse, file::stream::stream},
-    configuration::Configuration,
-    logging::Logger,
-};
-
-use self::catalogs::catalogs;
-
-use self::health_check::health_check;
-use self::video_details::video_details;
-use self::video_watch::video_watch;
+use crate::{api::file::stream, configuration::Configuration, logging::Logger};
 
 static REQUEST_ID_HEADER: &str = "x-request-id";
 static MISSING_REQUEST_ID: &str = "missing_request_id";
@@ -120,15 +110,15 @@ pub fn init(config: Configuration, database: PgPool, _: &Logger) -> anyhow::Resu
 
     let fragment = Router::new();
 
-    let file = Router::new().typed_get(stream);
+    let file = Router::new().typed_get(stream::handler);
 
     let router = Router::new()
         .route("/", get(|| async { Redirect::permanent("/catalog") }))
-        .typed_get(health_check)
-        .typed_get(catalogs)
-        .typed_get(browse)
-        .typed_get(video_details)
-        .typed_get(video_watch)
+        .typed_get(health_check::handler)
+        .typed_get(catalogs::handler)
+        .typed_get(browse::handler)
+        .typed_get(video_details::handler)
+        .typed_get(video_watch::handler)
         .nest("/fragment", fragment)
         .nest("/file", file)
         .nest_service(
@@ -154,20 +144,10 @@ fn handle_panic(err: Box<dyn Any + Send + 'static>) -> Response<Body> {
 
     tracing::error!("Service panicked: {details}");
 
-    // TODO Change to error struct when ready
-    let body = serde_json::json!({
-        "error": {
-            "kind": "panic",
-            "message": details,
-        }
-    });
-    let body = serde_json::to_string(&body)
-        .expect("error in building response, handle_panic is probably misconfigured");
-
     Response::builder()
         .status(StatusCode::INTERNAL_SERVER_ERROR)
-        .header(header::CONTENT_TYPE, "application/json")
-        .body(Body::from(body))
+        .header(header::CONTENT_TYPE, "application/json") // TODO use askama server error template instead
+        .body(Body::from(format!("fatal error: {details}")))
         .expect("error in building response, handle_panic is probably misconfigured")
 }
 

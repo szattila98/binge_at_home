@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use askama::Template;
-use axum::extract::State;
+use axum::{extract::State, response::IntoResponse};
 use axum_extra::routing::TypedPath;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
@@ -26,7 +26,7 @@ pub enum File {
 }
 
 #[derive(Serialize)]
-pub enum TemplateState {
+enum TemplateState {
     Ok { catalog: Catalog, files: Vec<File> },
     CatalogNotFound,
     InvalidPath,
@@ -35,7 +35,7 @@ pub enum TemplateState {
 
 #[derive(Serialize, Template)]
 #[template(path = "browse.html")]
-pub struct HtmlTemplate {
+struct HtmlTemplate {
     state: TemplateState,
 }
 
@@ -46,23 +46,22 @@ impl HtmlTemplate {
 }
 
 #[instrument(skip(pool))]
-pub async fn browse(
+pub async fn handler(
     Endpoint { catalog_id, path }: Endpoint,
     State(pool): State<PgPool>,
-) -> HtmlTemplate {
-    // TODO add to snippets
+) -> impl IntoResponse {
     let (catalog_result, videos_result) = tokio::join!(
         Catalog::find(&pool, catalog_id),
         Video::find_by_catalog_id(&pool, catalog_id)
     );
 
-    let Ok(catalog_opt) = catalog_result else {
-        return HtmlTemplate::new(TemplateState::DbErr(
-            catalog_result.unwrap_err().to_string(),
-        ));
+    let catalog_opt = match catalog_result {
+        Ok(catalog_opt) => catalog_opt,
+        Err(e) => return HtmlTemplate::new(TemplateState::DbErr(e.to_string())),
     };
-    let Ok(videos) = videos_result else {
-        return HtmlTemplate::new(TemplateState::DbErr(videos_result.unwrap_err().to_string()));
+    let videos = match videos_result {
+        Ok(videos) => videos,
+        Err(e) => return HtmlTemplate::new(TemplateState::DbErr(e.to_string())),
     };
 
     let Some(catalog) = catalog_opt else {

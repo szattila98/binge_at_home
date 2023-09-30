@@ -1,5 +1,5 @@
 use askama::Template;
-use axum::extract::State;
+use axum::{extract::State, response::IntoResponse};
 use axum_extra::routing::TypedPath;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
@@ -25,7 +25,7 @@ enum TemplateState {
 
 #[derive(Serialize, Template)]
 #[template(path = "video-watch.html")]
-pub struct HtmlTemplate {
+struct HtmlTemplate {
     state: TemplateState,
 }
 
@@ -36,10 +36,10 @@ impl HtmlTemplate {
 }
 
 #[instrument(skip(pool))]
-pub async fn video_watch(Endpoint { id }: Endpoint, State(pool): State<PgPool>) -> HtmlTemplate {
-    let result = Video::find(&pool, id).await;
-    let Ok(opt) = result else {
-        return HtmlTemplate::new(TemplateState::DbErr(result.unwrap_err().to_string()));
+pub async fn handler(Endpoint { id }: Endpoint, State(pool): State<PgPool>) -> impl IntoResponse {
+    let opt = match Video::find(&pool, id).await {
+        Ok(opt) => opt,
+        Err(e) => return HtmlTemplate::new(TemplateState::DbErr(e.to_string())),
     };
     let Some(video) = opt else {
         return HtmlTemplate::new(TemplateState::VideoNotFound);

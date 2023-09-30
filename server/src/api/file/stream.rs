@@ -29,7 +29,7 @@ pub struct Endpoint {
 }
 
 #[instrument(skip(pool))]
-pub async fn stream(
+pub async fn handler(
     Endpoint { id }: Endpoint,
     TypedHeader(range_header): TypedHeader<Range>,
     State(pool): State<PgPool>,

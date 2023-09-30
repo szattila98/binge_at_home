@@ -1,5 +1,8 @@
 use askama::Template;
-use axum::extract::{Query, State};
+use axum::{
+    extract::{Query, State},
+    response::IntoResponse,
+};
 use axum_extra::routing::TypedPath;
 use serde::Serialize;
 use sqlx::PgPool;
@@ -23,7 +26,7 @@ enum TemplateState {
 
 #[derive(Serialize, Template)]
 #[template(path = "catalogs.html")]
-pub struct HtmlTemplate {
+struct HtmlTemplate {
     state: TemplateState,
 }
 
@@ -34,18 +37,18 @@ impl HtmlTemplate {
 }
 
 #[instrument(skip(pool))]
-pub async fn catalogs(
+pub async fn handler(
     _: Endpoint,
     State(pool): State<PgPool>,
     pagination: Option<Query<Pagination>>,
     sort: Option<Query<Sort<CatalogSort>>>,
-) -> HtmlTemplate {
+) -> impl IntoResponse {
     let pagination = pagination.map(|Query(p)| p);
     let sort = sort.map(|Query(o)| vec![o]).unwrap_or_else(Vec::new);
 
-    let result = Catalog::find_all(&pool, sort, pagination).await;
-    let Ok(catalogs) = result else {
-        return HtmlTemplate::new(TemplateState::DbErr(result.unwrap_err().to_string()));
+    let catalogs = match Catalog::find_all(&pool, sort, pagination).await {
+        Ok(catalogs) => catalogs,
+        Err(e) => return HtmlTemplate::new(TemplateState::DbErr(e.to_string())),
     };
 
     if catalogs.is_empty() {
