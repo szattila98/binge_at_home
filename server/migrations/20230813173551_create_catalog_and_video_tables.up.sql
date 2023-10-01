@@ -9,6 +9,16 @@ CREATE TABLE catalog (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+CREATE TABLE metadata (
+    id BIGSERIAL PRIMARY KEY NOT NULL,
+    size TEXT NOT NULL,
+    duration TEXT NOT NULL,
+    bitrate TEXT NOT NULL,
+    width TEXT NOT NULL,
+    height TEXT NOT NULL,
+    framerate TEXT NOT NULL
+);
+
 CREATE TABLE video (
     id BIGSERIAL PRIMARY KEY NOT NULL,
     path TEXT NOT NULL,
@@ -17,13 +27,7 @@ CREATE TABLE video (
     long_desc TEXT NOT NULL,
     catalog_id BIGINT REFERENCES catalog NOT NULL,
     sequent_id BIGINT REFERENCES video,
-
-    size BIGINT NOT NULL,
-    duration BIGINT NOT NULL,
-    bitrate BIGINT NOT NULL,
-    width SMALLINT NOT NULL,
-    height SMALLINT NOT NULL,
-    framerate DOUBLE PRECISION NOT NULL,
+    metadata_id BIGINT REFERENCES metadata,
 
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()

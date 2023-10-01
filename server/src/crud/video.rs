@@ -20,6 +20,7 @@ pub struct CreateVideoRequest {
     pub long_desc: String,
     pub catalog_id: EntityId,
     pub sequent_id: Option<EntityId>,
+    pub metadata_id: EntityId,
 
     pub size: Bytes,
     pub duration: Seconds,
@@ -58,6 +59,7 @@ pub struct UpdateVideoRequest {
     pub long_desc: String,
     pub catalog_id: EntityId,
     pub sequent_id: Option<EntityId>,
+    pub metadata_id: Option<EntityId>,
 
     pub size: Bytes,
     pub duration: Seconds,
@@ -79,10 +81,9 @@ impl Entity<Self> for Video {
             Self,
             r#"
                 INSERT INTO video ( 
-                    path, display_name, short_desc, long_desc, catalog_id, sequent_id, 
-                    size, duration, bitrate, width, height, framerate 
+                    path, display_name, short_desc, long_desc, catalog_id, sequent_id, metadata_id
                 ) 
-                VALUES ( $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12 ) 
+                VALUES ( $1, $2, $3, $4, $5, $6, $7 ) 
                 RETURNING *
             "#,
             request.path,
@@ -91,12 +92,7 @@ impl Entity<Self> for Video {
             request.long_desc,
             request.catalog_id,
             request.sequent_id,
-            request.size,
-            request.duration,
-            request.bitrate,
-            request.width,
-            request.height,
-            request.framerate
+            request.metadata_id
         )
         .fetch_one(pool)
         .await
@@ -117,12 +113,7 @@ impl Entity<Self> for Video {
         let mut short_descs = vec![];
         let mut long_descs = vec![];
         let mut catalog_ids = vec![];
-        let mut sizes = vec![];
-        let mut durations = vec![];
-        let mut bitrates = vec![];
-        let mut widths = vec![];
-        let mut heights = vec![];
-        let mut framerates = vec![];
+        let mut metadata_ids = vec![];
 
         for item in requests {
             paths.push(item.path);
@@ -130,24 +121,17 @@ impl Entity<Self> for Video {
             short_descs.push(item.short_desc.clone());
             long_descs.push(item.long_desc.clone());
             catalog_ids.push(item.catalog_id);
-            sizes.push(item.size);
-            durations.push(item.duration);
-            bitrates.push(item.bitrate);
-            widths.push(item.width);
-            heights.push(item.height);
-            framerates.push(item.framerate);
+            metadata_ids.push(item.metadata_id);
         }
 
         let videos = sqlx::query_as!(
             Self,
             r#"
                 INSERT INTO video ( 
-                    path, display_name, short_desc, long_desc, catalog_id, size, 
-                    duration, bitrate, width, height, framerate 
+                    path, display_name, short_desc, long_desc, catalog_id, metadata_id
                 ) 
                 SELECT * FROM UNNEST(
-                    $1::text[], $2::text[], $3::text[], $4::text[], $5::int8[], $6::int8[], 
-                    $7::int8[], $8::int8[], $9::int2[], $10::int2[], $11::float8[]
+                    $1::text[], $2::text[], $3::text[], $4::text[], $5::int8[], $6::int8[]
                 )
                 RETURNING *
             "#,
@@ -156,12 +140,7 @@ impl Entity<Self> for Video {
             &short_descs[..],
             &long_descs[..],
             &catalog_ids[..],
-            &sizes[..],
-            &durations[..],
-            &bitrates[..],
-            &widths[..],
-            &heights[..],
-            &framerates[..]
+            &metadata_ids[..]
         )
         .fetch_all(pool)
         .await
@@ -208,9 +187,8 @@ impl Entity<Self> for Video {
             Self,
             r#"
                 UPDATE video SET 
-                    display_name = $1, short_desc = $2, long_desc = $3, catalog_id = $4, sequent_id = $5, 
-                    size = $6, duration = $7, bitrate = $8, width = $9, height = $10, framerate = $11
-                WHERE id = $12
+                    display_name = $1, short_desc = $2, long_desc = $3, catalog_id = $4, sequent_id = $5, metadata_id = $6
+                WHERE id = $7
                 RETURNING *
             "#,
             request.display_name,
@@ -218,12 +196,7 @@ impl Entity<Self> for Video {
             request.long_desc,
             request.catalog_id,
             request.sequent_id,
-            request.size,
-            request.duration,
-            request.bitrate,
-            request.width,
-            request.height,
-            request.framerate,
+            request.metadata_id,
             request.id
         )
         .fetch_optional(pool)

@@ -28,10 +28,21 @@ impl Catalog {
 
 pub type Bytes = i64;
 pub type Seconds = i64;
-pub type BytesPerSecond = i64;
-pub type ScreenWidth = i16;
-pub type ScreenHeight = i16;
-pub type FramesPerSecond = f64;
+pub type BytesPerSecond = String;
+pub type ScreenWidth = String;
+pub type ScreenHeight = String;
+pub type FramesPerSecond = String;
+
+#[derive(Debug, Clone, sqlx::FromRow, Serialize, PartialEq)]
+#[cfg_attr(test, derive(Dummy))]
+pub struct Metadata {
+    pub size: Bytes,
+    pub duration: Seconds,
+    pub bitrate: BytesPerSecond,
+    pub width: ScreenWidth,
+    pub height: ScreenHeight,
+    pub framerate: FramesPerSecond,
+}
 
 #[derive(Debug, Clone, sqlx::FromRow, Serialize, PartialEq)]
 #[cfg_attr(test, derive(Dummy))]
@@ -43,13 +54,7 @@ pub struct Video {
     pub long_desc: String,
     pub catalog_id: EntityId,
     pub sequent_id: Option<EntityId>,
-
-    pub size: Bytes,
-    pub duration: Seconds,
-    pub bitrate: BytesPerSecond,
-    pub width: ScreenWidth,
-    pub height: ScreenHeight,
-    pub framerate: FramesPerSecond,
+    pub metadata_id: Option<EntityId>,
 
     pub created_at: OffsetDateTime,
     pub updated_at: OffsetDateTime,

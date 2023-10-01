@@ -53,26 +53,22 @@ pub async fn handler(
         ));
     };
 
-    let video_path = match file_store.get_file(&video.path) {
-        Some(video_path) => video_path,
-        None => {
-            return Err((
-                StatusCode::NOT_FOUND,
-                format!("file not found: {}", video.path),
-            ))
-        }
-    };
+    let video_path = file_store.get_file(&video.path);
     let mut file = match tokio::fs::File::open(video_path).await {
         Ok(file) => file,
         Err(err) => {
             return Err((
-                StatusCode::INTERNAL_SERVER_ERROR,
+                StatusCode::BAD_REQUEST,
                 format!("file could not be opened: {err}"),
             ))
         }
     };
 
-    let file_size = file.metadata().await.unwrap().len(); // TODO use stored length
+    let file_size = file
+        .metadata()
+        .await
+        .expect("could no read size of file")
+        .len();
 
     let Some((range_start, range_end)) = range_header.iter().next() else {
         return Err((

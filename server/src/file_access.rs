@@ -1,11 +1,19 @@
-use std::path::{Path, PathBuf};
+use std::{
+    fmt::Debug,
+    path::{Path, PathBuf},
+};
+
+use tracing::instrument;
 
 #[derive(Debug)]
 pub struct FileStore(pub PathBuf);
 
 impl FileStore {
-    pub fn get_file<P: AsRef<Path>>(&self, file_path: P) -> Option<PathBuf> {
-        let file = self.0.join(file_path);
-        file.exists().then(|| file)
+    #[instrument]
+    pub fn get_file<P: AsRef<Path> + Debug>(&self, file_path: P) -> PathBuf {
+        self.0.join(file_path)
     }
+
+    #[instrument]
+    pub fn get_metadata<P: AsRef<Path> + Debug>(&self, file_path: P) {}
 }

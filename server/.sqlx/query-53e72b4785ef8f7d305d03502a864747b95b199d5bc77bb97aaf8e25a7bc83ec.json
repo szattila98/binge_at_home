@@ -40,41 +40,16 @@
       },
       {
         "ordinal": 7,
-        "name": "size",
+        "name": "metadata_id",
         "type_info": "Int8"
       },
       {
         "ordinal": 8,
-        "name": "duration",
-        "type_info": "Int8"
-      },
-      {
-        "ordinal": 9,
-        "name": "bitrate",
-        "type_info": "Int8"
-      },
-      {
-        "ordinal": 10,
-        "name": "width",
-        "type_info": "Int2"
-      },
-      {
-        "ordinal": 11,
-        "name": "height",
-        "type_info": "Int2"
-      },
-      {
-        "ordinal": 12,
-        "name": "framerate",
-        "type_info": "Float8"
-      },
-      {
-        "ordinal": 13,
         "name": "created_at",
         "type_info": "Timestamptz"
       },
       {
-        "ordinal": 14,
+        "ordinal": 9,
         "name": "updated_at",
         "type_info": "Timestamptz"
       }
@@ -92,12 +67,7 @@
       false,
       false,
       true,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
+      true,
       false,
       false
     ]

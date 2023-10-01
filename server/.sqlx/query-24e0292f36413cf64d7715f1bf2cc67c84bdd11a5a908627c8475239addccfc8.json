@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT * FROM video WHERE id = $1",
+  "query": "\n                INSERT INTO video ( \n                    path, display_name, short_desc, long_desc, catalog_id, metadata_id\n                ) \n                SELECT * FROM UNNEST(\n                    $1::text[], $2::text[], $3::text[], $4::text[], $5::int8[], $6::int8[]\n                )\n                RETURNING *\n            ",
   "describe": {
     "columns": [
       {
@@ -56,7 +56,12 @@
     ],
     "parameters": {
       "Left": [
-        "Int8"
+        "TextArray",
+        "TextArray",
+        "TextArray",
+        "TextArray",
+        "Int8Array",
+        "Int8Array"
       ]
     },
     "nullable": [
@@ -72,5 +77,5 @@
       false
     ]
   },
-  "hash": "e11350cd3a66119823cbd22a28d21a9f5871838281535abfd1197719bc7ed261"
+  "hash": "24e0292f36413cf64d7715f1bf2cc67c84bdd11a5a908627c8475239addccfc8"
 }

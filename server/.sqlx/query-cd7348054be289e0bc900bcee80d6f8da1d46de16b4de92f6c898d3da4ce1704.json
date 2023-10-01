@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n                UPDATE video SET \n                    display_name = $1, short_desc = $2, long_desc = $3, catalog_id = $4, sequent_id = $5, \n                    size = $6, duration = $7, bitrate = $8, width = $9, height = $10, framerate = $11\n                WHERE id = $12\n                RETURNING *\n            ",
+  "query": "\n                UPDATE video SET \n                    display_name = $1, short_desc = $2, long_desc = $3, catalog_id = $4, sequent_id = $5, metadata_id = $6\n                WHERE id = $7\n                RETURNING *\n            ",
   "describe": {
     "columns": [
       {
@@ -40,41 +40,16 @@
       },
       {
         "ordinal": 7,
-        "name": "size",
+        "name": "metadata_id",
         "type_info": "Int8"
       },
       {
         "ordinal": 8,
-        "name": "duration",
-        "type_info": "Int8"
-      },
-      {
-        "ordinal": 9,
-        "name": "bitrate",
-        "type_info": "Int8"
-      },
-      {
-        "ordinal": 10,
-        "name": "width",
-        "type_info": "Int2"
-      },
-      {
-        "ordinal": 11,
-        "name": "height",
-        "type_info": "Int2"
-      },
-      {
-        "ordinal": 12,
-        "name": "framerate",
-        "type_info": "Float8"
-      },
-      {
-        "ordinal": 13,
         "name": "created_at",
         "type_info": "Timestamptz"
       },
       {
-        "ordinal": 14,
+        "ordinal": 9,
         "name": "updated_at",
         "type_info": "Timestamptz"
       }
@@ -87,11 +62,6 @@
         "Int8",
         "Int8",
         "Int8",
-        "Int8",
-        "Int8",
-        "Int2",
-        "Int2",
-        "Float8",
         "Int8"
       ]
     },
@@ -103,15 +73,10 @@
       false,
       false,
       true,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
+      true,
       false,
       false
     ]
   },
-  "hash": "d90c309ba70abf38af1d65d2815f790cf26ad5c25dd9ebb357b3619745a48af1"
+  "hash": "cd7348054be289e0bc900bcee80d6f8da1d46de16b4de92f6c898d3da4ce1704"
 }

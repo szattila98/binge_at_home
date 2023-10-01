@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n                INSERT INTO video ( \n                    path, display_name, short_desc, long_desc, catalog_id, sequent_id, \n                    size, duration, bitrate, width, height, framerate \n                ) \n                VALUES ( $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12 ) \n                RETURNING *\n            ",
+  "query": "\n                INSERT INTO video ( \n                    path, display_name, short_desc, long_desc, catalog_id, sequent_id, metadata_id\n                ) \n                VALUES ( $1, $2, $3, $4, $5, $6, $7 ) \n                RETURNING *\n            ",
   "describe": {
     "columns": [
       {
@@ -40,41 +40,16 @@
       },
       {
         "ordinal": 7,
-        "name": "size",
+        "name": "metadata_id",
         "type_info": "Int8"
       },
       {
         "ordinal": 8,
-        "name": "duration",
-        "type_info": "Int8"
-      },
-      {
-        "ordinal": 9,
-        "name": "bitrate",
-        "type_info": "Int8"
-      },
-      {
-        "ordinal": 10,
-        "name": "width",
-        "type_info": "Int2"
-      },
-      {
-        "ordinal": 11,
-        "name": "height",
-        "type_info": "Int2"
-      },
-      {
-        "ordinal": 12,
-        "name": "framerate",
-        "type_info": "Float8"
-      },
-      {
-        "ordinal": 13,
         "name": "created_at",
         "type_info": "Timestamptz"
       },
       {
-        "ordinal": 14,
+        "ordinal": 9,
         "name": "updated_at",
         "type_info": "Timestamptz"
       }
@@ -87,12 +62,7 @@
         "Text",
         "Int8",
         "Int8",
-        "Int8",
-        "Int8",
-        "Int8",
-        "Int2",
-        "Int2",
-        "Float8"
+        "Int8"
       ]
     },
     "nullable": [
@@ -103,15 +73,10 @@
       false,
       false,
       true,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
+      true,
       false,
       false
     ]
   },
-  "hash": "127fd9ba8999613a143a99ce4680af020cd34752880ff67a0dae1a02fdcca961"
+  "hash": "5039b0013c2e8b769618c8490dd0ba1274ee31bb8bc69cc069d1775abc07bfa7"
 }
