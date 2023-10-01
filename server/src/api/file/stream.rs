@@ -12,11 +12,12 @@ use http_body::Full;
 use serde::Deserialize;
 use sqlx::PgPool;
 use tokio::io::{AsyncReadExt, AsyncSeekExt};
-use tracing::instrument;
+use tracing::{debug, instrument};
 
 use crate::{
     configuration::Configuration,
     crud::Entity,
+    file_access::FileStore,
     model::{EntityId, Video},
 };
 
@@ -34,6 +35,7 @@ pub async fn handler(
     TypedHeader(range_header): TypedHeader<Range>,
     State(pool): State<PgPool>,
     State(config): State<Arc<Configuration>>,
+    State(file_store): State<Arc<FileStore>>,
 ) -> impl IntoResponse {
     let option = match Video::find(&pool, id).await {
         Ok(option) => option,
@@ -51,14 +53,21 @@ pub async fn handler(
         ));
     };
 
-    let mut video_path = config.store(); // TODO video store struct may be needed
-    video_path.push(video.path());
+    let video_path = match file_store.get_file(&video.path) {
+        Some(video_path) => video_path,
+        None => {
+            return Err((
+                StatusCode::NOT_FOUND,
+                format!("file not found: {}", video.path),
+            ))
+        }
+    };
     let mut file = match tokio::fs::File::open(video_path).await {
         Ok(file) => file,
         Err(err) => {
             return Err((
-                StatusCode::NOT_FOUND,
-                format!("video file not found: {err}"),
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("file could not be opened: {err}"),
             ))
         }
     };
@@ -87,9 +96,11 @@ pub async fn handler(
         ));
     };
     let range_size = (range_end - range_start + 1) as usize;
+    debug!("requested data size is {range_size} bytes");
     let mut data = vec![0u8; range_size];
     if let Err(e) = file.read_exact(&mut data).await {
         // TODO what if reaches end of file - if writing tests check the case
+        // TODO what if too big of a range is requested - if writing tests check the case
         return Err((
             StatusCode::INTERNAL_SERVER_ERROR,
             format!("error while reading file bytes: {e}"),
@@ -97,13 +108,14 @@ pub async fn handler(
     };
 
     let status_code = if range_end >= file_size {
+        // TODO this may not even happen because potential EOF error thrown by read exact - test it
         StatusCode::OK
     } else {
         StatusCode::PARTIAL_CONTENT
     };
     let response = Response::builder()
         .status(status_code)
-        .header(header::CONTENT_TYPE, "video/webm") // TODO type should be dynamic from stored data
+        .header(header::CONTENT_TYPE, format!("video/{}", video.extension()))
         .header(header::ACCEPT_RANGES, "bytes")
         .header(header::CONTENT_LENGTH, range_end - range_start + 1)
         .header(

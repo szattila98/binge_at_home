@@ -41,7 +41,7 @@ pub struct Configuration {
     static_dir: String,
     /// File store path.
     #[config(env = "STORE")]
-    store: String,
+    file_store: String,
 }
 
 #[derive(Debug, Config, Deserialize)]
@@ -135,8 +135,8 @@ impl Configuration {
         self.static_dir.as_ref()
     }
 
-    pub fn store(&self) -> PathBuf {
-        PathBuf::from(&self.store)
+    pub fn file_store(&self) -> PathBuf {
+        PathBuf::from(&self.file_store)
     }
 }
 

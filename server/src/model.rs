@@ -59,6 +59,13 @@ impl Video {
     pub fn path(&self) -> PathBuf {
         PathBuf::from(&self.path)
     }
+
+    pub fn extension(&self) -> String {
+        self.path()
+            .extension()
+            .map(|s| s.to_string_lossy().to_string())
+            .unwrap_or_else(String::new)
+    }
 }
 
 #[cfg(test)]
@@ -107,5 +114,31 @@ mod tests {
         let path = test_path("\\");
         video.path = path.clone();
         assert_eq!(video.path(), PathBuf::from(path));
+    }
+
+    #[test]
+    fn extension_video() {
+        let mut video: Video = Faker.fake();
+        let mut path = test_path("/");
+        path.push_str(".test");
+        video.path = path.clone();
+        assert_eq!(video.extension(), "test".to_string());
+    }
+
+    #[test]
+    fn extension_video_none() {
+        let mut video: Video = Faker.fake();
+        let path = test_path("/");
+        video.path = path.clone();
+        assert_eq!(video.extension(), "".to_string());
+    }
+
+    #[test]
+    fn extension_video_empty() {
+        let mut video: Video = Faker.fake();
+        let mut path = test_path("/");
+        path.push('.');
+        video.path = path.clone();
+        assert_eq!(video.extension(), "".to_string());
     }
 }

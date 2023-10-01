@@ -32,7 +32,9 @@ use tower_http::{
 };
 use tracing::{info, instrument};
 
-use crate::{api::file::stream, configuration::Configuration, logging::Logger};
+use crate::{
+    api::file::stream, configuration::Configuration, file_access::FileStore, logging::Logger,
+};
 
 static REQUEST_ID_HEADER: &str = "x-request-id";
 static MISSING_REQUEST_ID: &str = "missing_request_id";
@@ -41,13 +43,15 @@ static MISSING_REQUEST_ID: &str = "missing_request_id";
 pub struct AppState {
     config: Arc<Configuration>,
     database: PgPool,
+    file_store: Arc<FileStore>,
 }
 
 impl AppState {
-    pub fn new(config: Configuration, database: PgPool) -> Self {
+    pub fn new(config: Configuration, database: PgPool, file_store: FileStore) -> Self {
         Self {
             config: Arc::new(config),
             database,
+            file_store: Arc::new(file_store),
         }
     }
 }
@@ -106,7 +110,8 @@ pub fn init(config: Configuration, database: PgPool, _: &Logger) -> anyhow::Resu
         );
 
     let static_dir = config.static_dir().to_owned();
-    let state = AppState::new(config, database);
+    let file_store_dir = config.file_store();
+    let state = AppState::new(config, database, FileStore(file_store_dir));
 
     let fragment = Router::new();
 
