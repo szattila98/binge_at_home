@@ -3,7 +3,7 @@ use std::path::PathBuf;
 #[cfg(test)]
 use fake::Dummy;
 use serde::Serialize;
-use time::OffsetDateTime;
+use time::{format_description::FormatItem, macros::format_description, OffsetDateTime};
 
 pub type EntityId = i64;
 
@@ -72,6 +72,17 @@ impl Video {
             .unwrap_or_else(String::new)
     }
 }
+
+static DATE_FORMAT: &[FormatItem] = format_description!("[year].[month].[day]. [hour]:[minute]");
+pub trait FormatDate {
+    fn format_date(&self, date: &OffsetDateTime) -> String {
+        date.format(DATE_FORMAT)
+            .expect("date formatting failed, it should not as format is compile time verified")
+    }
+}
+
+impl FormatDate for Catalog {}
+impl FormatDate for Video {}
 
 #[cfg(test)]
 mod tests {

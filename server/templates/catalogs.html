@@ -10,8 +10,8 @@
                 <div class="table-header">
                     <span>Name</span>
                     <span>Description</span>
-                    <span>Created </span>
-                    <span>Updated </span>
+                    <span>Created</span>
+                    <span>Updated</span>
                 </div>
                 <div class="table-body">
                     {% for catalog in catalogs %}
@@ -23,10 +23,10 @@
                                 {{ catalog.short_desc }}
                             </span>
                             <span>
-                                {{ catalog.created_at }}
+                                {{ catalog.format_date(catalog.created_at) }}
                             </span>
                             <span>
-                                {{ catalog.updated_at}}
+                                {{ catalog.format_date(catalog.updated_at) }}
                             </span>
                         </a>
                     {% endfor %}

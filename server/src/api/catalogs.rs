@@ -11,7 +11,7 @@ use tracing::{debug, instrument, warn};
 
 use crate::{
     crud::{catalog::CatalogSort, Entity, Pagination, Sort},
-    model::Catalog,
+    model::{Catalog, FormatDate},
 };
 
 #[derive(TypedPath)]
