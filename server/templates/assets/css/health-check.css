@@ -28,37 +28,9 @@
         font-size: 60px;
     }
 
-    & .test-btn,
-    .test-target {
-        align-self: center;
+    footer {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        margin-top: auto;
     }
-
-    & .test-target li {
-        list-style: none;
-        color: var(--text);
-    }
-
-    & .test-target ul {
-        padding: 0;
-    }
-
-    & .test-btn {
-        border: 0;
-        background-color: var(--orange);
-        color: var(--light);
-        padding: 12px;
-        border-radius: 10px;
-        font-size: 0.9rem;
-    }
-
-    & .test-btn:hover {
-        cursor: pointer;
-        box-shadow: 10px 8px 5px var(--secondary);
-    }
-}
-
-footer {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    margin-top: auto;
 }

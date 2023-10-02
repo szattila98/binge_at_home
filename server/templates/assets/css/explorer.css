@@ -1,34 +1,56 @@
-table {
+.header {
+    text-align: center;
+    color: var(--text);
+}
+
+.catalog-table {
+
     color: var(--text);
     border: 2px solid var(--secondary);
     border-radius: 10px;
     width: 80%;
     margin-inline: 10%;
     box-shadow: 0 0 3px 3px var(--secondary);
-    border-spacing: 0;
 
-    & th {
-        text-align: left;
+    & .table-header,
+    .catalog-entry {
+        display: grid;
+        grid-template-columns: 20% 20% 30% 30%;
+    }
+
+    & .table-header {
         padding: 10px;
         border-bottom: 2px solid var(--secondary);
     }
 
-    & td {
-        padding: 10px;
+    & .table-header span {
+        display: flex;
     }
 
-    & tbody tr:nth-child(2n +1) {
+    & .catalog-entry {
+        padding: 10px;
+        text-decoration: none;
+        color: var(--text);
+        vertical-align: middle;
+    }
+
+    & .catalog-entry:last-child {
+        border-bottom-left-radius: 8px;
+        border-bottom-right-radius: 8px;
+    }
+
+    & .catalog-entry span {
+        min-height: 50px;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    & .catalog-entry:nth-child(2n +1) {
         background-color: var(--table-primary);
     }
 
-    & tbody tr:hover {
+    & .catalog-entry:hover {
         cursor: pointer;
         background-color: var(--secondary);
     }
-
-}
-
-.header {
-    text-align: center;
-    color: var(--text);
 }

@@ -6,40 +6,32 @@
     {% match state %}
         {% when TemplateState::Ok with { catalogs } %}
             <h2 class="header">Catalog</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Description</th>
-                        <th>Created</th>
-                        <th>Updated</th>
-                    </tr>
-                </thead>
-                <tbody>
+            <div class="catalog-table">
+                <div class="table-header">
+                    <span>Name</span>
+                    <span>Description</span>
+                    <span>Created </span>
+                    <span>Updated </span>
+                </div>
+                <div class="table-body">
                     {% for catalog in catalogs %}
-                        <tr 
-                            hx-trigger="click" 
-                            hx-get="/catalog/{{ catalog.id }}/browse/{{ catalog.path }}" 
-                            hx-target="body" 
-                            hx-swap="innerHTML" 
-                            hx-push-url="true"
-                        >
-                            <td>
+                        <a class="catalog-entry" hx-boost="true" href="/catalog/{{ catalog.id }}/browse/{{ catalog.path }}">
+                            <span>
                                 {{ catalog.display_name }}
-                            </td>
-                            <td>
+                            </span>
+                            <span>
                                 {{ catalog.short_desc }}
-                            </td>
-                            <td>
+                            </span>
+                            <span>
                                 {{ catalog.created_at }}
-                            </td>
-                            <td>
+                            </span>
+                            <span>
                                 {{ catalog.updated_at}}
-                            </td>
-                        </tr>
+                            </span>
+                        </a>
                     {% endfor %}
-                </tbody>
-            </table>
+                </div>
+            </div>
         {% when TemplateState::NoCatalogsFound %}
             <p>Nem találhatóak katalógusok</p>
         {% when TemplateState::DbErr(_) %}
