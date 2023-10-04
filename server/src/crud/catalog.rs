@@ -21,10 +21,7 @@ pub struct CreateCatalogRequest {
 #[derive(Debug, Clone, Copy, PartialEq, Deserialize)]
 #[cfg_attr(test, derive(Dummy))]
 pub enum CatalogSort {
-    Path,
     DisplayName,
-    ShortDesc,
-    LongDesc,
     CreatedAt,
     UpdatedAt,
 }

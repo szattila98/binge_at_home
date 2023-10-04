@@ -8,6 +8,7 @@ use sqlx::PgPool;
 use crate::model::EntityId;
 
 pub mod catalog;
+pub mod metadata;
 pub mod video;
 
 #[derive(Debug, PartialEq, Eq, Deserialize)]

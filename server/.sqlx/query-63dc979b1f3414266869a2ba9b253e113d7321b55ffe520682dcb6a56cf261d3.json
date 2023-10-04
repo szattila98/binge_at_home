@@ -1,0 +1,63 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n                INSERT INTO metadata (size, duration, bitrate, width, height, framerate) \n                VALUES ($1, $2, $3, $4, $5, $6) \n                RETURNING *\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "size",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 2,
+        "name": "duration",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 3,
+        "name": "bitrate",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "width",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "height",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "framerate",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Int8",
+        "Text",
+        "Text",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "63dc979b1f3414266869a2ba9b253e113d7321b55ffe520682dcb6a56cf261d3"
+}

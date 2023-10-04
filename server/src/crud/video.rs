@@ -33,18 +33,9 @@ pub struct CreateVideoRequest {
 #[derive(Debug, Clone, Copy, PartialEq, Deserialize)]
 #[cfg_attr(test, derive(Dummy))]
 pub enum VideoSort {
-    Path,
     DisplayName,
-    ShortDesc,
-    LongDesc,
-    CatalogId,
-    SequentId,
     Size,
     Duration,
-    Bitrate,
-    Width,
-    Height,
-    Framerate,
     CreatedAt,
     UpdatedAt,
 }

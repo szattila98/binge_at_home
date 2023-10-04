@@ -36,6 +36,7 @@ pub type FramesPerSecond = String;
 #[derive(Debug, Clone, sqlx::FromRow, Serialize, PartialEq)]
 #[cfg_attr(test, derive(Dummy))]
 pub struct Metadata {
+    pub id: EntityId,
     pub size: Bytes,
     pub duration: Seconds,
     pub bitrate: BytesPerSecond,
