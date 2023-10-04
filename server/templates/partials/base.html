@@ -12,6 +12,22 @@
     {% block head %}{% endblock %}
 </head>
 
+<header id="navbar">
+    <div class="nav-container">
+        <a href="/catalog" class="nav-logo">
+            <img src="/assets/img/logo.svg" alt="">
+        </a>
+        {% block searchbar %}
+        <div class="searchbar">
+            <input type="text" class="search" placeholder="What film are you looking for?"> <button class="search-button"><img src="../assets/img/search.svg" alt=""></button>
+        </div>
+        {% endblock %}
+        <a href="https://github.com/szattila98/binge_at_home" class="github-logo">
+            <img src="/assets/img/github.svg" alt="">
+        </a>
+    </div>
+</header>
+
 <body>
     <div id="content">
         {% block content %}{% endblock %}

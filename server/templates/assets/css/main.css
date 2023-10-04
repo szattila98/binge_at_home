@@ -4,8 +4,9 @@
         --primary: hsl(202, 60%, 50%);
         --secondary: hsl(204, 79%, 20%);
         --orange: hsl(23, 86%, 40%);
-        --text: hsl(190, 76%, 82%);
-        --table-primary: hsl(216, 100%, 10%);
+        --text-primary: hsl(190, 76%, 82%);
+        --text-secondary: hsl(204, 100%, 63%);
+        --base: hsl(216, 100%, 10%);
     }
 }
 
@@ -13,10 +14,11 @@
     :root {
         --background: hsl(0, 0%, 95%);
         --primary: hsl(202, 60%, 50%);
-        --secondary: hsl(204, 79%, 20%);
+        --secondary: hsl(214, 97%, 27%);
         --orange: hsl(23, 86%, 40%);
-        --text: hsl(217, 100%, 5%);
-        --table-primary: hsl(202, 60%, 50%);
+        --text-primary: hsl(217, 100%, 5%);
+        --text-secondary: hsl(190, 76%, 82%);
+        --base: hsl(214, 97%, 40%);
     }
 }
 
@@ -33,42 +35,100 @@ header {
     font-size: 1.4rem;
 }
 
+/* Navbar part */
+#navbar {
+    height: 100px;
+    width: 100vw;
+    background-color: var(--base);
+
+    & .nav-container {
+        display: grid;
+        height: 100px;
+        grid-template-columns: 20% 70% 10%;
+    }
+
+    & .nav-logo {
+        width: 250px;
+        display: flex;
+        align-items: center;
+        padding-left: 40px;
+    }
+
+    & .github-logo {
+        margin: 0 0 0 auto;
+        padding-right: 40px;
+        display: flex;
+        align-items: center;
+    }
+
+    & .searchbar {
+        width: 100%;
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    & .search {
+        width: 30%;
+        border: 3px solid var(--primary);
+        border-right: none;
+        padding: 5px;
+        height: 20px;
+        border-radius: 5px 0 0 5px;
+        outline: none;
+        color: var(--text);
+        margin: 0 0 0 auto;
+    }
+
+    & .search-button {
+        width: 40px;
+        height: 36px;
+        border: 1px solid var(--primary);
+        background: var(--primary);
+        text-align: center;
+        border-radius: 0 5px 5px 0;
+        cursor: pointer;
+    }
+}
+
+
+
 /* For Desktop View */
 @media (1200px < width) {
     #content {
-        width: 70vw;
-        margin-inline: 15vw;
+        width: 90vw;
+        margin-inline: 5vw;
     }
 }
 
 /* For Small Screen and Laptops */
 @media (1024px <=width < 1200px) {
     #content {
-        width: 75vw;
-        margin-inline: 12.5vw;
+        width: 92vw;
+        margin-inline: 4vw;
     }
 }
 
 /* For Tablet View */
-@media (768px <=width < 1025px) {
+@media (768px <=width < 1024px) {
     #content {
-        width: 80vw;
-        margin-inline: 10vw;
+        width: 94vw;
+        margin-inline: 3vw;
     }
 }
 
 /* For Mobile Landscape View */
-@media (480px <=width < 767px) {
+@media (480px <=width < 768px) {
     #content {
-        width: 85vw;
-        margin-inline: 7.5vw;
+        width: 96vw;
+        margin-inline: 2vw;
     }
 }
 
 /* For Mobile Portrait View */
 @media (width < 480px) {
     #content {
-        width: 90vw;
-        margin-inline: 5vw;
+        width: 98vw;
+        margin-inline: 1vw;
     }
 }

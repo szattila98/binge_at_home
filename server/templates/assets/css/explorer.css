@@ -1,21 +1,19 @@
 .header {
     text-align: center;
-    color: var(--text);
+    color: var(--text-primary);
 }
 
 .catalog-table {
 
-    color: var(--text);
+    color: var(--text-primary);
     border: 2px solid var(--secondary);
     border-radius: 10px;
-    width: 80%;
-    margin-inline: 10%;
-    box-shadow: 0 0 3px 3px var(--secondary);
+    width: 100%;
 
     & .table-header,
     .catalog-entry {
         display: grid;
-        grid-template-columns: 20% 20% 30% 30%;
+        grid-template-columns: 30% 50% 10% 10%;
     }
 
     & .table-header {
@@ -30,13 +28,11 @@
     & .catalog-entry {
         padding: 10px;
         text-decoration: none;
-        color: var(--text);
-        vertical-align: middle;
+        color: var(--text-primary);
     }
 
     & .catalog-entry:last-child {
-        border-bottom-left-radius: 8px;
-        border-bottom-right-radius: 8px;
+        border-radius: 0 0 8px 8px;
     }
 
     & .catalog-entry span {
@@ -46,11 +42,36 @@
     }
 
     & .catalog-entry:nth-child(2n +1) {
-        background-color: var(--table-primary);
+        background-color: var(--base);
     }
 
     & .catalog-entry:hover {
         cursor: pointer;
+        background-color: var(--secondary);
+        color: var(--text-secondary);
+    }
+}
+
+.pagination {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding-top: 20px;
+
+    & .page-number {
+        color: var(--text-primary);
+        text-decoration: none;
+        border-radius: 20px;
+        padding: 5px 10px 5px 10px;
+        text-align: center;
+        font-size: 1.1rem;
+    }
+
+    & .page-number:hover {
+        background-color: var(--primary);
+    }
+
+    & .page-number.active {
         background-color: var(--secondary);
     }
 }
