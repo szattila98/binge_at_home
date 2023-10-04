@@ -11,6 +11,8 @@ use crate::{
     model::{EntityId, Video},
 };
 
+use super::AppState;
+
 #[derive(TypedPath, Deserialize)]
 #[typed_path("/video/:id/watch")]
 pub struct Endpoint {
@@ -37,6 +39,7 @@ impl HtmlTemplate {
 }
 
 #[instrument(skip(pool))]
+#[axum_macros::debug_handler(state = AppState)]
 pub async fn handler(Endpoint { id }: Endpoint, State(pool): State<PgPool>) -> impl IntoResponse {
     let opt = match Video::find(&pool, id).await {
         Ok(opt) => opt,

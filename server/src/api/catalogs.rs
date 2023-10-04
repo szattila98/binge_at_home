@@ -14,6 +14,8 @@ use crate::{
     model::{Catalog, FormatDate},
 };
 
+use super::AppState;
+
 #[derive(TypedPath)]
 #[typed_path("/catalog")]
 pub struct Endpoint;
@@ -38,6 +40,7 @@ impl HtmlTemplate {
 }
 
 #[instrument(skip(pool))]
+#[axum_macros::debug_handler(state = AppState)]
 pub async fn handler(
     _: Endpoint,
     State(pool): State<PgPool>,

@@ -17,12 +17,12 @@ add-git-hook:
     @just _check-app cog
     @cog install-hook pre-push
 
-docker-up:
+docker-all:
     # Starting server and dependencies in docker compose
     @just _check-app 'docker compose'
     @docker compose up -d --build
 
-docker-dev-up:
+docker-dev:
     # Starting development services (database)
     @just _check-app 'docker compose'
     @docker compose up database -d --build

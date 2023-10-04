@@ -15,6 +15,7 @@ use tokio::io::{AsyncReadExt, AsyncSeekExt};
 use tracing::{debug, instrument};
 
 use crate::{
+    api::AppState,
     configuration::Configuration,
     crud::Entity,
     file_access::FileStore,
@@ -30,6 +31,7 @@ pub struct Endpoint {
 }
 
 #[instrument(skip(pool))]
+#[axum_macros::debug_handler(state = AppState)]
 pub async fn handler(
     Endpoint { id }: Endpoint,
     TypedHeader(range_header): TypedHeader<Range>,

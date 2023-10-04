@@ -13,6 +13,8 @@ use crate::{
     model::{Catalog, EntityId, Video},
 };
 
+use super::AppState;
+
 #[derive(TypedPath, Deserialize)]
 #[typed_path("/catalog/:catalog_id/browse/*path")]
 pub struct Endpoint {
@@ -47,6 +49,7 @@ impl HtmlTemplate {
 }
 
 #[instrument(skip(pool))]
+#[axum_macros::debug_handler(state = AppState)]
 pub async fn handler(
     Endpoint { catalog_id, path }: Endpoint,
     State(pool): State<PgPool>,

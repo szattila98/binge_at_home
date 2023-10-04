@@ -8,6 +8,8 @@ use tracing::{debug, instrument};
 
 use crate::{get_app_name, get_app_version};
 
+use super::AppState;
+
 #[derive(TypedPath)]
 #[typed_path("/health-check")]
 pub struct HealthCheckEndpoint;
@@ -33,6 +35,7 @@ impl Default for HealthCheckTemplate {
 }
 
 #[instrument]
+#[axum_macros::debug_handler(state = AppState)]
 pub async fn handler(_: HealthCheckEndpoint) -> impl IntoResponse {
     let rendered = HealthCheckTemplate::default();
     debug!("health check rendered\n{rendered}");
