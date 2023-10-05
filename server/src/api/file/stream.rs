@@ -1,4 +1,4 @@
-use std::{io::SeekFrom, ops::Bound, sync::Arc};
+use std::{ops::Bound, sync::Arc};
 
 use axum::{
     extract::State,
@@ -11,15 +11,13 @@ use http::{header, StatusCode};
 use http_body::Full;
 use serde::Deserialize;
 use sqlx::PgPool;
-use tokio::io::{AsyncReadExt, AsyncSeekExt};
-use tracing::{debug, instrument};
+use tracing::instrument;
 
 use crate::{
     api::AppState,
-    configuration::Configuration,
     crud::Entity,
     file_access::FileStore,
-    model::{EntityId, Video},
+    model::{EntityId, Metadata, Video},
 };
 
 static MAX_CHUNK_SIZE: u64 = 1024 * 1024;
@@ -30,13 +28,12 @@ pub struct Endpoint {
     id: EntityId,
 }
 
-#[instrument(skip(pool))]
+#[instrument(skip(pool, file_store))]
 #[axum_macros::debug_handler(state = AppState)]
 pub async fn handler(
     Endpoint { id }: Endpoint,
     TypedHeader(range_header): TypedHeader<Range>,
     State(pool): State<PgPool>,
-    State(config): State<Arc<Configuration>>,
     State(file_store): State<Arc<FileStore>>,
 ) -> impl IntoResponse {
     let option = match Video::find(&pool, id).await {
@@ -55,22 +52,27 @@ pub async fn handler(
         ));
     };
 
-    let video_path = file_store.get_file(&video.path);
-    let mut file = match tokio::fs::File::open(video_path).await {
-        Ok(file) => file,
-        Err(err) => {
+    let option = match Metadata::find(&pool, video.id).await {
+        Ok(option) => option,
+        Err(e) => {
             return Err((
-                StatusCode::BAD_REQUEST,
-                format!("file could not be opened: {err}"),
-            ))
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("database error: {e}"),
+            ));
         }
     };
+    let Some(metadata) = option else {
+        return Err((
+            StatusCode::NOT_FOUND,
+            "metadata not found in database".to_string(),
+        ));
+    };
 
-    let file_size = file
-        .metadata()
-        .await
-        .expect("could no read size of file")
-        .len();
+    assert!(
+        metadata.size.is_positive(),
+        "file size is listed as negative in the database"
+    );
+    let file_size = metadata.size.abs() as u64;
 
     let Some((range_start, range_end)) = range_header.iter().next() else {
         return Err((
@@ -87,22 +89,17 @@ pub async fn handler(
         Bound::Unbounded => u64::min(range_start + MAX_CHUNK_SIZE, file_size - 1),
     };
 
-    if let Err(e) = file.seek(SeekFrom::Start(range_start)).await {
-        return Err((
-            StatusCode::BAD_REQUEST,
-            format!("invalid range start position, could not seek it in file: {e}"),
-        ));
-    };
-    let range_size = (range_end - range_start + 1) as usize;
-    debug!("requested data size is {range_size} bytes");
-    let mut data = vec![0u8; range_size];
-    if let Err(e) = file.read_exact(&mut data).await {
-        // TODO what if reaches end of file - if writing tests check the case
-        // TODO what if too big of a range is requested - if writing tests check the case
-        return Err((
-            StatusCode::INTERNAL_SERVER_ERROR,
-            format!("error while reading file bytes: {e}"),
-        ));
+    let data = match file_store
+        .read_bytes(&video.path, range_start, range_end)
+        .await
+    {
+        Err(e) => {
+            return Err((
+                StatusCode::BAD_REQUEST,
+                format!("error while reading file: {e}"),
+            ))
+        }
+        Ok(data) => data,
     };
 
     let status_code = if range_end >= file_size {
@@ -121,6 +118,6 @@ pub async fn handler(
             format!("bytes {range_start}-{range_end}/{file_size}"),
         )
         .body(Full::from(data))
-        .expect("error whhile building response");
+        .expect("error while building response");
     Ok(response)
 }
