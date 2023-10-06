@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n                INSERT INTO metadata (size, duration, bitrate, width, height, framerate) \n                SELECT * FROM UNNEST($1::int8[], $2::int8[], $3::text[], $4::text[], $5::text[], $6::text[])\n                RETURNING *\n            ",
+  "query": "\n                INSERT INTO metadata (size, duration, bitrate, width, height, framerate) \n                SELECT * FROM UNNEST($1::int8[], $2::float8[], $3::text[], $4::text[], $5::text[], $6::text[])\n                RETURNING *\n            ",
   "describe": {
     "columns": [
       {
@@ -16,7 +16,7 @@
       {
         "ordinal": 2,
         "name": "duration",
-        "type_info": "Int8"
+        "type_info": "Float8"
       },
       {
         "ordinal": 3,
@@ -42,7 +42,7 @@
     "parameters": {
       "Left": [
         "Int8Array",
-        "Int8Array",
+        "Float8Array",
         "TextArray",
         "TextArray",
         "TextArray",
@@ -59,5 +59,5 @@
       false
     ]
   },
-  "hash": "d017481b32840da85cb08cd232dbf11099ed63b1888cdfdd3bf02a3a33e2a7f9"
+  "hash": "886724c1b80f1b7ddf78ce9f6062717c11229e50d4a3473301842cf77526c01c"
 }

@@ -4,8 +4,11 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use ffprobe::{ffprobe, FfProbeError};
 use tokio::io::{AsyncReadExt, AsyncSeekExt};
 use tracing::{debug, instrument};
+
+use crate::crud::metadata::CreateMetadataRequest;
 
 #[derive(Debug)]
 pub struct FileStore(pub PathBuf);
@@ -38,7 +41,44 @@ impl FileStore {
     }
 
     #[instrument]
-    pub fn get_metadata<P: AsRef<Path> + Debug>(&self, file_path: P) {}
+    pub async fn get_metadata<P: AsRef<Path> + Debug>(
+        &self,
+        file_path: P,
+    ) -> Result<CreateMetadataRequest, FfProbeError> {
+        let file_path = self.get_file(file_path);
+        let ffprobe = tokio::task::spawn_blocking(move || ffprobe(file_path))
+            .await
+            .expect("error while spawning task")?;
+        let streams = ffprobe.streams.get(0);
+
+        let size = ffprobe.format.size.parse().unwrap_or(0);
+        let duration = ffprobe
+            .format
+            .duration
+            .map(|value| value.parse().unwrap_or(0.))
+            .unwrap_or(0.);
+        let bitrate = ffprobe.format.bit_rate.unwrap_or_else(String::new);
+        let width = streams
+            .map(|value| value.width.unwrap_or(0).to_string())
+            .unwrap_or_else(String::new);
+        let height = streams
+            .map(|value| value.height.unwrap_or(0).to_string())
+            .unwrap_or_else(String::new);
+        let framerate = streams
+            .map(|value| value.avg_frame_rate.clone())
+            .unwrap_or_else(String::new)
+            .trim_end_matches("/1")
+            .to_owned();
+
+        Ok(CreateMetadataRequest {
+            size,
+            duration,
+            bitrate,
+            width,
+            height,
+            framerate,
+        })
+    }
 
     #[instrument(ret)]
     fn get_file<P: AsRef<Path> + Debug>(&self, file_path: P) -> PathBuf {

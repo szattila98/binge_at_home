@@ -18,6 +18,7 @@
 - _docker_ 24.0.2 or higher
 - _docker-compose_ 2.18.1 or higher
 - _cargo_ 1.70.0 or higher
+- _ffprobe_ 12.2.0 or higher
 
 ### IDE
 
@@ -39,25 +40,21 @@
 To quickly start using docker compose, use these justfile commands.
 These will also rebuild containers on file changes, if ran again.
 
-- `docker-up-all` - it will start all the services.
-- `docker-up-server` - it will run the server and its dependencies, usable for local frontend development.
-- `docker-up-dev` - it will run the server dependencies. Usable for local backend development.
-- `down` - it will stop every service
+- `docker-all` - it will start all the services.
+- `docker-dev` - it will run the server dependencies. Usable for local backend development.
+- `down` - it will stop every service.
 
 ## Running server
 
 - Build and run with `cargo run`, it will automatically run database migrations
-  - When developing use `cargo watch -x run` for hot-reloading, provided `cargo-watch` is installed
-  - Do not forget that you will need a database up and running to properly run the application. The easiest way is to run `just docker-up-dev` in the root of the project
+  - When developing use `just watch` for hot-reloading, provided `cargo-watch` is installed
+  - Do not forget that you will need a database up and running to properly run the application. The easiest way is to run `just docker-dev` in the root of the project
 - Migrations will run automatically on application startup.
-
-## Use the API
-
-- There is a Postman collection file, ready to be used for testing during development at `postman_collections.json`
-  - Don't just use it, remember to update it when any of the API schema changes.
 
 # Frontend dev setup
 
-## Prerequisites
-
-### Recommended tools
+- The frontend is server side rendered and powered by htmx. 
+- Templates are rendered by the server and htmx makes them more dynamic.
+- After running the server, on its host and port you can access the rendered pages.
+- Hot reloading is enabled for dev builds for ease of development.
+- Assets are served based on configuration.

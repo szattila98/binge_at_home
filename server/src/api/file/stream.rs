@@ -72,7 +72,7 @@ pub async fn handler(
         metadata.size.is_positive(),
         "file size is listed as negative in the database"
     );
-    let file_size = metadata.size.abs() as u64;
+    let file_size = metadata.size.wrapping_abs() as u64;
 
     let Some((range_start, range_end)) = range_header.iter().next() else {
         return Err((

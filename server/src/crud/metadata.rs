@@ -89,7 +89,7 @@ impl Entity<Self> for Metadata {
             Self,
             r#"
                 INSERT INTO metadata (size, duration, bitrate, width, height, framerate) 
-                SELECT * FROM UNNEST($1::int8[], $2::int8[], $3::text[], $4::text[], $5::text[], $6::text[])
+                SELECT * FROM UNNEST($1::int8[], $2::float8[], $3::text[], $4::text[], $5::text[], $6::text[])
                 RETURNING *
             "#,
             &sizes[..],

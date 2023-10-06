@@ -31,6 +31,7 @@ axum-extra = { version = "0.7.7", features = ["typed-routing"] }
 axum-macros = "0.3.8"
 confique = { version = "0.2.4", default-features = false, features = ["yaml"] }
 convert_case = "0.6.0"
+ffprobe = "0.3.3"
 http = "0.2.9"
 http-body = "0.4.5"
 macros = { version = "0.1.0", path = "macros" }

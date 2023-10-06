@@ -12,7 +12,7 @@ CREATE TABLE catalog (
 CREATE TABLE metadata (
     id BIGSERIAL PRIMARY KEY NOT NULL,
     size BIGINT NOT NULL,
-    duration BIGINT NOT NULL,
+    duration DOUBLE PRECISION NOT NULL,
     bitrate TEXT NOT NULL,
     width TEXT NOT NULL,
     height TEXT NOT NULL,

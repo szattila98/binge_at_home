@@ -16,7 +16,7 @@
       {
         "ordinal": 2,
         "name": "duration",
-        "type_info": "Int8"
+        "type_info": "Float8"
       },
       {
         "ordinal": 3,
@@ -42,7 +42,7 @@
     "parameters": {
       "Left": [
         "Int8",
-        "Int8",
+        "Float8",
         "Text",
         "Text",
         "Text",

@@ -27,7 +27,7 @@ impl Catalog {
 }
 
 pub type Bytes = i64;
-pub type Seconds = i64;
+pub type Seconds = f64;
 pub type BytesPerSecond = String;
 pub type ScreenWidth = String;
 pub type ScreenHeight = String;

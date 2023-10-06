@@ -273,6 +273,7 @@ dependencies = [
  "confique",
  "convert_case",
  "fake",
+ "ffprobe",
  "http",
  "http-body",
  "macros",
@@ -630,6 +631,16 @@ name = "fastrand"
 version = "2.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "25cbce373ec4653f1a01a31e8a5e5ec0c622dc27ff9c4e6606eefef5cbbed4a5"
+
+[[package]]
+name = "ffprobe"
+version = "0.3.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b5d603974ab029fc75cebf00bfa06c9c6f49a6fb657f4f5f6a9fd6cbd76910a4"
+dependencies = [
+ "serde",
+ "serde_json",
+]
 
 [[package]]
 name = "finl_unicode"

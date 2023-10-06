@@ -73,6 +73,9 @@ jobs:
           shared-key: whooosh
           workspaces: server
 
+      - name: Setup ffmpeg
+        uses: FedericoCarboni/setup-ffmpeg@v2
+
       - name: Run tests
         uses: actions-rs/cargo@v1
         with:
