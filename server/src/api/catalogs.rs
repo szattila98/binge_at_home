@@ -48,7 +48,7 @@ pub async fn handler(
     sort: Option<Query<Sort<CatalogSort>>>,
 ) -> impl IntoResponse {
     let pagination = pagination.map(|Query(p)| p);
-    let sort = sort.map(|Query(o)| vec![o]).unwrap_or_else(Vec::new);
+    let sort = sort.map_or_else(Vec::new, |Query(o)| vec![o]);
 
     let catalogs = match Catalog::find_all(&pool, sort, pagination).await {
         Ok(catalogs) => catalogs,

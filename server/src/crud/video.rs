@@ -30,7 +30,7 @@ pub struct CreateVideoRequest {
     pub framerate: FramesPerSecond,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize)]
 #[cfg_attr(test, derive(Dummy))]
 pub enum VideoSort {
     DisplayName,
@@ -161,7 +161,7 @@ impl Entity<Self> for Video {
         ordering: Vec<Sort<VideoSort>>,
         pagination: Option<Pagination>,
     ) -> Result<Vec<Self>, sqlx::Error> {
-        let query = build_find_all_query("video", ordering, pagination);
+        let query = build_find_all_query("video", &ordering, pagination);
         let videos = sqlx::query_as(&query).fetch_all(pool).await.map_err(|e| {
             error!("error while finding videos: {e}");
             e
@@ -239,7 +239,7 @@ impl Video {
     pub async fn find_by_catalog_id(
         pool: &PgPool,
         catalog_id: EntityId,
-    ) -> Result<Vec<Video>, sqlx::Error> {
+    ) -> Result<Vec<Self>, sqlx::Error> {
         let video = sqlx::query_as!(
             Self,
             "SELECT * FROM video WHERE catalog_id = $1",

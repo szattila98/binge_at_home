@@ -80,7 +80,7 @@ pub trait Entity<T> {
 
 fn build_find_all_query<T: fmt::Debug>(
     table_name: &'static str,
-    ordering: Vec<Sort<T>>,
+    ordering: &[Sort<T>],
     pagination: Option<Pagination>,
 ) -> String {
     let ordering_part = ordering
@@ -155,7 +155,7 @@ mod tests {
     fn build_find_all_query_empty_params() {
         let ordering: Vec<Sort<&str>> = vec![];
         let pagination: Option<Pagination> = None;
-        let query = build_find_all_query("table", ordering, pagination);
+        let query = build_find_all_query("table", &ordering, pagination);
         assert_eq!(query, "SELECT * FROM table");
     }
 
@@ -167,7 +167,7 @@ mod tests {
             direction: Direction::Asc,
         }];
         let pagination: Option<Pagination> = None;
-        let query = build_find_all_query("table", ordering, pagination);
+        let query = build_find_all_query("table", &ordering, pagination);
         assert_eq!(
             query,
             format!(
@@ -183,7 +183,7 @@ mod tests {
         let page: u64 = Faker.fake::<u8>().into();
         let ordering: Vec<Sort<&str>> = vec![];
         let pagination = Some(Pagination { size, page });
-        let query = build_find_all_query("table", ordering, pagination);
+        let query = build_find_all_query("table", &ordering, pagination);
         assert_eq!(
             query,
             format!(
@@ -203,7 +203,7 @@ mod tests {
             direction: Direction::Asc,
         }];
         let pagination = Some(Pagination { size, page });
-        let query = build_find_all_query("table", ordering, pagination);
+        let query = build_find_all_query("table", &ordering, pagination);
         assert_eq!(
             query,
             format!(
@@ -236,7 +236,7 @@ mod tests {
             },
         ];
         let pagination = Some(Pagination { size, page });
-        let query = build_find_all_query("table", ordering, pagination);
+        let query = build_find_all_query("table", &ordering, pagination);
         assert_eq!(
             query,
             format!(

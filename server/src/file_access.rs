@@ -15,7 +15,7 @@ pub struct FileStore(pub PathBuf);
 
 impl FileStore {
     #[instrument(skip(self))]
-    pub async fn read_bytes<P: AsRef<Path> + Debug>(
+    pub async fn read_bytes<P: AsRef<Path> + Debug + Send>(
         &self,
         file_path: P,
         range_start: u64,
@@ -26,22 +26,19 @@ impl FileStore {
             Ok(file) => file,
             Err(e) => return Err(e),
         };
-        if let Err(e) = file.seek(SeekFrom::Start(range_start)).await {
-            return Err(e);
-        };
-        let range_size = (range_end - range_start + 1) as usize;
+        file.seek(SeekFrom::Start(range_start)).await?;
+        let range_size = usize::try_from(range_end - range_start + 1)
+            .expect("while parsing range_size ->usize is outside of the range of u64");
         debug!("requested data size is {range_size} bytes");
         let mut data = vec![0u8; range_size];
-        if let Err(e) = file.read_exact(&mut data).await {
-            // TODO what if reaches end of file - if writing tests check the case
-            // TODO what if too big of a range is requested - if writing tests check the case
-            return Err(e);
-        };
-        return Ok(data);
+        // TODO what if reaches end of file - if writing tests check the case
+        // TODO what if too big of a range is requested - if writing tests check the case
+        file.read_exact(&mut data).await?;
+        Ok(data)
     }
 
     #[instrument]
-    pub async fn get_metadata<P: AsRef<Path> + Debug>(
+    pub async fn get_metadata<P: AsRef<Path> + Debug + Send>(
         &self,
         file_path: P,
     ) -> Result<CreateMetadataRequest, FfProbeError> {
@@ -55,18 +52,13 @@ impl FileStore {
         let duration = ffprobe
             .format
             .duration
-            .map(|value| value.parse().unwrap_or(0.))
-            .unwrap_or(0.);
-        let bitrate = ffprobe.format.bit_rate.unwrap_or_else(String::new);
-        let width = streams
-            .map(|value| value.width.unwrap_or(0).to_string())
-            .unwrap_or_else(String::new);
-        let height = streams
-            .map(|value| value.height.unwrap_or(0).to_string())
-            .unwrap_or_else(String::new);
+            .map_or(0., |value| value.parse().unwrap_or(0.));
+        let bitrate = ffprobe.format.bit_rate.unwrap_or_default();
+        let width = streams.map_or_else(String::new, |value| value.width.unwrap_or(0).to_string());
+        let height =
+            streams.map_or_else(String::new, |value| value.height.unwrap_or(0).to_string());
         let framerate = streams
-            .map(|value| value.avg_frame_rate.clone())
-            .unwrap_or_else(String::new)
+            .map_or_else(String::new, |value| value.avg_frame_rate.clone())
             .trim_end_matches("/1")
             .to_owned();
 
@@ -81,7 +73,7 @@ impl FileStore {
     }
 
     #[instrument(ret)]
-    fn get_file<P: AsRef<Path> + Debug>(&self, file_path: P) -> PathBuf {
+    fn get_file<P: AsRef<Path> + Debug + Send>(&self, file_path: P) -> PathBuf {
         self.0.join(file_path)
     }
 }

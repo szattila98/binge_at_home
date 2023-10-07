@@ -18,7 +18,7 @@ pub struct CreateCatalogRequest {
     long_desc: String,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize)]
 #[cfg_attr(test, derive(Dummy))]
 pub enum CatalogSort {
     DisplayName,
@@ -121,7 +121,7 @@ impl Entity<Self> for Catalog {
         ordering: Vec<Sort<CatalogSort>>,
         pagination: Option<Pagination>,
     ) -> Result<Vec<Self>, sqlx::Error> {
-        let query = build_find_all_query("catalog", ordering, pagination);
+        let query = build_find_all_query("catalog", &ordering, pagination);
         let catalogs = sqlx::query_as(&query).fetch_all(pool).await.map_err(|e| {
             error!("error while finding catalogs: {e}");
             e

@@ -22,7 +22,7 @@ pub struct Endpoint {
     path: String,
 }
 
-#[derive(Debug, Serialize, PartialEq)]
+#[derive(Debug, Serialize, PartialEq, Eq)]
 pub enum File {
     Directory { path: String, display_name: String },
     Video(Video),
@@ -137,9 +137,7 @@ fn get_files(videos: Vec<Video>, walked_path: PathBuf) -> Option<Vec<File>> {
             (File::Directory { path: dir1, .. }, File::Directory { path: dir2, .. }) => {
                 dir1.cmp(dir2)
             }
-            (File::Video(video1), File::Video(video2)) => {
-                video1.display_name.cmp(&video2.display_name)
-            }
+            (File::Video(a), File::Video(b)) => a.display_name.cmp(&b.display_name),
             (File::Directory { .. }, File::Video(_)) => Ordering::Less,
             (File::Video(_), File::Directory { .. }) => Ordering::Greater,
         }

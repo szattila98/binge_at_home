@@ -45,7 +45,7 @@ pub struct Metadata {
     pub framerate: FramesPerSecond,
 }
 
-#[derive(Debug, Clone, sqlx::FromRow, Serialize, PartialEq)]
+#[derive(Debug, Clone, sqlx::FromRow, Serialize, PartialEq, Eq)]
 #[cfg_attr(test, derive(Dummy))]
 pub struct Video {
     pub id: EntityId,
@@ -69,8 +69,7 @@ impl Video {
     pub fn extension(&self) -> String {
         self.path()
             .extension()
-            .map(|s| s.to_string_lossy().to_string())
-            .unwrap_or_else(String::new)
+            .map_or_else(String::new, |s| s.to_string_lossy().to_string())
     }
 }
 

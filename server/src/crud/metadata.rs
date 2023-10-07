@@ -127,7 +127,7 @@ impl Entity<Self> for Metadata {
         ordering: Vec<Sort<()>>,
         pagination: Option<Pagination>,
     ) -> Result<Vec<Self>, sqlx::Error> {
-        let query = build_find_all_query("metadata", ordering, pagination);
+        let query = build_find_all_query("metadata", &ordering, pagination);
         let metadatas = sqlx::query_as(&query).fetch_all(pool).await.map_err(|e| {
             error!("error while finding metadatas: {e}");
             e
