@@ -1,9 +1,12 @@
 {
   "cSpell.words": [
     "askama",
+    "debouncer",
     "ffprobe",
+    "idents",
     "livereload",
-    "Parens"
+    "Parens",
+    "unseparated"
   ],
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {

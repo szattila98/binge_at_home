@@ -47,17 +47,22 @@ pub struct AppState {
 }
 
 impl AppState {
-    pub fn new(config: Configuration, database: PgPool, file_store: FileStore) -> Self {
+    pub fn new(config: Configuration, database: PgPool, file_store: Arc<FileStore>) -> Self {
         Self {
             config: Arc::new(config),
             database,
-            file_store: Arc::new(file_store),
+            file_store,
         }
     }
 }
 
 #[instrument(skip_all)]
-pub fn init(config: Configuration, database: PgPool, _: &Logger) -> anyhow::Result<Router> {
+pub fn init(
+    config: Configuration,
+    database: PgPool,
+    file_store: Arc<FileStore>,
+    _: &Logger,
+) -> anyhow::Result<Router> {
     info!("initializing router...");
     let latency_unit = LatencyUnit::Micros;
     let http_tracing = TraceLayer::new_for_http()
@@ -110,8 +115,7 @@ pub fn init(config: Configuration, database: PgPool, _: &Logger) -> anyhow::Resu
         );
 
     let static_dir = config.static_dir().to_owned();
-    let file_store_dir = config.file_store();
-    let state = AppState::new(config, database, FileStore(file_store_dir));
+    let state = AppState::new(config, database, file_store);
 
     let fragment = Router::new();
 

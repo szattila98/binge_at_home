@@ -12,7 +12,7 @@ use tracing_subscriber::{
 
 use crate::configuration::Configuration;
 
-pub fn with_default_logger<T>(f: impl Fn() -> T) -> T {
+pub fn with_default_logger<T>(f: impl FnOnce() -> T) -> T {
     let default_logger = tracing_subscriber::fmt().pretty().finish();
     with_default(default_logger, f)
 }
@@ -21,6 +21,8 @@ pub struct Logger(PhantomData<Logger>);
 
 #[instrument(skip_all)]
 pub fn init(config: &Configuration) -> anyhow::Result<Logger> {
+    // log::set_max_level(log::LevelFilter::Off);
+
     let log_level =
         Level::from_str(config.logging().level()).context("log level could not be parsed")?;
     let global_filter = GlobalFilterLayer::new(log_level).boxed();
