@@ -18,6 +18,17 @@ pub struct CreateCatalogRequest {
     long_desc: String,
 }
 
+impl CreateCatalogRequest {
+    pub fn new(path: String) -> Self {
+        Self {
+            path: path.clone(),
+            display_name: path,
+            short_desc: String::new(),
+            long_desc: String::new(),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize)]
 #[cfg_attr(test, derive(Dummy))]
 pub enum CatalogSort {

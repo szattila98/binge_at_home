@@ -9,6 +9,7 @@ use std::{
 
 use anyhow::{bail, Context};
 use axum::http::HeaderValue;
+use normpath::PathExt;
 use secrecy::Secret;
 use serde::Deserialize;
 
@@ -136,7 +137,17 @@ impl Configuration {
     }
 
     pub fn file_store(&self) -> PathBuf {
-        PathBuf::from(&self.file_store)
+        let store = PathBuf::from(&self.file_store);
+        if store.is_absolute() {
+            store
+        } else {
+            env::current_dir()
+                .expect("could not get current dir")
+                .join(store)
+                .normalize()
+                .expect("could not normalize path")
+                .into_path_buf()
+        }
     }
 }
 

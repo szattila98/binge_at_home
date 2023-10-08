@@ -8,6 +8,7 @@ use std::{
 
 use anyhow::bail;
 use ffprobe::{ffprobe, FfProbeError};
+use normpath::PathExt;
 use notify::{Error, ReadDirectoryChangesWatcher, RecursiveMode, Watcher};
 use notify_debouncer_full::{
     new_debouncer, DebounceEventResult, DebouncedEvent, Debouncer, FileIdMap,
@@ -20,7 +21,11 @@ use tokio::{
 };
 use tracing::{debug, error, info, instrument, warn, Instrument};
 
-use crate::{configuration::Configuration, crud::metadata::CreateMetadataRequest};
+use crate::{
+    configuration::Configuration,
+    crud::{catalog::CreateCatalogRequest, metadata::CreateMetadataRequest, Entity},
+    model::Catalog,
+};
 
 #[derive(Debug)]
 pub struct FileStore(PathBuf);
@@ -134,11 +139,15 @@ impl StoreWatcher {
 
             if let Some(mut rx) = self.receiver.take() {
                 let pool = self.pool.clone();
+                let file_store = self.file_store.clone();
                 tokio::spawn(
                     async move {
                         while let Some(res) = rx.recv().await {
                             match res {
-                                Ok(events) => process_file_events(pool.clone(), events),
+                                Ok(events) => {
+                                    process_file_events(pool.clone(), file_store.clone(), events)
+                                        .await
+                                }
                                 Err(errors) => {
                                     error!(
                                         "notify error(s) detected: {}",
@@ -195,8 +204,12 @@ impl StoreWatcher {
     }
 }
 
-#[instrument(level = "debug", skip(pool))]
-fn process_file_events(pool: PgPool, events: Vec<DebouncedEvent>) {
+#[instrument(level = "debug", skip(pool, file_store))]
+async fn process_file_events(
+    pool: PgPool,
+    file_store: Arc<FileStore>,
+    events: Vec<DebouncedEvent>,
+) {
     info!("processing {} file event(s)", events.len());
     let mut creations = vec![];
     let mut modifies = vec![];
@@ -217,8 +230,61 @@ fn process_file_events(pool: PgPool, events: Vec<DebouncedEvent>) {
             .into_iter()
             .map(|event| event.paths.clone())
             .flatten()
+            .map(|path| {
+                path.normalize()
+                    .expect("could not normalize path")
+                    .into_path_buf()
+            })
             .collect::<Vec<_>>();
-        info!("file creation events detected: \n{creations:#?}");
+        debug!("file creation events detected: \n{creations:#?}");
+        let mut new_catalogs = vec![];
+        for absolute_path in creations {
+            let Ok(stripped_path) = absolute_path.strip_prefix(&file_store.0) else {
+                error!(
+                    "store prefix could not be stripped from path: {}",
+                    absolute_path.display()
+                );
+                continue;
+            };
+            match stripped_path {
+                stripped_path
+                    if stripped_path.components().count() == 1 && absolute_path.is_dir() =>
+                {
+                    debug!(
+                        "catalog detected, adding it to database with path '{}'",
+                        stripped_path.display()
+                    );
+                    let catalog = CreateCatalogRequest::new(stripped_path.display().to_string());
+                    new_catalogs.push(catalog);
+                }
+                stripped_path
+                    if stripped_path.components().count() > 1 && absolute_path.is_file() =>
+                {
+                    println!("new video - {}", stripped_path.display());
+                    // TODO if inside catalog add it to that catalog
+                    // TODO if inside non existent catalog, create the catalog, then the file
+                    // TODO create catalogs first, then files
+                }
+                stripped_path
+                    if stripped_path.components().count() == 1 && absolute_path.is_file() =>
+                {
+                    warn!(
+                        "file added to root, not to a catalog, no action taken '{}'",
+                        absolute_path.display()
+                    );
+                    continue;
+                }
+                _ => error!(
+                    "could not determine what to do with path '{}'",
+                    absolute_path.display()
+                ),
+            }
+        }
+        if !new_catalogs.is_empty() {
+            if let Ok(catalogs) = Catalog::create_many(&pool, new_catalogs).await {
+                info!("added {} catalogs", catalogs.len());
+            };
+        }
     }
     if !modifies.is_empty() {
         let modifies = modifies

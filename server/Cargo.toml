@@ -35,6 +35,7 @@ ffprobe = "0.3.3"
 http = "0.2.9"
 http-body = "0.4.5"
 macros = { version = "0.1.0", path = "macros" }
+normpath = "1.1.1"
 notify = { version = "6.1.1", default-features = false, features = [
     "macos_kqueue",
 ] }
