@@ -9,7 +9,7 @@ use std::{
 use anyhow::bail;
 use ffprobe::{ffprobe, FfProbeError};
 use normpath::PathExt;
-use notify::{Error, ReadDirectoryChangesWatcher, RecursiveMode, Watcher};
+use notify::{Error, RecommendedWatcher, RecursiveMode, Watcher};
 use notify_debouncer_full::{
     new_debouncer, DebounceEventResult, DebouncedEvent, Debouncer, FileIdMap,
 };
@@ -103,7 +103,7 @@ impl FileStore {
 pub struct StoreWatcher {
     file_store: Arc<FileStore>,
     pool: PgPool,
-    debouncer: Option<Debouncer<ReadDirectoryChangesWatcher, FileIdMap>>,
+    debouncer: Option<Debouncer<RecommendedWatcher, FileIdMap>>,
     receiver: Option<Receiver<Result<Vec<DebouncedEvent>, Vec<Error>>>>,
 }
 
@@ -163,7 +163,11 @@ impl StoreWatcher {
                     }
                     .in_current_span(),
                 );
+            } else {
+                bail!("store watcher receiver not initialized");
             }
+        } else {
+            bail!("store watcher debouncer not initialized")
         }
 
         Ok(())
