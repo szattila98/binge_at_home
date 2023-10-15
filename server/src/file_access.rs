@@ -270,6 +270,7 @@ async fn process_file_events(
                     if let Ok(catalog) = Catalog::create(&mut *tx, catalog).await {
                         info!("added catalog '{}'", catalog.path)
                     };
+                    // TODO scan after creation to get all files under it in case they are not recorded to database somehow
                 }
                 stripped_path
                     if stripped_path.components().count() > 1 && absolute_path.is_file() =>

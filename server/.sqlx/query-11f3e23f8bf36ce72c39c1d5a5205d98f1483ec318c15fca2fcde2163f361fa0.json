@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n                INSERT INTO video ( \n                    path, display_name, short_desc, long_desc, catalog_id, sequent_id, metadata_id\n                ) \n                VALUES ( $1, $2, $3, $4, $5, $6, $7 ) \n                RETURNING *\n            ",
+  "query": "SELECT * FROM catalog WHERE path = $1",
   "describe": {
     "columns": [
       {
@@ -30,39 +30,18 @@
       },
       {
         "ordinal": 5,
-        "name": "catalog_id",
-        "type_info": "Int8"
-      },
-      {
-        "ordinal": 6,
-        "name": "sequent_id",
-        "type_info": "Int8"
-      },
-      {
-        "ordinal": 7,
-        "name": "metadata_id",
-        "type_info": "Int8"
-      },
-      {
-        "ordinal": 8,
         "name": "created_at",
         "type_info": "Timestamptz"
       },
       {
-        "ordinal": 9,
+        "ordinal": 6,
         "name": "updated_at",
         "type_info": "Timestamptz"
       }
     ],
     "parameters": {
       "Left": [
-        "Text",
-        "Text",
-        "Text",
-        "Text",
-        "Int8",
-        "Int8",
-        "Int8"
+        "Text"
       ]
     },
     "nullable": [
@@ -72,11 +51,8 @@
       false,
       false,
       false,
-      true,
-      false,
-      false,
       false
     ]
   },
-  "hash": "5039b0013c2e8b769618c8490dd0ba1274ee31bb8bc69cc069d1775abc07bfa7"
+  "hash": "11f3e23f8bf36ce72c39c1d5a5205d98f1483ec318c15fca2fcde2163f361fa0"
 }
