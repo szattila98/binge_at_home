@@ -2,14 +2,14 @@ use async_trait::async_trait;
 #[cfg(test)]
 use fake::Dummy;
 use serde::Deserialize;
-use sqlx::PgPool;
+use sqlx::PgExecutor;
 use tracing::{error, instrument};
 
 use crate::model::{Catalog, EntityId};
 
 use super::{build_find_all_query, Entity, Pagination, Sort};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Default, Clone)]
 #[cfg_attr(test, derive(Dummy))]
 pub struct CreateCatalogRequest {
     path: String,
@@ -23,8 +23,7 @@ impl CreateCatalogRequest {
         Self {
             path: path.clone(),
             display_name: path,
-            short_desc: String::new(),
-            long_desc: String::new(),
+            ..Default::default()
         }
     }
 }
@@ -52,8 +51,11 @@ impl Entity<Self> for Catalog {
     type Ordering = CatalogSort;
     type UpdateRequest = UpdateCatalogRequest;
 
-    #[instrument(skip(pool))]
-    async fn create(pool: &PgPool, request: CreateCatalogRequest) -> Result<Self, sqlx::Error> {
+    #[instrument(skip(executor))]
+    async fn create<'a>(
+        executor: impl PgExecutor<'a>,
+        request: CreateCatalogRequest,
+    ) -> Result<Self, sqlx::Error> {
         let catalog = sqlx::query_as!(
             Self,
             r#"
@@ -66,7 +68,7 @@ impl Entity<Self> for Catalog {
             request.short_desc,
             request.long_desc
         )
-        .fetch_one(pool)
+        .fetch_one(executor)
         .await
         .map_err(|e| {
             error!("error while creating catalog: {e}");
@@ -75,9 +77,9 @@ impl Entity<Self> for Catalog {
         Ok(catalog)
     }
 
-    #[instrument(skip(pool))]
-    async fn create_many(
-        pool: &PgPool,
+    #[instrument(skip(executor))]
+    async fn create_many<'a>(
+        executor: impl PgExecutor<'a>,
         requests: Vec<CreateCatalogRequest>,
     ) -> Result<Vec<Self>, sqlx::Error> {
         let mut paths = vec![];
@@ -104,7 +106,7 @@ impl Entity<Self> for Catalog {
             &short_descs[..],
             &long_descs[..]
         )
-        .fetch_all(pool)
+        .fetch_all(executor)
         .await
         .map_err(|e| {
             error!("error while creating catalogs: {e}");
@@ -114,10 +116,13 @@ impl Entity<Self> for Catalog {
         Ok(catalogs)
     }
 
-    #[instrument(skip(pool))]
-    async fn find(pool: &PgPool, id: EntityId) -> Result<Option<Self>, sqlx::Error> {
+    #[instrument(skip(executor))]
+    async fn find<'a>(
+        executor: impl PgExecutor<'a>,
+        id: EntityId,
+    ) -> Result<Option<Self>, sqlx::Error> {
         let catalog = sqlx::query_as!(Self, "SELECT * FROM catalog WHERE id = $1", id)
-            .fetch_optional(pool)
+            .fetch_optional(executor)
             .await
             .map_err(|e| {
                 error!("error while finding catalog: {e}");
@@ -126,23 +131,26 @@ impl Entity<Self> for Catalog {
         Ok(catalog)
     }
 
-    #[instrument(skip(pool))]
-    async fn find_all(
-        pool: &PgPool,
+    #[instrument(skip(executor))]
+    async fn find_all<'a>(
+        executor: impl PgExecutor<'a>,
         ordering: Vec<Sort<CatalogSort>>,
         pagination: Option<Pagination>,
     ) -> Result<Vec<Self>, sqlx::Error> {
         let query = build_find_all_query("catalog", &ordering, pagination);
-        let catalogs = sqlx::query_as(&query).fetch_all(pool).await.map_err(|e| {
-            error!("error while finding catalogs: {e}");
-            e
-        })?;
+        let catalogs = sqlx::query_as(&query)
+            .fetch_all(executor)
+            .await
+            .map_err(|e| {
+                error!("error while finding catalogs: {e}");
+                e
+            })?;
         Ok(catalogs)
     }
 
-    #[instrument(skip(pool))]
-    async fn update(
-        pool: &PgPool,
+    #[instrument(skip(executor))]
+    async fn update<'a>(
+        executor: impl PgExecutor<'a>,
         request: UpdateCatalogRequest,
     ) -> Result<Option<Self>, sqlx::Error> {
         let catalog = sqlx::query_as!(
@@ -153,7 +161,7 @@ impl Entity<Self> for Catalog {
             request.long_desc,
             request.id
         )
-        .fetch_optional(pool)
+        .fetch_optional(executor)
         .await.map_err(|e| {
             error!("error while updating catalog: {e}");
             e
@@ -161,10 +169,10 @@ impl Entity<Self> for Catalog {
         Ok(catalog)
     }
 
-    #[instrument(skip(pool))]
-    async fn delete(pool: &PgPool, id: EntityId) -> Result<bool, sqlx::Error> {
+    #[instrument(skip(executor))]
+    async fn delete<'a>(executor: impl PgExecutor<'a>, id: EntityId) -> Result<bool, sqlx::Error> {
         let result = sqlx::query!("DELETE FROM catalog WHERE id = $1", id)
-            .execute(pool)
+            .execute(executor)
             .await
             .map_err(|e| {
                 error!("error while deleting catalog: {e}");
@@ -173,10 +181,13 @@ impl Entity<Self> for Catalog {
         Ok(result.rows_affected() == 1)
     }
 
-    #[instrument(skip(pool))]
-    async fn delete_many(pool: &PgPool, ids: Vec<EntityId>) -> Result<u64, sqlx::Error> {
+    #[instrument(skip(executor))]
+    async fn delete_many<'a>(
+        executor: impl PgExecutor<'a>,
+        ids: Vec<EntityId>,
+    ) -> Result<u64, sqlx::Error> {
         let result = sqlx::query!("DELETE FROM catalog WHERE id = ANY($1)", &ids[..])
-            .execute(pool)
+            .execute(executor)
             .await
             .map_err(|e| {
                 error!("error while deleting catalogs: {e}");
@@ -185,16 +196,33 @@ impl Entity<Self> for Catalog {
         Ok(result.rows_affected())
     }
 
-    #[instrument(skip(pool))]
-    async fn count_all(pool: &PgPool) -> Result<i64, sqlx::Error> {
+    #[instrument(skip(executor))]
+    async fn count_all<'a>(executor: impl PgExecutor<'a>) -> Result<i64, sqlx::Error> {
         let count = sqlx::query_scalar!(r#"SELECT COUNT(*) as "count!" FROM catalog"#)
-            .fetch_one(pool)
+            .fetch_one(executor)
             .await
             .map_err(|e| {
                 error!("error while counting catalogs: {e}");
                 e
             })?;
         Ok(count)
+    }
+}
+
+impl Catalog {
+    #[instrument(skip(executor))]
+    pub async fn find_by_path<'a>(
+        executor: impl PgExecutor<'a>,
+        path: String,
+    ) -> Result<Option<Catalog>, sqlx::Error> {
+        let catalog = sqlx::query_as!(Self, "SELECT * FROM catalog WHERE path = $1", path)
+            .fetch_optional(executor)
+            .await
+            .map_err(|e| {
+                error!("error while finding catalog by path: {e}");
+                e
+            })?;
+        Ok(catalog)
     }
 }
 
@@ -205,11 +233,11 @@ mod tests {
     use pretty_assertions::assert_eq;
 
     #[sqlx::test]
-    async fn create_one_catalog_created(pool: PgPool) -> Result<(), sqlx::Error> {
+    async fn create_one_catalog_created(executor: PgPool) -> Result<(), sqlx::Error> {
         let request: CreateCatalogRequest = Faker.fake();
 
-        let catalog = Catalog::create(&pool, request.clone()).await?;
-        let count = Catalog::count_all(&pool).await?;
+        let catalog = Catalog::create(&executor, request.clone()).await?;
+        let count = Catalog::count_all(&executor).await?;
 
         assert_eq!(count, 1);
         assert_eq!(catalog.id, 1);
@@ -222,15 +250,15 @@ mod tests {
     }
 
     #[sqlx::test]
-    async fn create_many_three_catalogs_created(pool: PgPool) -> Result<(), sqlx::Error> {
+    async fn create_many_three_catalogs_created(executor: PgPool) -> Result<(), sqlx::Error> {
         let request1: CreateCatalogRequest = Faker.fake();
         let request2: CreateCatalogRequest = Faker.fake();
         let request3: CreateCatalogRequest = Faker.fake();
 
         let requests = vec![request1.clone(), request2.clone(), request3.clone()];
 
-        let catalogs = Catalog::create_many(&pool, requests).await?;
-        let count = Catalog::count_all(&pool).await?;
+        let catalogs = Catalog::create_many(&executor, requests).await?;
+        let count = Catalog::count_all(&executor).await?;
 
         assert_eq!(count, 3);
 
@@ -253,8 +281,8 @@ mod tests {
     }
 
     #[sqlx::test(fixtures("catalogs"))]
-    async fn find_correct_id_found(pool: PgPool) -> Result<(), sqlx::Error> {
-        let catalog = Catalog::find(&pool, 3).await?.expect("no catalog found");
+    async fn find_correct_id_found(executor: PgPool) -> Result<(), sqlx::Error> {
+        let catalog = Catalog::find(&executor, 3).await?.expect("no catalog found");
 
         assert_eq!(catalog.id, 3);
         assert_eq!(catalog.path, "/movies/2");

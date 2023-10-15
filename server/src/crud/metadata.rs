@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 #[cfg(test)]
 use fake::Dummy;
-use sqlx::PgPool;
+use sqlx::PgExecutor;
 use tracing::{error, instrument};
 
 use crate::model::{
@@ -39,8 +39,11 @@ impl Entity<Self> for Metadata {
     type Ordering = ();
     type UpdateRequest = UpdateMetadataRequest;
 
-    #[instrument(skip(pool))]
-    async fn create(pool: &PgPool, request: CreateMetadataRequest) -> Result<Self, sqlx::Error> {
+    #[instrument(skip(executor))]
+    async fn create<'a>(
+        executor: impl PgExecutor<'a>,
+        request: CreateMetadataRequest,
+    ) -> Result<Self, sqlx::Error> {
         let metadata = sqlx::query_as!(
             Self,
             r#"
@@ -55,7 +58,7 @@ impl Entity<Self> for Metadata {
             request.height,
             request.framerate
         )
-        .fetch_one(pool)
+        .fetch_one(executor)
         .await
         .map_err(|e| {
             error!("error while creating metadata: {e}");
@@ -64,9 +67,9 @@ impl Entity<Self> for Metadata {
         Ok(metadata)
     }
 
-    #[instrument(skip(pool))]
-    async fn create_many(
-        pool: &PgPool,
+    #[instrument(skip(executor))]
+    async fn create_many<'a>(
+        executor: impl PgExecutor<'a>,
         requests: Vec<CreateMetadataRequest>,
     ) -> Result<Vec<Self>, sqlx::Error> {
         let mut sizes = vec![];
@@ -99,7 +102,7 @@ impl Entity<Self> for Metadata {
             &heights[..],
             &framerates[..],
         )
-        .fetch_all(pool)
+        .fetch_all(executor)
         .await
         .map_err(|e| {
             error!("error while creating metadatas: {e}");
@@ -109,10 +112,13 @@ impl Entity<Self> for Metadata {
         Ok(metadatas)
     }
 
-    #[instrument(skip(pool))]
-    async fn find(pool: &PgPool, id: EntityId) -> Result<Option<Self>, sqlx::Error> {
+    #[instrument(skip(executor))]
+    async fn find<'a>(
+        executor: impl PgExecutor<'a>,
+        id: EntityId,
+    ) -> Result<Option<Self>, sqlx::Error> {
         let metadata = sqlx::query_as!(Self, "SELECT * FROM metadata WHERE id = $1", id)
-            .fetch_optional(pool)
+            .fetch_optional(executor)
             .await
             .map_err(|e| {
                 error!("error while finding metadata: {e}");
@@ -121,23 +127,26 @@ impl Entity<Self> for Metadata {
         Ok(metadata)
     }
 
-    #[instrument(skip(pool))]
-    async fn find_all(
-        pool: &PgPool,
+    #[instrument(skip(executor))]
+    async fn find_all<'a>(
+        executor: impl PgExecutor<'a>,
         ordering: Vec<Sort<()>>,
         pagination: Option<Pagination>,
     ) -> Result<Vec<Self>, sqlx::Error> {
         let query = build_find_all_query("metadata", &ordering, pagination);
-        let metadatas = sqlx::query_as(&query).fetch_all(pool).await.map_err(|e| {
-            error!("error while finding metadatas: {e}");
-            e
-        })?;
+        let metadatas = sqlx::query_as(&query)
+            .fetch_all(executor)
+            .await
+            .map_err(|e| {
+                error!("error while finding metadatas: {e}");
+                e
+            })?;
         Ok(metadatas)
     }
 
-    #[instrument(skip(pool))]
-    async fn update(
-        pool: &PgPool,
+    #[instrument(skip(executor))]
+    async fn update<'a>(
+        executor: impl PgExecutor<'a>,
         request: UpdateMetadataRequest,
     ) -> Result<Option<Self>, sqlx::Error> {
         let metadata = sqlx::query_as!(
@@ -156,7 +165,7 @@ impl Entity<Self> for Metadata {
             request.framerate,
             request.id
         )
-        .fetch_optional(pool)
+        .fetch_optional(executor)
         .await
         .map_err(|e| {
             error!("error while updating metadata: {e}");
@@ -165,10 +174,10 @@ impl Entity<Self> for Metadata {
         Ok(metadata)
     }
 
-    #[instrument(skip(pool))]
-    async fn delete(pool: &PgPool, id: EntityId) -> Result<bool, sqlx::Error> {
+    #[instrument(skip(executor))]
+    async fn delete<'a>(executor: impl PgExecutor<'a>, id: EntityId) -> Result<bool, sqlx::Error> {
         let result = sqlx::query!("DELETE FROM metadata WHERE id = $1", id)
-            .execute(pool)
+            .execute(executor)
             .await
             .map_err(|e| {
                 error!("error while deleting metadata: {e}");
@@ -177,10 +186,13 @@ impl Entity<Self> for Metadata {
         Ok(result.rows_affected() == 1)
     }
 
-    #[instrument(skip(pool))]
-    async fn delete_many(pool: &PgPool, ids: Vec<EntityId>) -> Result<u64, sqlx::Error> {
+    #[instrument(skip(executor))]
+    async fn delete_many<'a>(
+        executor: impl PgExecutor<'a>,
+        ids: Vec<EntityId>,
+    ) -> Result<u64, sqlx::Error> {
         let result = sqlx::query!("DELETE FROM metadata WHERE id = ANY($1)", &ids[..])
-            .execute(pool)
+            .execute(executor)
             .await
             .map_err(|e| {
                 error!("error while deleting metadatas: {e}");
@@ -189,10 +201,10 @@ impl Entity<Self> for Metadata {
         Ok(result.rows_affected())
     }
 
-    #[instrument(skip(pool))]
-    async fn count_all(pool: &PgPool) -> Result<i64, sqlx::Error> {
+    #[instrument(skip(executor))]
+    async fn count_all<'a>(executor: impl PgExecutor<'a>) -> Result<i64, sqlx::Error> {
         let count = sqlx::query_scalar!(r#"SELECT COUNT(*) as "count!" FROM metadata"#)
-            .fetch_one(pool)
+            .fetch_one(executor)
             .await
             .map_err(|e| {
                 error!("error while counting metadatas: {e}");

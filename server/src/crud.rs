@@ -3,7 +3,7 @@ use std::fmt::{self, Debug};
 use async_trait::async_trait;
 use convert_case::{Case, Casing};
 use serde::Deserialize;
-use sqlx::PgPool;
+use sqlx::PgExecutor;
 
 use crate::model::EntityId;
 
@@ -61,21 +61,40 @@ pub trait Entity<T> {
     type Ordering: Debug;
     type UpdateRequest;
 
-    async fn create(pool: &PgPool, request: Self::CreateRequest) -> Result<T, sqlx::Error>;
-    async fn create_many(
-        pool: &PgPool,
+    async fn create<'a>(
+        executor: impl PgExecutor<'a>,
+        request: Self::CreateRequest,
+    ) -> Result<T, sqlx::Error>;
+
+    async fn create_many<'a>(
+        executor: impl PgExecutor<'a>,
         requests: Vec<Self::CreateRequest>,
     ) -> Result<Vec<T>, sqlx::Error>;
-    async fn find(pool: &PgPool, id: EntityId) -> Result<Option<T>, sqlx::Error>;
-    async fn find_all(
-        pool: &PgPool,
+
+    async fn find<'a>(
+        executor: impl PgExecutor<'a>,
+        id: EntityId,
+    ) -> Result<Option<T>, sqlx::Error>;
+
+    async fn find_all<'a>(
+        executor: impl PgExecutor<'a>,
         ordering: Vec<Sort<Self::Ordering>>,
         pagination: Option<Pagination>,
     ) -> Result<Vec<T>, sqlx::Error>;
-    async fn update(pool: &PgPool, request: Self::UpdateRequest) -> Result<Option<T>, sqlx::Error>;
-    async fn delete(pool: &PgPool, id: EntityId) -> Result<bool, sqlx::Error>;
-    async fn delete_many(pool: &PgPool, ids: Vec<EntityId>) -> Result<u64, sqlx::Error>;
-    async fn count_all(pool: &PgPool) -> Result<i64, sqlx::Error>;
+
+    async fn update<'a>(
+        executor: impl PgExecutor<'a>,
+        request: Self::UpdateRequest,
+    ) -> Result<Option<T>, sqlx::Error>;
+
+    async fn delete<'a>(executor: impl PgExecutor<'a>, id: EntityId) -> Result<bool, sqlx::Error>;
+
+    async fn delete_many<'a>(
+        executor: impl PgExecutor<'a>,
+        ids: Vec<EntityId>,
+    ) -> Result<u64, sqlx::Error>;
+
+    async fn count_all<'a>(executor: impl PgExecutor<'a>) -> Result<i64, sqlx::Error>;
 }
 
 fn build_find_all_query<T: fmt::Debug>(

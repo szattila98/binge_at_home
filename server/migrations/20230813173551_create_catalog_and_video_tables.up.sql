@@ -27,7 +27,7 @@ CREATE TABLE video (
     long_desc TEXT NOT NULL,
     catalog_id BIGINT REFERENCES catalog NOT NULL,
     sequent_id BIGINT REFERENCES video,
-    metadata_id BIGINT REFERENCES metadata,
+    metadata_id BIGINT REFERENCES metadata NOT NULL,
 
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()

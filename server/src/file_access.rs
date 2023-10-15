@@ -23,8 +23,11 @@ use tracing::{debug, error, info, instrument, warn, Instrument};
 
 use crate::{
     configuration::Configuration,
-    crud::{catalog::CreateCatalogRequest, metadata::CreateMetadataRequest, Entity},
-    model::Catalog,
+    crud::{
+        catalog::CreateCatalogRequest, metadata::CreateMetadataRequest, video::CreateVideoRequest,
+        Entity,
+    },
+    model::{Catalog, Metadata, Video},
 };
 
 #[derive(Debug)]
@@ -241,7 +244,12 @@ async fn process_file_events(
             })
             .collect::<Vec<_>>();
         debug!("file creation events detected: \n{creations:#?}");
-        let mut new_catalogs = vec![];
+        // TODO make it in as few database operations as possible
+        // TODO make easier to read, enum abstraction etc
+        let mut tx = pool
+            .begin()
+            .await
+            .expect("could not begin file saving transaction");
         for absolute_path in creations {
             let Ok(stripped_path) = absolute_path.strip_prefix(&file_store.0) else {
                 error!(
@@ -259,15 +267,59 @@ async fn process_file_events(
                         stripped_path.display()
                     );
                     let catalog = CreateCatalogRequest::new(stripped_path.display().to_string());
-                    new_catalogs.push(catalog);
+                    if let Ok(catalog) = Catalog::create(&mut *tx, catalog).await {
+                        info!("added catalog '{}'", catalog.path)
+                    };
                 }
                 stripped_path
                     if stripped_path.components().count() > 1 && absolute_path.is_file() =>
                 {
-                    println!("new video - {}", stripped_path.display());
-                    // TODO if inside catalog add it to that catalog
-                    // TODO if inside non existent catalog, create the catalog, then the file
-                    // TODO create catalogs first, then files
+                    let Some(catalog_path) = stripped_path.components().next() else {
+                        error!(
+                            "catalog part could not be extracted from path: {}",
+                            absolute_path.display()
+                        );
+                        continue;
+                    };
+                    let catalog_path = catalog_path.as_os_str().to_string_lossy().to_string();
+                    let Ok(opt) = Catalog::find_by_path(&mut *tx, catalog_path.clone()).await
+                    else {
+                        continue;
+                    };
+                    let parent_catalog_id = if let Some(catalog) = opt {
+                        catalog.id
+                    } else {
+                        let catalog =
+                            CreateCatalogRequest::new(stripped_path.display().to_string());
+                        if let Ok(catalog) = Catalog::create(&mut *tx, catalog).await {
+                            info!("added catalog '{}'", catalog.path);
+                            catalog.id
+                        } else {
+                            continue;
+                        }
+                    };
+                    let Ok(metadata) = file_store.get_metadata(&absolute_path).await else {
+                        error!(
+                            "could not read metadata for file: '{}'",
+                            absolute_path.display()
+                        );
+                        continue;
+                    };
+                    let Ok(metadata) = Metadata::create(&mut *tx, metadata).await else {
+                        error!(
+                            "could not save metadata for file: '{}'",
+                            absolute_path.display()
+                        );
+                        continue;
+                    };
+                    let video = CreateVideoRequest::new(
+                        stripped_path.display().to_string(),
+                        parent_catalog_id,
+                        metadata.id,
+                    );
+                    if let Ok(video) = Video::create(&mut *tx, video).await {
+                        info!("added catalog '{}'", video.path);
+                    }
                 }
                 stripped_path
                     if stripped_path.components().count() == 1 && absolute_path.is_file() =>
@@ -284,11 +336,9 @@ async fn process_file_events(
                 ),
             }
         }
-        if !new_catalogs.is_empty() {
-            if let Ok(catalogs) = Catalog::create_many(&pool, new_catalogs).await {
-                info!("added {} catalogs", catalogs.len());
-            };
-        }
+        tx.commit()
+            .await
+            .expect("could not commit file saving transaction")
     }
     if !modifies.is_empty() {
         let modifies = modifies

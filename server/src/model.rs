@@ -55,7 +55,7 @@ pub struct Video {
     pub long_desc: String,
     pub catalog_id: EntityId,
     pub sequent_id: Option<EntityId>,
-    pub metadata_id: Option<EntityId>,
+    pub metadata_id: EntityId,
 
     pub created_at: OffsetDateTime,
     pub updated_at: OffsetDateTime,

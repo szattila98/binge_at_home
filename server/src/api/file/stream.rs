@@ -52,7 +52,7 @@ pub async fn handler(
         ));
     };
 
-    let option = match Metadata::find(&pool, video.id).await {
+    let option = match Metadata::find(&pool, video.metadata_id).await {
         Ok(option) => option,
         Err(e) => {
             return Err((

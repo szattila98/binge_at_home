@@ -2,16 +2,14 @@ use async_trait::async_trait;
 #[cfg(test)]
 use fake::Dummy;
 use serde::Deserialize;
-use sqlx::PgPool;
+use sqlx::PgExecutor;
 use tracing::{error, instrument};
 
-use crate::model::{
-    Bytes, BytesPerSecond, EntityId, FramesPerSecond, ScreenHeight, ScreenWidth, Seconds, Video,
-};
+use crate::model::{EntityId, Video};
 
 use super::{build_find_all_query, Entity, Pagination, Sort};
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 #[cfg_attr(test, derive(Dummy))]
 pub struct CreateVideoRequest {
     pub path: String,
@@ -21,13 +19,18 @@ pub struct CreateVideoRequest {
     pub catalog_id: EntityId,
     pub sequent_id: Option<EntityId>,
     pub metadata_id: EntityId,
+}
 
-    pub size: Bytes,
-    pub duration: Seconds,
-    pub bitrate: BytesPerSecond,
-    pub width: ScreenWidth,
-    pub height: ScreenHeight,
-    pub framerate: FramesPerSecond,
+impl CreateVideoRequest {
+    pub fn new(path: String, catalog_id: EntityId, metadata_id: EntityId) -> Self {
+        Self {
+            path: path.clone(),
+            display_name: path,
+            catalog_id,
+            metadata_id,
+            ..Default::default()
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize)]
@@ -50,14 +53,7 @@ pub struct UpdateVideoRequest {
     pub long_desc: String,
     pub catalog_id: EntityId,
     pub sequent_id: Option<EntityId>,
-    pub metadata_id: Option<EntityId>,
-
-    pub size: Bytes,
-    pub duration: Seconds,
-    pub bitrate: BytesPerSecond,
-    pub width: ScreenWidth,
-    pub height: ScreenHeight,
-    pub framerate: FramesPerSecond,
+    pub metadata_id: EntityId,
 }
 
 #[async_trait]
@@ -66,8 +62,11 @@ impl Entity<Self> for Video {
     type Ordering = VideoSort;
     type UpdateRequest = UpdateVideoRequest;
 
-    #[instrument(skip(pool))]
-    async fn create(pool: &PgPool, request: CreateVideoRequest) -> Result<Self, sqlx::Error> {
+    #[instrument(skip(executor))]
+    async fn create<'a>(
+        executor: impl PgExecutor<'a>,
+        request: CreateVideoRequest,
+    ) -> Result<Self, sqlx::Error> {
         let video = sqlx::query_as!(
             Self,
             r#"
@@ -85,7 +84,7 @@ impl Entity<Self> for Video {
             request.sequent_id,
             request.metadata_id
         )
-        .fetch_one(pool)
+        .fetch_one(executor)
         .await
         .map_err(|e| {
             error!("error while creating video: {e}");
@@ -94,9 +93,9 @@ impl Entity<Self> for Video {
         Ok(video)
     }
 
-    #[instrument(skip(pool))]
-    async fn create_many(
-        pool: &PgPool,
+    #[instrument(skip(executor))]
+    async fn create_many<'a>(
+        executor: impl PgExecutor<'a>,
         requests: Vec<CreateVideoRequest>,
     ) -> Result<Vec<Self>, sqlx::Error> {
         let mut paths = vec![];
@@ -133,7 +132,7 @@ impl Entity<Self> for Video {
             &catalog_ids[..],
             &metadata_ids[..]
         )
-        .fetch_all(pool)
+        .fetch_all(executor)
         .await
         .map_err(|e| {
             error!("error while creating videos: {e}");
@@ -143,10 +142,13 @@ impl Entity<Self> for Video {
         Ok(videos)
     }
 
-    #[instrument(skip(pool))]
-    async fn find(pool: &PgPool, id: EntityId) -> Result<Option<Self>, sqlx::Error> {
+    #[instrument(skip(executor))]
+    async fn find<'a>(
+        executor: impl PgExecutor<'a>,
+        id: EntityId,
+    ) -> Result<Option<Self>, sqlx::Error> {
         let video = sqlx::query_as!(Self, "SELECT * FROM video WHERE id = $1", id)
-            .fetch_optional(pool)
+            .fetch_optional(executor)
             .await
             .map_err(|e| {
                 error!("error while finding video: {e}");
@@ -155,23 +157,26 @@ impl Entity<Self> for Video {
         Ok(video)
     }
 
-    #[instrument(skip(pool))]
-    async fn find_all(
-        pool: &PgPool,
+    #[instrument(skip(executor))]
+    async fn find_all<'a>(
+        executor: impl PgExecutor<'a>,
         ordering: Vec<Sort<VideoSort>>,
         pagination: Option<Pagination>,
     ) -> Result<Vec<Self>, sqlx::Error> {
         let query = build_find_all_query("video", &ordering, pagination);
-        let videos = sqlx::query_as(&query).fetch_all(pool).await.map_err(|e| {
-            error!("error while finding videos: {e}");
-            e
-        })?;
+        let videos = sqlx::query_as(&query)
+            .fetch_all(executor)
+            .await
+            .map_err(|e| {
+                error!("error while finding videos: {e}");
+                e
+            })?;
         Ok(videos)
     }
 
-    #[instrument(skip(pool))]
-    async fn update(
-        pool: &PgPool,
+    #[instrument(skip(executor))]
+    async fn update<'a>(
+        executor: impl PgExecutor<'a>,
         request: UpdateVideoRequest,
     ) -> Result<Option<Self>, sqlx::Error> {
         let video = sqlx::query_as!(
@@ -190,7 +195,7 @@ impl Entity<Self> for Video {
             request.metadata_id,
             request.id
         )
-        .fetch_optional(pool)
+        .fetch_optional(executor)
         .await.map_err(|e| {
             error!("error while updating video: {e}");
             e
@@ -198,10 +203,10 @@ impl Entity<Self> for Video {
         Ok(video)
     }
 
-    #[instrument(skip(pool))]
-    async fn delete(pool: &PgPool, id: EntityId) -> Result<bool, sqlx::Error> {
+    #[instrument(skip(executor))]
+    async fn delete<'a>(executor: impl PgExecutor<'a>, id: EntityId) -> Result<bool, sqlx::Error> {
         let result = sqlx::query!("DELETE FROM video WHERE id = $1", id)
-            .execute(pool)
+            .execute(executor)
             .await
             .map_err(|e| {
                 error!("error while deleting video: {e}");
@@ -210,10 +215,13 @@ impl Entity<Self> for Video {
         Ok(result.rows_affected() == 1)
     }
 
-    #[instrument(skip(pool))]
-    async fn delete_many(pool: &PgPool, ids: Vec<EntityId>) -> Result<u64, sqlx::Error> {
+    #[instrument(skip(executor))]
+    async fn delete_many<'a>(
+        executor: impl PgExecutor<'a>,
+        ids: Vec<EntityId>,
+    ) -> Result<u64, sqlx::Error> {
         let result = sqlx::query!("DELETE FROM video WHERE id = ANY($1)", &ids[..])
-            .execute(pool)
+            .execute(executor)
             .await
             .map_err(|e| {
                 error!("error while deleting videos: {e}");
@@ -222,10 +230,10 @@ impl Entity<Self> for Video {
         Ok(result.rows_affected())
     }
 
-    #[instrument(skip(pool))]
-    async fn count_all(pool: &PgPool) -> Result<i64, sqlx::Error> {
+    #[instrument(skip(executor))]
+    async fn count_all<'a>(executor: impl PgExecutor<'a>) -> Result<i64, sqlx::Error> {
         let count = sqlx::query_scalar!(r#"SELECT COUNT(*) as "count!" FROM video"#)
-            .fetch_one(pool)
+            .fetch_one(executor)
             .await
             .map_err(|e| {
                 error!("error while counting videos: {e}");
@@ -236,8 +244,8 @@ impl Entity<Self> for Video {
 }
 
 impl Video {
-    pub async fn find_by_catalog_id(
-        pool: &PgPool,
+    pub async fn find_by_catalog_id<'a>(
+        executor: impl PgExecutor<'a>,
         catalog_id: EntityId,
     ) -> Result<Vec<Self>, sqlx::Error> {
         let video = sqlx::query_as!(
@@ -245,7 +253,7 @@ impl Video {
             "SELECT * FROM video WHERE catalog_id = $1",
             catalog_id
         )
-        .fetch_all(pool)
+        .fetch_all(executor)
         .await
         .map_err(|e| {
             error!("error while finding video by catalog id: {e}");
