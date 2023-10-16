@@ -21,11 +21,27 @@
                 {% endfor %}
             </div>
         {% when TemplateState::CatalogNotFound %}
-            A keresett katalógus nem található!
+        <div class="template-error">
+            <p >A keresett katalógus nem található!</p>
+            <svg viewbox="0 0 16 16"width="300px" height="300px">
+                <use href="/assets/img/main.svg#catalog-error"/>
+            </svg>
+        </div>
+           
         {% when TemplateState::InvalidPath %}
-            A keresett útvonalon nem található file!
+        <div class="template-error">
+            <p >A keresett útvonalon nem található file!</p>
+            <svg viewbox="0 0 16 16"width="300px" height="300px">
+                <use href="/assets/img/main.svg#catalog-error"/>
+            </svg>
+        </div>
         {% when TemplateState::DbErr(_) %}
-            Technikai hiba történt!
+        <div class="template-error">
+            <p >Technikai hiba történt!</p>
+            <svg viewbox="0 0 16 16"width="300px" height="300px">
+                <use href="/assets/img/main.svg#catalog-error"/>
+            </svg>
+        </div> 
         {% else %}
     {% endmatch %}
 {% endblock %}
