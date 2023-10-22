@@ -18,11 +18,11 @@ pub struct CreateVideoRequest {
     pub long_desc: String,
     pub catalog_id: EntityId,
     pub sequent_id: Option<EntityId>,
-    pub metadata_id: EntityId,
+    pub metadata_id: Option<EntityId>,
 }
 
 impl CreateVideoRequest {
-    pub fn new(path: String, catalog_id: EntityId, metadata_id: EntityId) -> Self {
+    pub fn new(path: String, catalog_id: EntityId, metadata_id: Option<EntityId>) -> Self {
         Self {
             path: path.clone(),
             display_name: path,
@@ -53,7 +53,7 @@ pub struct UpdateVideoRequest {
     pub long_desc: String,
     pub catalog_id: EntityId,
     pub sequent_id: Option<EntityId>,
-    pub metadata_id: EntityId,
+    pub metadata_id: Option<EntityId>,
 }
 
 #[async_trait]
@@ -73,7 +73,7 @@ impl Entity<Self> for Video {
                 INSERT INTO video ( 
                     path, display_name, short_desc, long_desc, catalog_id, sequent_id, metadata_id
                 ) 
-                VALUES ( $1, $2, $3, $4, $5, $6, $7 ) 
+                VALUES ($1, $2, $3, $4, $5, $6, $7) 
                 RETURNING *
             "#,
             request.path,
@@ -130,7 +130,7 @@ impl Entity<Self> for Video {
             &short_descs[..],
             &long_descs[..],
             &catalog_ids[..],
-            &metadata_ids[..]
+            &metadata_ids[..] as _
         )
         .fetch_all(executor)
         .await

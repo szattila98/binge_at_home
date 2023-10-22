@@ -213,7 +213,7 @@ impl Catalog {
     #[instrument(skip(executor))]
     pub async fn find_by_path<'a>(
         executor: impl PgExecutor<'a>,
-        path: String,
+        path: &str,
     ) -> Result<Option<Catalog>, sqlx::Error> {
         let catalog = sqlx::query_as!(Self, "SELECT * FROM catalog WHERE path = $1", path)
             .fetch_optional(executor)

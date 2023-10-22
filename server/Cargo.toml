@@ -32,6 +32,7 @@ axum-macros = "0.3.8"
 confique = { version = "0.2.4", default-features = false, features = ["yaml"] }
 convert_case = "0.6.0"
 ffprobe = "0.3.3"
+futures-util = "0.3.28"
 http = "0.2.9"
 http-body = "0.4.5"
 macros = { version = "0.1.0", path = "macros" }
@@ -82,6 +83,7 @@ tracing-subscriber = { version = "0.3.17", features = [
     "std",
     "thread_local",
 ], default-features = false }
+walkdir = "2.4.0"
 
 [dev-dependencies]
 fake = { version = "2.8.0", features = ["time", "derive"] }
