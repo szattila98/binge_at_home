@@ -11,6 +11,7 @@ use anyhow::bail;
 use ffprobe::{ffprobe, FfProbeError};
 use notify::{Error, RecommendedWatcher, RecursiveMode, Watcher};
 use notify_debouncer_full::{new_debouncer, DebounceEventResult, Debouncer, FileIdMap};
+use serde::Serialize;
 use sqlx::PgPool;
 use tokio::{
     io::{AsyncReadExt, AsyncSeekExt},
@@ -31,6 +32,12 @@ use crate::{
 
 #[derive(Debug)]
 pub struct FileStore(PathBuf);
+
+#[derive(Debug, Default, Serialize)]
+pub struct FileStoreChanges {
+    added_catalogs: usize,
+    added_videos: usize,
+}
 
 impl FileStore {
     pub fn new(config: &Configuration) -> Self {
@@ -103,6 +110,162 @@ impl FileStore {
     fn get_file<P: AsRef<Path> + Debug + Send>(&self, file_path: P) -> PathBuf {
         self.0.join(file_path)
     }
+
+    #[instrument(skip(self, pool))]
+    pub async fn scan_store_and_track_changes(
+        &self,
+        pool: PgPool,
+    ) -> anyhow::Result<FileStoreChanges> {
+        info!("file processing started...");
+        let Ok(mut tx) = pool.begin().await.map_err(|e| {
+            error!("could not begin file watcher transaction: {e}");
+            e
+        }) else {
+            bail!("database error");
+        };
+
+        let Ok(db_catalogs) = Catalog::find_all(&mut *tx, vec![], None).await else {
+            bail!("database error");
+        };
+        let Ok(db_videos) = Video::find_all(&mut *tx, vec![], None).await else {
+            bail!("database error");
+        };
+        let db_catalogs = db_catalogs
+            .into_iter()
+            .map(|catalog| catalog.path())
+            .collect::<HashSet<_>>();
+        let db_videos = db_videos
+            .into_iter()
+            .map(|catalog| catalog.path())
+            .collect::<HashSet<_>>();
+        debug!(
+            "catalogs in database: {} | videos in database: {}",
+            db_catalogs.len(),
+            db_videos.len(),
+        );
+
+        let (fs_catalogs, fs_videos): (HashSet<_>, HashSet<_>) = WalkDir::new(&self.0)
+            .follow_root_links(false)
+            .into_iter()
+            .filter_map(|result| match result {
+                Ok(entry) => Some(entry),
+                Err(error) => {
+                    error!("walkdir error: {:?}", error);
+                    None
+                }
+            })
+            .filter_map(|entry| is_file_in_catalog_or_catalog(entry, &self.0))
+            .map(|entry| entry.path().to_path_buf())
+            .partition(|path| path.is_dir());
+        let fs_catalogs = fs_catalogs
+            .into_iter()
+            .map(|path| path.strip_prefix(&self.0).unwrap().to_path_buf())
+            .collect::<HashSet<_>>();
+        let fs_videos = fs_videos
+            .into_iter()
+            .map(|path| path.strip_prefix(&self.0).unwrap().to_path_buf())
+            .collect::<HashSet<_>>();
+        debug!(
+            "catalogs on file system {} | videos on file system: {}",
+            fs_catalogs.len(),
+            fs_videos.len()
+        );
+
+        let catalogs_not_in_db = fs_catalogs.difference(&db_catalogs).collect::<Vec<_>>();
+        debug!("catalogs not in database: {catalogs_not_in_db:#?}");
+        let videos_not_in_db = fs_videos.difference(&db_videos).collect::<Vec<_>>();
+        debug!("videos not in database: {videos_not_in_db:#?}");
+
+        if catalogs_not_in_db.is_empty() && videos_not_in_db.is_empty() {
+            info!("no catalogs or videos added to file store, no actions taken");
+            return Ok(FileStoreChanges::default());
+        }
+
+        let requests = catalogs_not_in_db
+            .into_iter()
+            .map(|path| CreateCatalogRequest::new(path.to_string_lossy().to_string()))
+            .collect();
+        let Ok(catalogs) = Catalog::create_many(&mut *tx, requests).await else {
+            bail!("database error");
+        };
+        let added_catalogs = catalogs.len();
+        info!("{} catalogs added to the store", added_catalogs);
+
+        let mut added_videos = 0;
+        for path in videos_not_in_db {
+            let catalog_path = path
+                .components()
+                .next()
+                .unwrap()
+                .as_os_str()
+                .to_string_lossy()
+                .to_string();
+            let Ok(catalog) = Catalog::find_by_path(&mut *tx, &catalog_path).await else {
+                continue;
+            };
+            let Some(catalog) = catalog else {
+                warn!(
+                    "parent catalog not found in database: {catalog_path} - {}",
+                    path.display()
+                );
+                continue;
+            };
+            let metadata_id = match self.get_metadata(&path).await {
+                Ok(request) => match Metadata::create(&mut *tx, request).await {
+                    Ok(metadata) => Some(metadata.id),
+                    Err(_) => None,
+                },
+                Err(_) => None,
+            };
+
+            let request = CreateVideoRequest::new(
+                path.to_string_lossy().to_string(),
+                catalog.id,
+                metadata_id,
+            );
+            let Ok(_) = Video::create(&mut *tx, request).await else {
+                continue;
+            };
+            added_videos += 1;
+        }
+        info!("{added_videos} video(s) added to the database");
+
+        let _ = tx
+            .commit()
+            .await
+            .map_err(|e| error!("could not commit file watcher transaction: {e}"));
+        info!("finished processing new files");
+
+        return Ok(FileStoreChanges {
+            added_catalogs,
+            added_videos,
+        });
+    }
+}
+
+#[instrument(skip(entry, store))]
+fn is_file_in_catalog_or_catalog(entry: DirEntry, store: &Path) -> Option<DirEntry> {
+    let file_type = entry.file_type();
+    let path = entry.path().strip_prefix(store).unwrap();
+
+    let is_file_in_catalog = file_type.is_file() && {
+        let is_in_catalog = path.components().count() > 1;
+        (!is_in_catalog).then(|| {
+            warn!(
+                "file is in root, not in catalog, it will be ignored: '{}'",
+                path.display()
+            )
+        });
+        is_in_catalog
+    };
+
+    let is_file_in_catalog_or_catalog = is_file_in_catalog || {
+        let is_dir = entry.file_type().is_dir();
+        let is_catalog = path.components().count() == 1;
+        is_dir && is_catalog
+    };
+
+    is_file_in_catalog_or_catalog.then_some(entry)
 }
 
 #[derive(Debug)]
@@ -189,12 +352,10 @@ impl StoreWatcher {
                         while let Some(res) = rx.recv().await {
                             match res {
                                 Ok(change_count) => {
-                                    process_file_events(
-                                        pool.clone(),
-                                        file_store.clone(),
-                                        change_count,
-                                    )
-                                    .await
+                                    static TIMEOUT: u64 = 2;
+                                    info!("detected {change_count} change(s), waiting {TIMEOUT} seconds for file changes to be written to disk");
+                                    tokio::time::sleep(Duration::from_secs(TIMEOUT)).await;
+                                    let _ = file_store.scan_store_and_track_changes(pool.clone()).await;
                                 }
                                 Err(errors) => {
                                     error!(
@@ -220,154 +381,4 @@ impl StoreWatcher {
 
         Ok(())
     }
-}
-
-#[instrument(skip(pool, file_store))]
-async fn process_file_events(pool: PgPool, file_store: Arc<FileStore>, change_count: usize) {
-    static TIMEOUT: u64 = 2;
-    info!("detected {change_count} change(s), waiting {TIMEOUT} seconds for file changes to be written to disk");
-    tokio::time::sleep(Duration::from_secs(TIMEOUT)).await; // waits for files to be written to disk
-    info!("file processing started...");
-
-    let Ok(mut tx) = pool.begin().await.map_err(|e| {
-        error!("could not begin file watcher transaction: {e}");
-        e
-    }) else {
-        return;
-    };
-
-    let Ok(db_catalogs) = Catalog::find_all(&mut *tx, vec![], None).await else {
-        return;
-    };
-    let Ok(db_videos) = Video::find_all(&mut *tx, vec![], None).await else {
-        return;
-    };
-    let db_catalogs = db_catalogs
-        .into_iter()
-        .map(|catalog| catalog.path())
-        .collect::<HashSet<_>>();
-    let db_videos = db_videos
-        .into_iter()
-        .map(|catalog| catalog.path())
-        .collect::<HashSet<_>>();
-
-    let (fs_catalogs, fs_videos): (HashSet<_>, HashSet<_>) = WalkDir::new(&file_store.0)
-        .follow_root_links(false)
-        .into_iter()
-        .filter_map(|result| match result {
-            Ok(entry) => Some(entry),
-            Err(error) => {
-                error!("walkdir error: {:?}", error);
-                None
-            }
-        })
-        .filter_map(|entry| is_file_in_catalog_or_catalog(entry, &file_store.0))
-        .map(|entry| entry.path().to_path_buf())
-        .partition(|path| path.is_dir());
-    let fs_catalogs = fs_catalogs
-        .into_iter()
-        .map(|path| path.strip_prefix(&file_store.0).unwrap().to_path_buf())
-        .collect::<HashSet<_>>();
-    let fs_videos = fs_videos
-        .into_iter()
-        .map(|path| path.strip_prefix(&file_store.0).unwrap().to_path_buf())
-        .collect::<HashSet<_>>();
-
-    debug!(
-        "catalogs in database: {} | videos in database: {}",
-        db_catalogs.len(),
-        db_videos.len(),
-    );
-    debug!(
-        "catalogs on file system {} | videos on file system: {}",
-        fs_catalogs.len(),
-        fs_videos.len()
-    );
-
-    let catalogs_not_in_db = fs_catalogs.difference(&db_catalogs).collect::<Vec<_>>();
-    let videos_not_in_db = fs_videos.difference(&db_videos).collect::<Vec<_>>();
-
-    debug!("catalogs not in database: {catalogs_not_in_db:#?}");
-    debug!("videos not in database: {videos_not_in_db:#?}");
-
-    if catalogs_not_in_db.is_empty() && videos_not_in_db.is_empty() {
-        info!("no catalogs or videos added to file store, no actions taken");
-        return;
-    }
-
-    let requests = catalogs_not_in_db
-        .into_iter()
-        .map(|path| CreateCatalogRequest::new(path.to_string_lossy().to_string()))
-        .collect();
-    let Ok(catalogs) = Catalog::create_many(&mut *tx, requests).await else {
-        return;
-    };
-    info!("{} catalogs added to the store", catalogs.len());
-
-    let mut video_count = 0;
-    for path in videos_not_in_db {
-        let catalog_path = path
-            .components()
-            .next()
-            .unwrap()
-            .as_os_str()
-            .to_string_lossy()
-            .to_string();
-        let Ok(catalog) = Catalog::find_by_path(&mut *tx, &catalog_path).await else {
-            continue;
-        };
-        let Some(catalog) = catalog else {
-            warn!(
-                "parent catalog not found in database: {catalog_path} - {}",
-                path.display()
-            );
-            continue;
-        };
-        let metadata_id = match file_store.get_metadata(&path).await {
-            Ok(request) => match Metadata::create(&mut *tx, request).await {
-                Ok(metadata) => Some(metadata.id),
-                Err(_) => None,
-            },
-            Err(_) => None,
-        };
-
-        let request =
-            CreateVideoRequest::new(path.to_string_lossy().to_string(), catalog.id, metadata_id);
-        let Ok(_) = Video::create(&mut *tx, request).await else {
-            continue;
-        };
-        video_count += 1;
-    }
-    info!("{video_count} video(s) added to the database");
-
-    let _ = tx
-        .commit()
-        .await
-        .map_err(|e| error!("could not commit file watcher transaction: {e}"));
-    info!("finished processing new files");
-}
-
-#[instrument(skip(entry))]
-fn is_file_in_catalog_or_catalog(entry: DirEntry, store: &Path) -> Option<DirEntry> {
-    let file_type = entry.file_type();
-    let path = entry.path().strip_prefix(store).unwrap();
-
-    let is_file_in_catalog = file_type.is_file() && {
-        let is_in_catalog = path.components().count() > 1;
-        (!is_in_catalog).then(|| {
-            warn!(
-                "file is in root, not in catalog, it will be ignored: '{}'",
-                path.display()
-            )
-        });
-        is_in_catalog
-    };
-
-    let is_file_in_catalog_or_catalog = is_file_in_catalog || {
-        let is_dir = entry.file_type().is_dir();
-        let is_catalog = path.components().count() == 1;
-        is_dir && is_catalog
-    };
-
-    is_file_in_catalog_or_catalog.then_some(entry)
 }

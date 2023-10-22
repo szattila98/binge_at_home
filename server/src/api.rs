@@ -33,7 +33,10 @@ use tower_http::{
 use tracing::{info, instrument};
 
 use crate::{
-    api::file::stream, configuration::Configuration, file_access::FileStore, logging::Logger,
+    api::file::{scan_store, stream},
+    configuration::Configuration,
+    file_access::FileStore,
+    logging::Logger,
 };
 
 static REQUEST_ID_HEADER: &str = "x-request-id";
@@ -119,7 +122,9 @@ pub fn init(
 
     let fragment = Router::new();
 
-    let file = Router::new().typed_get(stream::handler);
+    let file = Router::new()
+        .typed_get(stream::handler)
+        .typed_get(scan_store::handler);
 
     let router = Router::new()
         .route("/", get(|| async { Redirect::permanent("/catalog") }))
