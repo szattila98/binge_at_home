@@ -111,6 +111,8 @@ impl FileStore {
         self.0.join(file_path)
     }
 
+    /// Syncs the database and the file system.
+    /// Creates catalogs and their respective files in the database if they are present on the file system.
     #[instrument(skip(self, pool))]
     pub async fn scan_store_and_track_changes(
         &self,
@@ -290,6 +292,9 @@ impl StoreWatcher {
         watcher
     }
 
+    /// Creates a new debounced watcher and a channel.
+    /// The watcher will watch for file system events in the store root and if it encounters one, it sends a message over the channel.
+    /// The message is read in `self.watch_store()`.
     #[instrument(skip_all)]
     async fn initialize_scheduler(&mut self) {
         let (tx, rx) = tokio::sync::mpsc::channel(10);
@@ -328,6 +333,8 @@ impl StoreWatcher {
         }
     }
 
+    /// Starts the previously initialized debounced watcher and receives events from it.
+    /// After encountering an event, calls the file stores's file processor function.
     #[instrument(skip_all)]
     pub fn watch_store(&mut self) -> anyhow::Result<()> {
         let watch_path = &self.file_store.0;
