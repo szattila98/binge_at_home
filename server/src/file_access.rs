@@ -41,7 +41,7 @@ pub struct FileStoreChanges {
 
 impl FileStore {
     pub fn new(config: &Configuration) -> Self {
-        FileStore(config.file_store())
+        FileStore(config.file_store().path())
     }
 
     #[instrument(skip(self))]
@@ -270,6 +270,7 @@ fn is_file_in_catalog_or_catalog(entry: DirEntry, store: &Path) -> Option<DirEnt
 
 #[derive(Debug)]
 pub struct StoreWatcher {
+    config: Configuration,
     file_store: Arc<FileStore>,
     pool: PgPool,
     debouncer: Option<Debouncer<RecommendedWatcher, FileIdMap>>,
@@ -277,8 +278,9 @@ pub struct StoreWatcher {
 }
 
 impl StoreWatcher {
-    pub async fn new(file_store: Arc<FileStore>, pool: PgPool) -> Self {
+    pub async fn new(config: Configuration, file_store: Arc<FileStore>, pool: PgPool) -> Self {
         let mut watcher = Self {
+            config,
             file_store,
             pool,
             debouncer: None,
@@ -294,7 +296,7 @@ impl StoreWatcher {
         let rt = Handle::current();
 
         let debouncer = new_debouncer(
-            Duration::from_secs(3),
+            Duration::from_secs(self.config.file_store().debounce_timeout()),
             None,
             move |result: DebounceEventResult| {
                 let tx = tx.clone();
@@ -344,6 +346,7 @@ impl StoreWatcher {
                 .cache()
                 .add_root(watch_path, RecursiveMode::Recursive);
 
+            let timeout = self.config.file_store().fs_timeout();
             if let Some(mut rx) = self.receiver.take() {
                 let pool = self.pool.clone();
                 let file_store = self.file_store.clone();
@@ -352,9 +355,8 @@ impl StoreWatcher {
                         while let Some(res) = rx.recv().await {
                             match res {
                                 Ok(change_count) => {
-                                    static TIMEOUT: u64 = 2;
-                                    info!("detected {change_count} change(s), waiting {TIMEOUT} seconds for file changes to be written to disk");
-                                    tokio::time::sleep(Duration::from_secs(TIMEOUT)).await;
+                                    info!("detected {change_count} change(s), waiting {timeout} seconds for file changes to be written to disk");
+                                    tokio::time::sleep(Duration::from_secs(timeout)).await;
                                     let _ = file_store.scan_store_and_track_changes(pool.clone()).await;
                                 }
                                 Err(errors) => {

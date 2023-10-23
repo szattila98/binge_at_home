@@ -20,7 +20,7 @@ use confique::{
 use tower_http::cors::AllowOrigin;
 use tracing::{info, instrument};
 
-#[derive(Debug, Config)]
+#[derive(Debug, Config, Clone)]
 pub struct Configuration {
     /// Host to bind to.
     #[config(env = "HOST", default = "0.0.0.0")]
@@ -40,12 +40,12 @@ pub struct Configuration {
     /// Static directory to serve.
     #[config(env = "STATIC", default = "./templates/assets")]
     static_dir: String,
-    /// File store path.
-    #[config(env = "STORE")]
-    file_store: String,
+    /// File store configuration options.
+    #[config(nested)]
+    file_store: FileStore,
 }
 
-#[derive(Debug, Config, Deserialize)]
+#[derive(Debug, Config, Deserialize, Clone)]
 pub struct Logging {
     /// Log level. An integer between 1-5 or the level as a string.
     #[config(default = "info")]
@@ -55,7 +55,7 @@ pub struct Logging {
     file: LogFile,
 }
 
-#[derive(Debug, Config, Deserialize)]
+#[derive(Debug, Config, Deserialize, Clone)]
 pub struct LogFile {
     /// The parent directory of the log file.
     #[config(default = "logs")]
@@ -65,14 +65,14 @@ pub struct LogFile {
     name: String,
 }
 
-#[derive(Debug, Config, Deserialize)]
+#[derive(Debug, Config, Deserialize, Clone)]
 pub struct Database {
     /// The url of the postgres the data source.
     #[config(env = "DATABASE_URL")]
     url: Secret<String>,
 }
 
-#[derive(Debug, Config, Deserialize)]
+#[derive(Debug, Config, Deserialize, Clone)]
 pub struct Middlewares {
     /// The request body size limit in bytes.
     #[config(default = 4096)]
@@ -83,6 +83,19 @@ pub struct Middlewares {
     /// The number of seconds after the request handling will timeout.
     #[config(default = 30)]
     request_timeout: u64,
+}
+
+#[derive(Debug, Config, Deserialize, Clone)]
+pub struct FileStore {
+    /// The path of the file store root.
+    #[config(env = "STORE")]
+    path: String,
+    /// The watcher debounce timeout, in seconds. The specified time will be awaited on file system event to filter duplicates.
+    #[config(default = 3)]
+    debounce_timeout: u64,
+    /// The file system timeout in seconds. After a file system event is received, before processing the specified time will be awaited.
+    #[config(default = 2)]
+    fs_timeout: u64,
 }
 
 impl Configuration {
@@ -136,18 +149,8 @@ impl Configuration {
         self.static_dir.as_ref()
     }
 
-    pub fn file_store(&self) -> PathBuf {
-        let store = PathBuf::from(&self.file_store);
-        if store.is_absolute() {
-            store
-        } else {
-            env::current_dir()
-                .expect("could not get current dir")
-                .join(store)
-                .normalize()
-                .expect("could not normalize path")
-                .into_path_buf()
-        }
+    pub fn file_store(&self) -> &FileStore {
+        &self.file_store
     }
 }
 
@@ -224,4 +227,28 @@ fn create_config_template(config_path: &PathBuf) -> Result<(), anyhow::Error> {
             )
         })?;
     Ok(())
+}
+
+impl FileStore {
+    pub fn path(&self) -> PathBuf {
+        let store = PathBuf::from(&self.path);
+        if store.is_absolute() {
+            store
+        } else {
+            env::current_dir()
+                .expect("could not get current dir")
+                .join(store)
+                .normalize()
+                .expect("could not normalize path")
+                .into_path_buf()
+        }
+    }
+
+    pub fn debounce_timeout(&self) -> u64 {
+        self.debounce_timeout
+    }
+
+    pub fn fs_timeout(&self) -> u64 {
+        self.fs_timeout
+    }
 }

@@ -63,7 +63,8 @@ async fn main() -> anyhow::Result<()> {
     sqlx::migrate!().run(&database).await?;
 
     let file_store = Arc::new(FileStore::new(&config));
-    let mut store_watcher = StoreWatcher::new(file_store.clone(), database.clone()).await;
+    let mut store_watcher =
+        StoreWatcher::new(config.clone(), file_store.clone(), database.clone()).await;
     store_watcher.watch_store()?;
 
     let address = SocketAddr::new(config.host(), config.port());

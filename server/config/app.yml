@@ -19,7 +19,8 @@
 # Default value: ./templates/assets
 #static_dir: ./templates/assets
 
-file_store: ../dev/store
+file_store: 
+  path: ../dev/store
 
 # Logging configuration options.
 logging:
