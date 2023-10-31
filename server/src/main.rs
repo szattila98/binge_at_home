@@ -62,7 +62,7 @@ async fn main() -> anyhow::Result<()> {
     #[cfg(feature = "migrate")]
     sqlx::migrate!().run(&database).await?;
 
-    let file_store = Arc::new(FileStore::new(&config));
+    let file_store = Arc::new(FileStore::new(Arc::new(config.clone())));
     let mut store_watcher =
         StoreWatcher::new(config.clone(), file_store.clone(), database.clone()).await;
     store_watcher.watch_store()?;

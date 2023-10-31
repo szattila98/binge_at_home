@@ -31,7 +31,9 @@ use crate::{
 };
 
 #[derive(Debug)]
-pub struct FileStore(PathBuf);
+pub struct FileStore {
+    config: Arc<Configuration>,
+}
 
 #[derive(Debug, Default, Serialize)]
 pub struct FileStoreChanges {
@@ -40,8 +42,12 @@ pub struct FileStoreChanges {
 }
 
 impl FileStore {
-    pub fn new(config: &Configuration) -> Self {
-        FileStore(config.file_store().path())
+    pub fn new(config: Arc<Configuration>) -> Self {
+        FileStore { config }
+    }
+
+    pub fn path(&self) -> PathBuf {
+        self.config.file_store().path()
     }
 
     #[instrument(skip(self))]
@@ -67,7 +73,7 @@ impl FileStore {
         Ok(data)
     }
 
-    #[instrument]
+    #[instrument(skip(self))]
     async fn get_metadata<P: AsRef<Path> + Debug + Send>(
         &self,
         file_path: P,
@@ -108,7 +114,7 @@ impl FileStore {
 
     #[instrument]
     fn get_file<P: AsRef<Path> + Debug + Send>(&self, file_path: P) -> PathBuf {
-        self.0.join(file_path)
+        self.path().join(file_path)
     }
 
     /// Syncs the database and the file system.
@@ -146,7 +152,7 @@ impl FileStore {
             db_videos.len(),
         );
 
-        let (fs_catalogs, fs_videos): (HashSet<_>, HashSet<_>) = WalkDir::new(&self.0)
+        let (fs_catalogs, fs_videos): (HashSet<_>, HashSet<_>) = WalkDir::new(&self.path())
             .follow_root_links(false)
             .into_iter()
             .filter_map(|result| match result {
@@ -156,16 +162,43 @@ impl FileStore {
                     None
                 }
             })
-            .filter_map(|entry| is_file_in_catalog_or_catalog(entry, &self.0))
+            .filter_map(|entry| is_file_in_catalog_or_catalog(entry, &self.path()))
             .map(|entry| entry.path().to_path_buf())
             .partition(|path| path.is_dir());
         let fs_catalogs = fs_catalogs
             .into_iter()
-            .map(|path| path.strip_prefix(&self.0).unwrap().to_path_buf())
+            .map(|path| path.strip_prefix(&self.path()).unwrap().to_path_buf())
             .collect::<HashSet<_>>();
+        if fs_videos.iter().any(|video| {
+            video
+                .extension()
+                .map(|ext| {
+                    !self
+                        .config
+                        .file_store()
+                        .video_extensions()
+                        .contains(&ext.to_string_lossy().to_string())
+                })
+                .unwrap_or_default()
+        }) {
+            warn!(
+                "files detected which do not have the configured allowed extensions: {:?}",
+                self.config.file_store().video_extensions()
+            )
+        };
         let fs_videos = fs_videos
             .into_iter()
-            .map(|path| path.strip_prefix(&self.0).unwrap().to_path_buf())
+            .map(|path| path.strip_prefix(&self.path()).unwrap().to_path_buf())
+            .filter(|path| {
+                path.extension()
+                    .map(|ext| {
+                        self.config
+                            .file_store()
+                            .video_extensions()
+                            .contains(&ext.to_string_lossy().to_string())
+                    })
+                    .unwrap_or_default()
+            })
             .collect::<HashSet<_>>();
         debug!(
             "catalogs on file system {} | videos on file system: {}",
@@ -337,7 +370,7 @@ impl StoreWatcher {
     /// After encountering an event, calls the file stores's file processor function.
     #[instrument(skip_all)]
     pub fn watch_store(&mut self) -> anyhow::Result<()> {
-        let watch_path = &self.file_store.0;
+        let watch_path = &self.file_store.path();
 
         if watch_path.exists() {
             info!("watching store: '{}'", watch_path.display());

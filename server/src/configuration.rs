@@ -96,6 +96,9 @@ pub struct FileStore {
     /// The file system timeout in seconds. After a file system event is received, before processing the specified time will be awaited.
     #[config(default = 2)]
     fs_timeout: u64,
+    /// The allowed extensions of videos.
+    #[config(default = ["mp4", "webm"])]
+    video_extensions: Vec<String>,
 }
 
 impl Configuration {
@@ -250,5 +253,9 @@ impl FileStore {
 
     pub fn fs_timeout(&self) -> u64 {
         self.fs_timeout
+    }
+
+    pub fn video_extensions(&self) -> &[String] {
+        self.video_extensions.as_ref()
     }
 }
