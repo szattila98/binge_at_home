@@ -12,15 +12,12 @@
 # Default value: 8080
 #port: 8080
 
-# Static directory to server.
+# Static directory to serve.
 #
 # Can also be specified via environment variable `STATIC`.
 #
 # Default value: ./templates/assets
 #static_dir: ./templates/assets
-
-file_store: 
-  path: ../dev/store
 
 # Logging configuration options.
 logging:
@@ -66,3 +63,27 @@ middlewares:
   #
   # Default value: 30
   #request_timeout: 30
+
+# File store configuration options.
+file_store:
+  # The path of the file store root.
+  #
+  # Can also be specified via environment variable `STORE`.
+  #
+  # Required! This value must be specified.
+  path: ../dev/store
+
+  # The watcher debounce timeout, in seconds. The specified time will be awaited on file system event to filter duplicates.
+  #
+  # Default value: 3
+  #debounce_timeout: 3
+
+  # The file system timeout in seconds. After a file system event is received, before processing the specified time will be awaited.
+  #
+  # Default value: 2
+  #fs_timeout: 2
+
+  # The allowed extensions of videos.
+  #
+  # Default value: [mp4, webm]
+  #video_extensions: [mp4, webm]

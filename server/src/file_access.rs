@@ -169,21 +169,25 @@ impl FileStore {
             .into_iter()
             .map(|path| path.strip_prefix(&self.path()).unwrap().to_path_buf())
             .collect::<HashSet<_>>();
-        if fs_videos.iter().any(|video| {
-            video
-                .extension()
-                .map(|ext| {
-                    !self
-                        .config
-                        .file_store()
-                        .video_extensions()
-                        .contains(&ext.to_string_lossy().to_string())
-                })
-                .unwrap_or_default()
-        }) {
+        let not_allowed_new_files = fs_videos
+            .iter()
+            .filter(|video| {
+                video
+                    .extension()
+                    .map(|ext| {
+                        !self
+                            .config
+                            .file_store()
+                            .video_extensions()
+                            .contains(&ext.to_string_lossy().to_string())
+                    })
+                    .unwrap_or_default()
+            })
+            .collect::<Vec<_>>();
+        if not_allowed_new_files.len() > 0 {
             warn!(
-                "files detected which do not have the configured allowed extensions: {:?}",
-                self.config.file_store().video_extensions()
+                "files detected which do not have the configured allowed extensions: {:?}, files are\n{:#?}",
+                self.config.file_store().video_extensions(), not_allowed_new_files
             )
         };
         let fs_videos = fs_videos
