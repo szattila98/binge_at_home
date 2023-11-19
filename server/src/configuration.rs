@@ -184,7 +184,7 @@ impl Database {
 }
 
 impl Middlewares {
-    const ANY_ORIGIN: &str = "*";
+    const ANY_ORIGIN: &'static str = "*";
 
     pub fn body_size_limit(&self) -> usize {
         self.body_size_limit
