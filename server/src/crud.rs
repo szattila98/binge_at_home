@@ -162,12 +162,12 @@ mod tests {
 
     #[test]
     fn display_direction_asc() {
-        assert_eq!(Direction::Asc.to_string(), "ASC")
+        assert_eq!(Direction::Asc.to_string(), "ASC");
     }
 
     #[test]
     fn display_direction_desc() {
-        assert_eq!(Direction::Desc.to_string(), "DESC")
+        assert_eq!(Direction::Desc.to_string(), "DESC");
     }
 
     #[test]

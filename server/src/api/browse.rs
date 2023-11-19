@@ -43,7 +43,7 @@ struct HtmlTemplate {
 }
 
 impl HtmlTemplate {
-    fn new(state: TemplateState) -> Self {
+    const fn new(state: TemplateState) -> Self {
         Self { state }
     }
 }
@@ -110,23 +110,23 @@ fn get_files(videos: Vec<Video>, walked_path: PathBuf) -> Option<Vec<File>> {
         .into_iter()
         .filter_map(|video| {
             let video_path = video.path();
-            let Ok(path) = video_path.strip_prefix(&walked_path) else {
+            let Ok(stripped_path) = video_path.strip_prefix(&walked_path) else {
                 error!("prefix of path '{video_path:?}' was not walked path '{walked_path:?}'");
                 return None;
             };
-            let path = path.to_path_buf();
+            let stripped_path = stripped_path.to_path_buf();
 
-            if path.components().count() == 1 && path.extension().map_or(false, |ext| ext == "webm")
+            if stripped_path.components().count() == 1 && stripped_path.extension().map_or(false, |ext| ext == "webm")
             {
                 Some(File::Video(video))
             } else {
-                let Some(display_name) = path.iter().next() else {
-                    error!("path should never be empty, full path is '{video_path:?}' stripped_path is '{path:?}'");
+                let Some(display_name) = stripped_path.iter().next() else {
+                    error!("path should never be empty, full path is '{video_path:?}' stripped_path is '{stripped_path:?}'");
                     return None;
                 };
                 let display_name = display_name.to_string_lossy().to_string();
-                let path = format!("{}/{}", walked_path.display(), display_name).replace('\\', "/");
-                Some(File::Directory { path, display_name })
+                let dir_path = format!("{}/{}", walked_path.display(), display_name).replace('\\', "/");
+                Some(File::Directory { path: dir_path, display_name })
             }
         })
         .collect::<Vec<_>>();

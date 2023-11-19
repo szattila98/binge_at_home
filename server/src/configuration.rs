@@ -128,23 +128,23 @@ impl Configuration {
         Ok(config)
     }
 
-    pub fn host(&self) -> IpAddr {
+    pub const fn host(&self) -> IpAddr {
         self.host
     }
 
-    pub fn port(&self) -> u16 {
+    pub const fn port(&self) -> u16 {
         self.port
     }
 
-    pub fn logging(&self) -> &Logging {
+    pub const fn logging(&self) -> &Logging {
         &self.logging
     }
 
-    pub fn database(&self) -> &Database {
+    pub const fn database(&self) -> &Database {
         &self.database
     }
 
-    pub fn middlewares(&self) -> &Middlewares {
+    pub const fn middlewares(&self) -> &Middlewares {
         &self.middlewares
     }
 
@@ -152,7 +152,7 @@ impl Configuration {
         self.static_dir.as_ref()
     }
 
-    pub fn file_store(&self) -> &FileStore {
+    pub const fn file_store(&self) -> &FileStore {
         &self.file_store
     }
 }
@@ -162,7 +162,7 @@ impl Logging {
         self.level.as_ref()
     }
 
-    pub fn file(&self) -> &LogFile {
+    pub const fn file(&self) -> &LogFile {
         &self.file
     }
 }
@@ -178,7 +178,7 @@ impl LogFile {
 }
 
 impl Database {
-    pub fn url(&self) -> &Secret<String> {
+    pub const fn url(&self) -> &Secret<String> {
         &self.url
     }
 }
@@ -186,7 +186,7 @@ impl Database {
 impl Middlewares {
     const ANY_ORIGIN: &'static str = "*";
 
-    pub fn body_size_limit(&self) -> usize {
+    pub const fn body_size_limit(&self) -> usize {
         self.body_size_limit
     }
 
@@ -207,7 +207,7 @@ impl Middlewares {
         Ok(AllowOrigin::list(parsed?))
     }
 
-    pub fn request_timeout(&self) -> Duration {
+    pub const fn request_timeout(&self) -> Duration {
         Duration::from_secs(self.request_timeout)
     }
 }
@@ -247,11 +247,11 @@ impl FileStore {
         }
     }
 
-    pub fn debounce_timeout(&self) -> u64 {
+    pub const fn debounce_timeout(&self) -> u64 {
         self.debounce_timeout
     }
 
-    pub fn fs_timeout(&self) -> u64 {
+    pub const fn fs_timeout(&self) -> u64 {
         self.fs_timeout
     }
 

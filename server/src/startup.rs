@@ -14,7 +14,7 @@ pub struct Application {
 }
 
 impl Application {
-    pub fn new(address: SocketAddr, router: Router, _: Logger) -> Self {
+    pub const fn new(address: SocketAddr, router: Router, _: Logger) -> Self {
         Self { address, router }
     }
 

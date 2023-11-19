@@ -1,3 +1,5 @@
+#![allow(clippy::print_stdout)]
+
 pub mod api;
 pub mod configuration;
 pub mod crud;

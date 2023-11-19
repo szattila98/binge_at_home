@@ -33,7 +33,7 @@ struct HtmlTemplate {
 }
 
 impl HtmlTemplate {
-    fn new(state: TemplateState) -> Self {
+    const fn new(state: TemplateState) -> Self {
         Self { state }
     }
 }

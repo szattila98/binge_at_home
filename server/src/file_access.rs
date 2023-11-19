@@ -66,7 +66,7 @@ impl FileStore {
         let range_size = usize::try_from(range_end - range_start + 1)
             .expect("while parsing range_size ->usize is outside of the range of u64");
         debug!("requested data size is {range_size} bytes");
-        let mut data = vec![0u8; range_size];
+        let mut data = vec![0_u8; range_size];
         // TODO what if reaches end of file - if writing tests check the case
         // TODO what if too big of a range is requested - if writing tests check the case
         file.read_exact(&mut data).await?;
@@ -152,7 +152,7 @@ impl FileStore {
             db_videos.len(),
         );
 
-        let (fs_catalogs, fs_videos): (HashSet<_>, HashSet<_>) = WalkDir::new(&self.path())
+        let (fs_catalogs, fs_videos): (HashSet<_>, HashSet<_>) = WalkDir::new(self.path())
             .follow_root_links(false)
             .into_iter()
             .filter_map(|result| match result {
@@ -184,11 +184,11 @@ impl FileStore {
                     .unwrap_or_default()
             })
             .collect::<Vec<_>>();
-        if not_allowed_new_files.len() > 0 {
+        if !not_allowed_new_files.is_empty() {
             warn!(
                 "files detected which do not have the configured allowed extensions: {:?}, files are\n{:#?}",
                 self.config.file_store().video_extensions(), not_allowed_new_files
-            )
+            );
         };
         let fs_videos = fs_videos
             .into_iter()
@@ -293,7 +293,7 @@ fn is_file_in_catalog_or_catalog(entry: DirEntry, store: &Path) -> Option<DirEnt
             warn!(
                 "file is in root, not in catalog, it will be ignored: '{}'",
                 path.display()
-            )
+            );
         });
         is_in_catalog
     };

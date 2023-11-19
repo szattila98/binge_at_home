@@ -91,8 +91,6 @@ pretty_assertions = "1.4.0"
 [lints.rust]
 unsafe_code = "forbid"
 keyword_idents = "warn"
-missing_copy_implementations = "warn"
-missing_debug_implementations = "warn"
 non_ascii_idents = "warn"
 noop_method_call = "warn"
 unused_import_braces = "warn"

@@ -148,6 +148,7 @@ pub fn init(
 
 #[instrument(skip_all)]
 fn handle_panic(err: Box<dyn Any + Send + 'static>) -> Response<Body> {
+    #[allow(clippy::option_if_let_else)]
     let details = if let Some(s) = err.downcast_ref::<String>() {
         s
     } else if let Some(s) = err.downcast_ref::<&str>() {

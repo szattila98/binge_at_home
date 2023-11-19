@@ -68,7 +68,7 @@ struct GlobalFilterLayer {
 }
 
 impl GlobalFilterLayer {
-    fn new(log_level: Level) -> Self {
+    const fn new(log_level: Level) -> Self {
         Self { log_level }
     }
 }

@@ -36,7 +36,7 @@ pub async fn handler(
     State(pool): State<PgPool>,
     State(file_store): State<Arc<FileStore>>,
 ) -> impl IntoResponse {
-    let option = match Video::find(&pool, id).await {
+    let video_opt = match Video::find(&pool, id).await {
         Ok(option) => option,
         Err(e) => {
             return Err((
@@ -45,7 +45,7 @@ pub async fn handler(
             ));
         }
     };
-    let Some(video) = option else {
+    let Some(video) = video_opt else {
         return Err((
             StatusCode::NOT_FOUND,
             "video not found in database".to_string(),
@@ -57,11 +57,11 @@ pub async fn handler(
         None => {
             return Err((
                 StatusCode::NOT_FOUND,
-                format!("metadata not found for video"),
+                "metadata not found for video".to_string(),
             ))
         }
     };
-    let option = match Metadata::find(&pool, metadata_id).await {
+    let metadata_opt = match Metadata::find(&pool, metadata_id).await {
         Ok(option) => option,
         Err(e) => {
             return Err((
@@ -70,7 +70,7 @@ pub async fn handler(
             ));
         }
     };
-    let Some(metadata) = option else {
+    let Some(metadata) = metadata_opt else {
         return Err((
             StatusCode::NOT_FOUND,
             "metadata not found in database".to_string(),
