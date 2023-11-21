@@ -91,6 +91,11 @@ header {
     }
 }
 
+.header {
+    text-align: center;
+    color: var(--text-primary);
+}
+
 
 
 /* For Desktop View */

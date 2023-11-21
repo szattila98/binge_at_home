@@ -5,20 +5,51 @@
 {% block content %}
     {% match state %}
         {% when TemplateState::Ok with { catalog, files } %}
-            <h1>{{ catalog.display_name }}</h1>
-            <div>
-                {% for file in files %}
-                    {% match file %}
-                        {% when File::Directory with { path, display_name } %}
-                            <a hx-boost="true" href="/catalog/{{ catalog.id }}/browse/{{ path }}">mappa - {{ display_name }}</a>
-                        {% when File::Video with (video) %}
-                            <a 
-                                hx-boost="true" 
-                                href="/video/{{ video.id }}"
-                            >videó - {{ video.path }} - {{ video.display_name }} - {{ video.short_desc }}</a>
-                        {% else %}
-                    {% endmatch %}
-                {% endfor %}
+            <h2 class="header">{{ catalog.display_name }}</h2>
+            <div class="browse-table">
+                <div class="table-header">
+                    <span> </span>
+                    <span>Name</span>
+                    <span>Path</span>
+                    <span>Description</span>
+                </div>
+                <div class="table-body">
+                    {% for file in files %}
+                        {% match file %}
+                            {% when File::Directory with { path, display_name } %}
+                                <a class="browse-entry" hx-boost="true" href="/catalog/{{ catalog.id }}/browse/{{ path }}">
+                                    <svg class="icon" viewBox="0 0 256 256" width="40" height="40">
+                                        <use href="/assets/img/main.svg#folder-icon" />
+                                    </svg>
+                                    <span>
+                                        {{display_name}}
+                                    </span>
+                                    <span>
+                                        {{ path }}
+                                    </span>
+                                </a>
+                            {% when File::Video with (video) %}
+                                <a class="browse-entry"
+                                    hx-boost="true" 
+                                    href="/video/{{ video.id }}"
+                                >
+                                    <svg class="icon" viewBox="0 0 24 24" width="40" height="40">
+                                        <use href="/assets/img/main.svg#video-icon" />
+                                    </svg>
+                                    <span>
+                                        {{ video.display_name }}
+                                    </span>
+                                    <span>
+                                        {{ video.path }}
+                                    </span>
+                                    <span>
+                                        {{ video.short_desc }}
+                                    </span>
+                                </a>
+                            {% else %}
+                        {% endmatch %}
+                    {% endfor %}
+                </div>
             </div>
         {% when TemplateState::CatalogNotFound %}
         <div class="template-error">
