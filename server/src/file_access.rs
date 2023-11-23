@@ -144,7 +144,7 @@ impl FileStore {
             .collect::<HashSet<_>>();
         let db_videos = db_videos
             .into_iter()
-            .map(|catalog| catalog.path())
+            .map(|video| video.path())
             .collect::<HashSet<_>>();
         debug!(
             "catalogs in database: {} | videos in database: {}",
@@ -171,18 +171,7 @@ impl FileStore {
             .collect::<HashSet<_>>();
         let not_allowed_new_files = fs_videos
             .iter()
-            .filter(|video| {
-                video
-                    .extension()
-                    .map(|ext| {
-                        !self
-                            .config
-                            .file_store()
-                            .video_extensions()
-                            .contains(&ext.to_string_lossy().to_string())
-                    })
-                    .unwrap_or_default()
-            })
+            .filter(|path| !is_allowed_extension(path, self.config.file_store().video_extensions()))
             .collect::<Vec<_>>();
         if !not_allowed_new_files.is_empty() {
             warn!(
@@ -193,16 +182,7 @@ impl FileStore {
         let fs_videos = fs_videos
             .into_iter()
             .map(|path| path.strip_prefix(&self.path()).unwrap().to_path_buf())
-            .filter(|path| {
-                path.extension()
-                    .map(|ext| {
-                        self.config
-                            .file_store()
-                            .video_extensions()
-                            .contains(&ext.to_string_lossy().to_string())
-                    })
-                    .unwrap_or_default()
-            })
+            .filter(|path| is_allowed_extension(path, self.config.file_store().video_extensions()))
             .collect::<HashSet<_>>();
         debug!(
             "catalogs on file system {} | videos on file system: {}",
@@ -305,6 +285,13 @@ fn is_file_in_catalog_or_catalog(entry: DirEntry, store: &Path) -> Option<DirEnt
     };
 
     is_file_in_catalog_or_catalog.then_some(entry)
+}
+
+fn is_allowed_extension(path: impl AsRef<Path>, extensions: &[String]) -> bool {
+    path.as_ref()
+        .extension()
+        .map(|ext| extensions.contains(&ext.to_string_lossy().to_string()))
+        .unwrap_or_default()
 }
 
 #[derive(Debug)]

@@ -2,6 +2,7 @@ use async_trait::async_trait;
 #[cfg(test)]
 use fake::Dummy;
 use serde::Deserialize;
+use soa_derive::StructOfArray;
 use sqlx::PgExecutor;
 use tracing::{error, instrument};
 
@@ -9,7 +10,8 @@ use crate::model::{EntityId, Video};
 
 use super::{build_find_all_query, Entity, Pagination, Sort};
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, StructOfArray)]
+#[soa_derive(Debug)]
 #[cfg_attr(test, derive(Dummy))]
 pub struct CreateVideoRequest {
     pub path: String,
@@ -96,24 +98,8 @@ impl Entity<Self> for Video {
     #[instrument(skip(executor))]
     async fn create_many<'a>(
         executor: impl PgExecutor<'a>,
-        requests: Vec<CreateVideoRequest>,
+        requests: CreateVideoRequestVec,
     ) -> Result<Vec<Self>, sqlx::Error> {
-        let mut paths = vec![];
-        let mut display_names = vec![];
-        let mut short_descs = vec![];
-        let mut long_descs = vec![];
-        let mut catalog_ids = vec![];
-        let mut metadata_ids = vec![];
-
-        for item in requests {
-            paths.push(item.path);
-            display_names.push(item.display_name.clone());
-            short_descs.push(item.short_desc.clone());
-            long_descs.push(item.long_desc.clone());
-            catalog_ids.push(item.catalog_id);
-            metadata_ids.push(item.metadata_id);
-        }
-
         let videos = sqlx::query_as!(
             Self,
             r#"
@@ -125,12 +111,12 @@ impl Entity<Self> for Video {
                 )
                 RETURNING *
             "#,
-            &paths[..],
-            &display_names[..],
-            &short_descs[..],
-            &long_descs[..],
-            &catalog_ids[..],
-            &metadata_ids[..] as _
+            &requests.path[..],
+            &requests.display_name[..],
+            &requests.short_desc[..],
+            &requests.long_desc[..],
+            &requests.catalog_id[..],
+            &requests.metadata_id[..] as _
         )
         .fetch_all(executor)
         .await

@@ -1,6 +1,7 @@
 use async_trait::async_trait;
 #[cfg(test)]
 use fake::Dummy;
+use soa_derive::StructOfArray;
 use sqlx::PgExecutor;
 use tracing::{error, instrument};
 
@@ -10,7 +11,8 @@ use crate::model::{
 
 use super::{build_find_all_query, Entity, Pagination, Sort};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, StructOfArray)]
+#[soa_derive(Debug)]
 #[cfg_attr(test, derive(Dummy))]
 pub struct CreateMetadataRequest {
     pub size: Bytes,
@@ -70,24 +72,8 @@ impl Entity<Self> for Metadata {
     #[instrument(skip(executor))]
     async fn create_many<'a>(
         executor: impl PgExecutor<'a>,
-        requests: Vec<CreateMetadataRequest>,
+        requests: CreateMetadataRequestVec,
     ) -> Result<Vec<Self>, sqlx::Error> {
-        let mut sizes = vec![];
-        let mut durations = vec![];
-        let mut bitrates = vec![];
-        let mut widths = vec![];
-        let mut heights = vec![];
-        let mut framerates = vec![];
-
-        for item in requests {
-            sizes.push(item.size);
-            durations.push(item.duration);
-            bitrates.push(item.bitrate);
-            widths.push(item.width);
-            heights.push(item.height);
-            framerates.push(item.framerate);
-        }
-
         let metadatas = sqlx::query_as!(
             Self,
             r#"
@@ -95,12 +81,12 @@ impl Entity<Self> for Metadata {
                 SELECT * FROM UNNEST($1::int8[], $2::float8[], $3::text[], $4::text[], $5::text[], $6::text[])
                 RETURNING *
             "#,
-            &sizes[..],
-            &durations[..],
-            &bitrates[..],
-            &widths[..],
-            &heights[..],
-            &framerates[..],
+            &requests.size[..],
+            &requests.duration[..],
+            &requests.bitrate[..],
+            &requests.width[..],
+            &requests.height[..],
+            &requests.framerate[..],
         )
         .fetch_all(executor)
         .await

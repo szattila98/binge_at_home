@@ -2,6 +2,7 @@ use async_trait::async_trait;
 #[cfg(test)]
 use fake::Dummy;
 use serde::Deserialize;
+use soa_derive::StructOfArray;
 use sqlx::PgExecutor;
 use tracing::{error, instrument};
 
@@ -9,7 +10,8 @@ use crate::model::{Catalog, EntityId};
 
 use super::{build_find_all_query, Entity, Pagination, Sort};
 
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, StructOfArray)]
+#[soa_derive(Debug)]
 #[cfg_attr(test, derive(Dummy))]
 pub struct CreateCatalogRequest {
     path: String,
@@ -80,20 +82,8 @@ impl Entity<Self> for Catalog {
     #[instrument(skip(executor))]
     async fn create_many<'a>(
         executor: impl PgExecutor<'a>,
-        requests: Vec<CreateCatalogRequest>,
+        requests: CreateCatalogRequestVec,
     ) -> Result<Vec<Self>, sqlx::Error> {
-        let mut paths = vec![];
-        let mut display_names = vec![];
-        let mut short_descs = vec![];
-        let mut long_descs = vec![];
-
-        for item in requests {
-            paths.push(item.path);
-            display_names.push(item.display_name);
-            short_descs.push(item.short_desc);
-            long_descs.push(item.long_desc);
-        }
-
         let catalogs = sqlx::query_as!(
             Self,
             r#"
@@ -101,10 +91,10 @@ impl Entity<Self> for Catalog {
                 SELECT * FROM UNNEST($1::text[], $2::text[], $3::text[], $4::text[])
                 RETURNING *
             "#,
-            &paths[..],
-            &display_names[..],
-            &short_descs[..],
-            &long_descs[..]
+            &requests.path[..],
+            &requests.display_name[..],
+            &requests.short_desc[..],
+            &requests.long_desc[..]
         )
         .fetch_all(executor)
         .await

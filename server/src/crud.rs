@@ -3,6 +3,7 @@ use std::fmt::{self, Debug};
 use async_trait::async_trait;
 use convert_case::{Case, Casing};
 use serde::Deserialize;
+use soa_derive::StructOfArray;
 use sqlx::PgExecutor;
 
 use crate::model::EntityId;
@@ -57,7 +58,7 @@ impl fmt::Display for Direction {
 
 #[async_trait]
 pub trait Entity<T> {
-    type CreateRequest;
+    type CreateRequest: StructOfArray;
     type Ordering: Debug;
     type UpdateRequest;
 
@@ -68,7 +69,7 @@ pub trait Entity<T> {
 
     async fn create_many<'a>(
         executor: impl PgExecutor<'a>,
-        requests: Vec<Self::CreateRequest>,
+        requests: <Self::CreateRequest as StructOfArray>::Type,
     ) -> Result<Vec<T>, sqlx::Error>;
 
     async fn find<'a>(
