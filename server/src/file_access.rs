@@ -43,7 +43,7 @@ pub struct FileStoreChanges {
 
 impl FileStore {
     pub fn new(config: Arc<Configuration>) -> Self {
-        FileStore { config }
+        Self { config }
     }
 
     pub fn path(&self) -> PathBuf {
@@ -167,7 +167,11 @@ impl FileStore {
             .partition(|path| path.is_dir());
         let fs_catalogs = fs_catalogs
             .into_iter()
-            .map(|path| path.strip_prefix(&self.path()).unwrap().to_path_buf())
+            .map(|path| {
+                path.strip_prefix(&self.path())
+                    .expect("could not strip file store prefix from catalog path")
+                    .to_path_buf()
+            })
             .collect::<HashSet<_>>();
         let not_allowed_new_files = fs_videos
             .iter()
@@ -181,7 +185,11 @@ impl FileStore {
         };
         let fs_videos = fs_videos
             .into_iter()
-            .map(|path| path.strip_prefix(&self.path()).unwrap().to_path_buf())
+            .map(|path| {
+                path.strip_prefix(&self.path())
+                    .expect("could not strip file store prefix from video path")
+                    .to_path_buf()
+            })
             .filter(|path| is_allowed_extension(path, self.config.file_store().video_extensions()))
             .collect::<HashSet<_>>();
         debug!(
@@ -215,7 +223,7 @@ impl FileStore {
             let catalog_path = path
                 .components()
                 .next()
-                .unwrap()
+                .expect("path does not have a catalog somehow")
                 .as_os_str()
                 .to_string_lossy()
                 .to_string();
@@ -265,7 +273,10 @@ impl FileStore {
 #[instrument(skip(entry, store))]
 fn is_file_in_catalog_or_catalog(entry: DirEntry, store: &Path) -> Option<DirEntry> {
     let file_type = entry.file_type();
-    let path = entry.path().strip_prefix(store).unwrap();
+    let path = entry
+        .path()
+        .strip_prefix(store)
+        .expect("could not strip prefix, path not in store somehow");
 
     let is_file_in_catalog = file_type.is_file() && {
         let is_in_catalog = path.components().count() > 1;
@@ -395,7 +406,7 @@ impl StoreWatcher {
                                         "notify error(s) detected: {}",
                                         errors
                                             .iter()
-                                            .map(|error| error.to_string())
+                                            .map(ToString::to_string)
                                             .collect::<Vec<_>>()
                                             .join(" | ")
                                     );

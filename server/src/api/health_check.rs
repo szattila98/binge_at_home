@@ -12,7 +12,7 @@ use super::AppState;
 
 #[derive(TypedPath)]
 #[typed_path("/health-check")]
-pub struct HealthCheckEndpoint;
+pub struct Endpoint;
 
 #[derive(Serialize, Template)]
 #[template(path = "health-check.html")]
@@ -36,7 +36,7 @@ impl Default for HealthCheckTemplate {
 
 #[instrument]
 #[axum_macros::debug_handler(state = AppState)]
-pub async fn handler(_: HealthCheckEndpoint) -> impl IntoResponse {
+pub async fn handler(_: Endpoint) -> impl IntoResponse {
     let rendered = HealthCheckTemplate::default();
     debug!("health check rendered\n{rendered}");
     (StatusCode::OK, rendered)

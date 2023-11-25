@@ -233,6 +233,11 @@ fn create_config_template(config_path: &PathBuf) -> Result<(), anyhow::Error> {
 }
 
 impl FileStore {
+    /// Returns the root path of this [`FileStore`].
+    ///
+    /// # Panics
+    ///
+    /// Panics if getting the current dir is not possible or if the file store path could not be normalized
     pub fn path(&self) -> PathBuf {
         let store = PathBuf::from(&self.path);
         if store.is_absolute() {

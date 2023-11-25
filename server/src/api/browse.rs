@@ -85,7 +85,7 @@ pub async fn handler(
         );
     };
 
-    let Some(files) = get_files(videos, PathBuf::from(path)) else {
+    let Some(files) = get_files(videos, &PathBuf::from(path)) else {
         return (
             StatusCode::BAD_REQUEST,
             HtmlTemplate::new(TemplateState::InvalidPath),
@@ -97,10 +97,10 @@ pub async fn handler(
     (StatusCode::OK, rendered)
 }
 
-fn get_files(videos: Vec<Video>, walked_path: PathBuf) -> Option<Vec<File>> {
+fn get_files(videos: Vec<Video>, walked_path: &PathBuf) -> Option<Vec<File>> {
     let videos = videos
         .into_iter()
-        .filter(|video| video.path().starts_with(&walked_path))
+        .filter(|video| video.path().starts_with(walked_path))
         .collect::<Vec<_>>();
     if videos.is_empty() {
         return None;
@@ -110,7 +110,7 @@ fn get_files(videos: Vec<Video>, walked_path: PathBuf) -> Option<Vec<File>> {
         .into_iter()
         .filter_map(|video| {
             let video_path = video.path();
-            let Ok(stripped_path) = video_path.strip_prefix(&walked_path) else {
+            let Ok(stripped_path) = video_path.strip_prefix(walked_path) else {
                 error!("prefix of path '{video_path:?}' was not walked path '{walked_path:?}'");
                 return None;
             };

@@ -52,14 +52,11 @@ pub async fn handler(
         ));
     };
 
-    let metadata_id = match video.metadata_id {
-        Some(metadata_id) => metadata_id,
-        None => {
-            return Err((
-                StatusCode::NOT_FOUND,
-                "metadata not found for video".to_string(),
-            ))
-        }
+    let Some(metadata_id) = video.metadata_id else {
+        return Err((
+            StatusCode::NOT_FOUND,
+            "metadata not found for video".to_string(),
+        ));
     };
     let metadata_opt = match Metadata::find(&pool, metadata_id).await {
         Ok(option) => option,
@@ -81,6 +78,7 @@ pub async fn handler(
         metadata.size.is_positive(),
         "file size is listed as negative in the database"
     );
+    #[allow(clippy::cast_sign_loss)]
     let file_size = metadata.size.wrapping_abs() as u64;
 
     let Some((range_start, range_end)) = range_header.iter().next() else {
