@@ -18,6 +18,7 @@ use axum::{
 };
 use axum_extra::routing::RouterExt;
 use sqlx::PgPool;
+use tap::Tap;
 use tower::ServiceBuilder;
 use tower_http::{
     catch_panic::CatchPanicLayer,
@@ -142,8 +143,7 @@ pub fn init(
         .layer(middlewares)
         .with_state(state);
 
-    info!("initialized router");
-    Ok(router)
+    Ok(router).tap(|_| info!("initialized router"))
 }
 
 #[instrument(skip_all)]

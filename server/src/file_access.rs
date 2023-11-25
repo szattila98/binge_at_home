@@ -13,6 +13,7 @@ use notify::{Error, RecommendedWatcher, RecursiveMode, Watcher};
 use notify_debouncer_full::{new_debouncer, DebounceEventResult, Debouncer, FileIdMap};
 use serde::Serialize;
 use sqlx::PgPool;
+use tap::{Tap, TapFallible};
 use tokio::{
     io::{AsyncReadExt, AsyncSeekExt},
     runtime::Handle,
@@ -82,10 +83,7 @@ impl FileStore {
         let ffprobe = tokio::task::spawn_blocking(move || ffprobe(file_path))
             .await
             .expect("error while spawning task")
-            .map_err(|e| {
-                error!("error while getting metadata: {e}");
-                e
-            })?;
+            .tap_err(|e| error!("error while getting metadata: {e}"))?;
         let streams = ffprobe.streams.get(0);
 
         let size = ffprobe.format.size.parse().unwrap_or(0);
@@ -125,10 +123,11 @@ impl FileStore {
         pool: PgPool,
     ) -> anyhow::Result<FileStoreChanges> {
         info!("file processing started...");
-        let Ok(mut tx) = pool.begin().await.map_err(|e| {
-            error!("could not begin file watcher transaction: {e}");
-            e
-        }) else {
+        let Ok(mut tx) = pool
+            .begin()
+            .await
+            .tap_err(|e| error!("could not begin file watcher transaction: {e}"))
+        else {
             bail!("database error");
         };
 
@@ -204,8 +203,8 @@ impl FileStore {
         debug!("videos not in database: {videos_not_in_db:#?}");
 
         if catalogs_not_in_db.is_empty() && videos_not_in_db.is_empty() {
-            info!("no catalogs or videos added to file store, no actions taken");
-            return Ok(FileStoreChanges::default());
+            return Ok(FileStoreChanges::default())
+                .tap(|_| info!("no catalogs or videos added to file store, no actions taken"));
         }
 
         let requests = catalogs_not_in_db
@@ -215,8 +214,11 @@ impl FileStore {
         let Ok(catalogs) = Catalog::create_many(&mut *tx, requests).await else {
             bail!("database error");
         };
-        let added_catalogs = catalogs.len();
-        info!("{} catalogs added to the store", added_catalogs);
+        let added_catalogs = catalogs.len().tap(|n| {
+            if *n > 0 {
+                info!("{n} catalogs added to the store");
+            }
+        });
 
         let mut added_videos = 0;
         for path in videos_not_in_db {
@@ -255,13 +257,14 @@ impl FileStore {
             };
             added_videos += 1;
         }
-        info!("{added_videos} video(s) added to the database");
+        if added_videos > 0 {
+            info!("{added_videos} video(s) added to the database");
+        }
 
-        let _ = tx
-            .commit()
-            .await
-            .map_err(|e| error!("could not commit file watcher transaction: {e}"));
-        info!("finished processing new files");
+        match tx.commit().await {
+            Ok(()) => info!("finished processing new files"),
+            Err(e) => error!("could not commit file watcher transaction: {e}"),
+        }
 
         return Ok(FileStoreChanges {
             added_catalogs,
@@ -358,9 +361,9 @@ impl StoreWatcher {
 
         match debouncer {
             Ok(watcher) => {
-                info!("file watcher initialized");
                 self.debouncer = Some(watcher);
                 self.receiver = Some(rx);
+                info!("file watcher initialized");
             }
             Err(error) => {
                 error!("error while initializing watcher: {:?}", error);

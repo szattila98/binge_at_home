@@ -25,7 +25,7 @@ impl Application {
             .serve(self.router.into_make_service())
             .with_graceful_shutdown(shutdown_signal())
             .await
-            .context("server failed to initialize")?;
+            .context("server failed to run")?;
         info!("Shutting down server...");
         Ok(())
     }

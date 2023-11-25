@@ -1,6 +1,7 @@
 use std::{marker::PhantomData, str::FromStr};
 
 use anyhow::{bail, Context as AnyhowContext};
+use tap::Tap;
 use tokio::task::JoinHandle;
 use tracing::{
     info, instrument, subscriber::with_default, subscriber::Interest, Level, Subscriber,
@@ -23,10 +24,10 @@ pub struct Logger(PhantomData<Logger>);
 pub fn init(config: &Configuration) -> anyhow::Result<Logger> {
     // log::set_max_level(log::LevelFilter::Off);
 
-    let log_level =
-        Level::from_str(config.logging().level()).context("log level could not be parsed")?;
+    let log_level = Level::from_str(config.logging().level())
+        .context("log level could not be parsed")?
+        .tap(|level| info!("initializing logging with level '{level}'..."));
     let global_filter = GlobalFilterLayer::new(log_level).boxed();
-    info!("initializing logging with level '{log_level}'...");
 
     let mut layers = vec![];
 
@@ -50,8 +51,7 @@ pub fn init(config: &Configuration) -> anyhow::Result<Logger> {
     {
         bail!("logger could not be initialized: {e}")
     };
-    info!("initialized logging");
-    Ok(Logger(PhantomData))
+    Ok(Logger(PhantomData)).tap(|_| info!("initialized logging"))
 }
 
 pub fn spawn_blocking_with_tracing<F, R>(f: F) -> JoinHandle<R>

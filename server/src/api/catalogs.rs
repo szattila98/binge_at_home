@@ -7,6 +7,7 @@ use axum_extra::routing::TypedPath;
 use http::StatusCode;
 use serde::Serialize;
 use sqlx::PgPool;
+use tap::Tap;
 use tracing::{debug, instrument, warn};
 
 use crate::{
@@ -61,11 +62,11 @@ pub async fn handler(
     };
 
     if catalogs.is_empty() {
-        warn!("no catalogs found");
         return (
             StatusCode::NOT_FOUND,
             HtmlTemplate::new(TemplateState::NoCatalogsFound),
-        );
+        )
+            .tap(|_| warn!("no catalogs found"));
     };
 
     let rendered = HtmlTemplate::new(TemplateState::Ok { catalogs });

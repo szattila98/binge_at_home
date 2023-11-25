@@ -3,6 +3,7 @@ use std::time::Duration;
 use anyhow::Context;
 use secrecy::ExposeSecret;
 use sqlx::{postgres::PgPoolOptions, PgPool};
+use tap::Tap;
 use tracing::{info, instrument};
 
 use crate::{configuration::Configuration, logging::Logger};
@@ -16,6 +17,5 @@ pub async fn init(config: &Configuration, _: &Logger) -> anyhow::Result<PgPool> 
         .connect(url.expose_secret())
         .await
         .context("could not establish connection to database on provided url")?;
-    info!("connected to database");
-    Ok(pool)
+    Ok(pool).tap(|_| info!("connected to database"))
 }

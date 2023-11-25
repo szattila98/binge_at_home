@@ -4,6 +4,7 @@ use fake::Dummy;
 use serde::Deserialize;
 use soa_derive::StructOfArray;
 use sqlx::PgExecutor;
+use tap::TapFallible;
 use tracing::{error, instrument};
 
 use crate::model::{Catalog, EntityId};
@@ -72,10 +73,7 @@ impl Entity<Self> for Catalog {
         )
         .fetch_one(executor)
         .await
-        .map_err(|e| {
-            error!("error while creating catalog: {e}");
-            e
-        })?;
+        .tap_err(|e| error!("error while creating catalog: {e}"))?;
         Ok(catalog)
     }
 
@@ -98,10 +96,7 @@ impl Entity<Self> for Catalog {
         )
         .fetch_all(executor)
         .await
-        .map_err(|e| {
-            error!("error while creating catalogs: {e}");
-            e
-        })?;
+        .tap_err(|e| error!("error while creating catalogs: {e}"))?;
 
         Ok(catalogs)
     }
@@ -114,10 +109,7 @@ impl Entity<Self> for Catalog {
         let catalog = sqlx::query_as!(Self, "SELECT * FROM catalog WHERE id = $1", id)
             .fetch_optional(executor)
             .await
-            .map_err(|e| {
-                error!("error while finding catalog: {e}");
-                e
-            })?;
+            .tap_err(|e| error!("error while finding catalog: {e}"))?;
         Ok(catalog)
     }
 
@@ -131,10 +123,7 @@ impl Entity<Self> for Catalog {
         let catalogs = sqlx::query_as(&query)
             .fetch_all(executor)
             .await
-            .map_err(|e| {
-                error!("error while finding catalogs: {e}");
-                e
-            })?;
+            .tap_err(|e| error!("error while finding catalogs: {e}"))?;
         Ok(catalogs)
     }
 
@@ -151,11 +140,9 @@ impl Entity<Self> for Catalog {
             request.long_desc,
             request.id
         )
-        .fetch_optional(executor)
-        .await.map_err(|e| {
-            error!("error while updating catalog: {e}");
-            e
-        })?;
+            .fetch_optional(executor)
+            .await
+            .tap_err(|e| error!("error while updating catalog: {e}"))?;
         Ok(catalog)
     }
 
@@ -164,10 +151,7 @@ impl Entity<Self> for Catalog {
         let result = sqlx::query!("DELETE FROM catalog WHERE id = $1", id)
             .execute(executor)
             .await
-            .map_err(|e| {
-                error!("error while deleting catalog: {e}");
-                e
-            })?;
+            .tap_err(|e| error!("error while deleting catalog: {e}"))?;
         Ok(result.rows_affected() == 1)
     }
 
@@ -179,10 +163,7 @@ impl Entity<Self> for Catalog {
         let result = sqlx::query!("DELETE FROM catalog WHERE id = ANY($1)", &ids[..])
             .execute(executor)
             .await
-            .map_err(|e| {
-                error!("error while deleting catalogs: {e}");
-                e
-            })?;
+            .tap_err(|e| error!("error while deleting catalogs: {e}"))?;
         Ok(result.rows_affected())
     }
 
@@ -191,10 +172,7 @@ impl Entity<Self> for Catalog {
         let count = sqlx::query_scalar!(r#"SELECT COUNT(*) as "count!" FROM catalog"#)
             .fetch_one(executor)
             .await
-            .map_err(|e| {
-                error!("error while counting catalogs: {e}");
-                e
-            })?;
+            .tap_err(|e| error!("error while counting catalogs: {e}"))?;
         Ok(count)
     }
 }
@@ -208,10 +186,7 @@ impl Catalog {
         let catalog = sqlx::query_as!(Self, "SELECT * FROM catalog WHERE path = $1", path)
             .fetch_optional(executor)
             .await
-            .map_err(|e| {
-                error!("error while finding catalog by path: {e}");
-                e
-            })?;
+            .tap_err(|e| error!("error while finding catalog by path: {e}"))?;
         Ok(catalog)
     }
 }

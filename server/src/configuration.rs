@@ -17,6 +17,7 @@ use confique::{
     yaml::{self, FormatOptions},
     Config,
 };
+use tap::Tap;
 use tower_http::cors::AllowOrigin;
 use tracing::{info, instrument};
 
@@ -124,8 +125,7 @@ impl Configuration {
             .load()
             .context("could not load configuration")
             .with_context(|| format!("config search path was: {}", config_path.display()))?;
-        info!("loaded configuration");
-        Ok(config)
+        Ok(config).tap(|_| info!("loaded configuration"))
     }
 
     pub const fn host(&self) -> IpAddr {

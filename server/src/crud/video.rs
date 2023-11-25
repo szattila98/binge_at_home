@@ -4,6 +4,7 @@ use fake::Dummy;
 use serde::Deserialize;
 use soa_derive::StructOfArray;
 use sqlx::PgExecutor;
+use tap::TapFallible;
 use tracing::{error, instrument};
 
 use crate::model::{EntityId, Video};
@@ -88,10 +89,7 @@ impl Entity<Self> for Video {
         )
         .fetch_one(executor)
         .await
-        .map_err(|e| {
-            error!("error while creating video: {e}");
-            e
-        })?;
+        .tap_err(|e| error!("error while creating video: {e}"))?;
         Ok(video)
     }
 
@@ -120,10 +118,7 @@ impl Entity<Self> for Video {
         )
         .fetch_all(executor)
         .await
-        .map_err(|e| {
-            error!("error while creating videos: {e}");
-            e
-        })?;
+        .tap_err(|e| error!("error while creating videos: {e}"))?;
 
         Ok(videos)
     }
@@ -136,10 +131,7 @@ impl Entity<Self> for Video {
         let video = sqlx::query_as!(Self, "SELECT * FROM video WHERE id = $1", id)
             .fetch_optional(executor)
             .await
-            .map_err(|e| {
-                error!("error while finding video: {e}");
-                e
-            })?;
+            .tap_err(|e| error!("error while finding video: {e}"))?;
         Ok(video)
     }
 
@@ -153,10 +145,7 @@ impl Entity<Self> for Video {
         let videos = sqlx::query_as(&query)
             .fetch_all(executor)
             .await
-            .map_err(|e| {
-                error!("error while finding videos: {e}");
-                e
-            })?;
+            .tap_err(|e| error!("error while finding videos: {e}"))?;
         Ok(videos)
     }
 
@@ -181,11 +170,9 @@ impl Entity<Self> for Video {
             request.metadata_id,
             request.id
         )
-        .fetch_optional(executor)
-        .await.map_err(|e| {
-            error!("error while updating video: {e}");
-            e
-        })?;
+            .fetch_optional(executor)
+            .await
+            .tap_err(|e| error!("error while updating video: {e}"))?;
         Ok(video)
     }
 
@@ -194,10 +181,7 @@ impl Entity<Self> for Video {
         let result = sqlx::query!("DELETE FROM video WHERE id = $1", id)
             .execute(executor)
             .await
-            .map_err(|e| {
-                error!("error while deleting video: {e}");
-                e
-            })?;
+            .tap_err(|e| error!("error while deleting video: {e}"))?;
         Ok(result.rows_affected() == 1)
     }
 
@@ -209,10 +193,7 @@ impl Entity<Self> for Video {
         let result = sqlx::query!("DELETE FROM video WHERE id = ANY($1)", &ids[..])
             .execute(executor)
             .await
-            .map_err(|e| {
-                error!("error while deleting videos: {e}");
-                e
-            })?;
+            .tap_err(|e| error!("error while deleting videos: {e}"))?;
         Ok(result.rows_affected())
     }
 
@@ -221,10 +202,7 @@ impl Entity<Self> for Video {
         let count = sqlx::query_scalar!(r#"SELECT COUNT(*) as "count!" FROM video"#)
             .fetch_one(executor)
             .await
-            .map_err(|e| {
-                error!("error while counting videos: {e}");
-                e
-            })?;
+            .tap_err(|e| error!("error while counting videos: {e}"))?;
         Ok(count)
     }
 }
@@ -241,10 +219,7 @@ impl Video {
         )
         .fetch_all(executor)
         .await
-        .map_err(|e| {
-            error!("error while finding video by catalog id: {e}");
-            e
-        })?;
+        .tap_err(|e| error!("error while finding video by catalog id: {e}"))?;
         Ok(video)
     }
 }

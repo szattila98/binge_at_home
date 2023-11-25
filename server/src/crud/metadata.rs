@@ -3,6 +3,7 @@ use async_trait::async_trait;
 use fake::Dummy;
 use soa_derive::StructOfArray;
 use sqlx::PgExecutor;
+use tap::TapFallible;
 use tracing::{error, instrument};
 
 use crate::model::{
@@ -62,10 +63,7 @@ impl Entity<Self> for Metadata {
         )
         .fetch_one(executor)
         .await
-        .map_err(|e| {
-            error!("error while creating metadata: {e}");
-            e
-        })?;
+        .tap_err(|e| error!("error while creating metadata: {e}"))?;
         Ok(metadata)
     }
 
@@ -88,12 +86,9 @@ impl Entity<Self> for Metadata {
             &requests.height[..],
             &requests.framerate[..],
         )
-        .fetch_all(executor)
-        .await
-        .map_err(|e| {
-            error!("error while creating metadatas: {e}");
-            e
-        })?;
+            .fetch_all(executor)
+            .await
+            .tap_err(|e| error!("error while creating metadatas: {e}"))?;
 
         Ok(metadatas)
     }
@@ -106,10 +101,7 @@ impl Entity<Self> for Metadata {
         let metadata = sqlx::query_as!(Self, "SELECT * FROM metadata WHERE id = $1", id)
             .fetch_optional(executor)
             .await
-            .map_err(|e| {
-                error!("error while finding metadata: {e}");
-                e
-            })?;
+            .tap_err(|e| error!("error while finding metadata: {e}"))?;
         Ok(metadata)
     }
 
@@ -123,10 +115,7 @@ impl Entity<Self> for Metadata {
         let metadatas = sqlx::query_as(&query)
             .fetch_all(executor)
             .await
-            .map_err(|e| {
-                error!("error while finding metadatas: {e}");
-                e
-            })?;
+            .tap_err(|e| error!("error while finding metadatas: {e}"))?;
         Ok(metadatas)
     }
 
@@ -153,10 +142,7 @@ impl Entity<Self> for Metadata {
         )
         .fetch_optional(executor)
         .await
-        .map_err(|e| {
-            error!("error while updating metadata: {e}");
-            e
-        })?;
+        .tap_err(|e| error!("error while updating metadata: {e}"))?;
         Ok(metadata)
     }
 
@@ -165,10 +151,7 @@ impl Entity<Self> for Metadata {
         let result = sqlx::query!("DELETE FROM metadata WHERE id = $1", id)
             .execute(executor)
             .await
-            .map_err(|e| {
-                error!("error while deleting metadata: {e}");
-                e
-            })?;
+            .tap_err(|e| error!("error while deleting metadata: {e}"))?;
         Ok(result.rows_affected() == 1)
     }
 
@@ -180,10 +163,7 @@ impl Entity<Self> for Metadata {
         let result = sqlx::query!("DELETE FROM metadata WHERE id = ANY($1)", &ids[..])
             .execute(executor)
             .await
-            .map_err(|e| {
-                error!("error while deleting metadatas: {e}");
-                e
-            })?;
+            .tap_err(|e| error!("error while deleting metadatas: {e}"))?;
         Ok(result.rows_affected())
     }
 
@@ -192,10 +172,7 @@ impl Entity<Self> for Metadata {
         let count = sqlx::query_scalar!(r#"SELECT COUNT(*) as "count!" FROM metadata"#)
             .fetch_one(executor)
             .await
-            .map_err(|e| {
-                error!("error while counting metadatas: {e}");
-                e
-            })?;
+            .tap_err(|e| error!("error while counting metadatas: {e}"))?;
         Ok(count)
     }
 }
