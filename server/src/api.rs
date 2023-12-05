@@ -51,9 +51,9 @@ pub struct AppState {
 }
 
 impl AppState {
-    pub fn new(config: Configuration, database: PgPool, file_store: Arc<FileStore>) -> Self {
+    pub fn new(config: Arc<Configuration>, database: PgPool, file_store: Arc<FileStore>) -> Self {
         Self {
-            config: Arc::new(config),
+            config,
             database,
             file_store,
         }
@@ -62,7 +62,7 @@ impl AppState {
 
 #[instrument(skip_all)]
 pub fn init(
-    config: Configuration,
+    config: Arc<Configuration>,
     database: PgPool,
     file_store: Arc<FileStore>,
     _: &Logger,

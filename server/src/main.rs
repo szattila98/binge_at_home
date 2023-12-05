@@ -2,7 +2,7 @@ use std::{net::SocketAddr, sync::Arc};
 
 use anyhow::Ok;
 use binge_at_home::{
-    api::init,
+    api,
     configuration::Configuration,
     database::{self},
     file_access::{FileStore, StoreWatcher},
@@ -26,13 +26,14 @@ async fn main() -> anyhow::Result<()> {
     #[cfg(feature = "migrate")]
     sqlx::migrate!().run(&database).await?;
 
-    let file_store = Arc::new(FileStore::new(Arc::new(config.clone())));
+    let config = Arc::new(config);
+    let file_store = Arc::new(FileStore::new(config.clone()));
     let mut store_watcher =
         StoreWatcher::new(config.clone(), file_store.clone(), database.clone()).await;
     store_watcher.watch_store()?;
 
     let address = SocketAddr::new(config.host(), config.port());
-    let router = init(config, database, file_store, &logger)?;
+    let router = api::init(config, database, file_store, &logger)?;
     let app = Application::new(address, router, logger);
     app.run_until_stopped().await
 }

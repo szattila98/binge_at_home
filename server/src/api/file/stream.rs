@@ -52,11 +52,14 @@ pub async fn handler(
         ));
     };
 
-    let Some(metadata_id) = video.metadata_id else {
-        return Err((
-            StatusCode::NOT_FOUND,
-            "metadata not found for video".to_string(),
-        ));
+    let metadata_id = match video.metadata_id {
+        Some(metadata_id) => metadata_id,
+        None => {
+            return Err((
+                StatusCode::NOT_FOUND,
+                "metadata not found for video".to_string(),
+            ))
+        }
     };
     let metadata_opt = match Metadata::find(&pool, metadata_id).await {
         Ok(option) => option,

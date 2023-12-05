@@ -310,7 +310,7 @@ fn is_allowed_extension(path: impl AsRef<Path>, extensions: &[String]) -> bool {
 
 #[derive(Debug)]
 pub struct StoreWatcher {
-    config: Configuration,
+    config: Arc<Configuration>,
     file_store: Arc<FileStore>,
     pool: PgPool,
     debouncer: Option<Debouncer<RecommendedWatcher, FileIdMap>>,
@@ -318,7 +318,7 @@ pub struct StoreWatcher {
 }
 
 impl StoreWatcher {
-    pub async fn new(config: Configuration, file_store: Arc<FileStore>, pool: PgPool) -> Self {
+    pub async fn new(config: Arc<Configuration>, file_store: Arc<FileStore>, pool: PgPool) -> Self {
         let mut watcher = Self {
             config,
             file_store,
