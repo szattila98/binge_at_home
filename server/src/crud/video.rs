@@ -36,7 +36,8 @@ impl CreateVideoRequest {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, strum::Display)]
+#[strum(serialize_all = "snake_case")]
 #[cfg_attr(test, derive(Dummy))]
 pub enum VideoSort {
     DisplayName,

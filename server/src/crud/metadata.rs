@@ -1,6 +1,7 @@
 use async_trait::async_trait;
 #[cfg(test)]
 use fake::Dummy;
+use serde::Deserialize;
 use soa_derive::StructOfArray;
 use sqlx::PgExecutor;
 use tap::TapFallible;
@@ -24,6 +25,14 @@ pub struct CreateMetadataRequest {
     pub framerate: FramesPerSecond,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, strum::Display)]
+#[strum(serialize_all = "snake_case")]
+#[cfg_attr(test, derive(Dummy))]
+pub enum MetadataSort {
+    SIZE,
+    DURATION,
+}
+
 #[derive(Debug, Clone)]
 #[cfg_attr(test, derive(Dummy))]
 pub struct UpdateMetadataRequest {
@@ -39,7 +48,7 @@ pub struct UpdateMetadataRequest {
 #[async_trait]
 impl Entity<Self> for Metadata {
     type CreateRequest = CreateMetadataRequest;
-    type Ordering = ();
+    type Ordering = MetadataSort;
     type UpdateRequest = UpdateMetadataRequest;
 
     #[instrument(skip(executor))]
@@ -108,7 +117,7 @@ impl Entity<Self> for Metadata {
     #[instrument(skip(executor))]
     async fn find_all<'a>(
         executor: impl PgExecutor<'a>,
-        ordering: Vec<Sort<()>>,
+        ordering: Vec<Sort<MetadataSort>>,
         pagination: Option<Pagination>,
     ) -> Result<Vec<Self>, sqlx::Error> {
         let query = build_find_all_query("metadata", &ordering, pagination);

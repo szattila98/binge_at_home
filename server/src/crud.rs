@@ -1,7 +1,6 @@
-use std::fmt::{self, Debug};
+use std::fmt::{self, Debug, Display};
 
 use async_trait::async_trait;
-use convert_case::{Case, Casing};
 use serde::Deserialize;
 use soa_derive::StructOfArray;
 use sqlx::PgExecutor;
@@ -18,7 +17,7 @@ pub struct Pagination {
     page: u64,
 }
 
-impl fmt::Display for Pagination {
+impl Display for Pagination {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let limit = self.size;
         let offset = self.size * (self.page - 1);
@@ -29,37 +28,32 @@ impl fmt::Display for Pagination {
 #[derive(Debug, PartialEq, Eq, Deserialize)]
 pub struct Sort<T>
 where
-    T: fmt::Debug,
+    T: Debug + Display,
 {
     field: T,
     direction: Direction,
 }
 
-impl<T: fmt::Debug> fmt::Display for Sort<T> {
+impl<T> Display for Sort<T>
+where
+    T: Debug + Display,
+{
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let ordering = format!("{:?}", self.field).to_case(Case::Snake);
-        let direction = &self.direction;
-        write!(f, "{ordering} {direction}")
+        write!(f, "{} {}", self.field, self.direction)
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Deserialize, strum::Display)]
+#[strum(serialize_all = "SCREAMING_SNAKE_CASE")]
 pub enum Direction {
     Asc,
     Desc,
 }
 
-impl fmt::Display for Direction {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let formatted = format!("{self:?}").to_uppercase();
-        write!(f, "{formatted}")
-    }
-}
-
 #[async_trait]
 pub trait Entity<T> {
     type CreateRequest: StructOfArray;
-    type Ordering: Debug;
+    type Ordering: Debug + Display;
     type UpdateRequest;
 
     async fn create<'a>(
@@ -98,11 +92,14 @@ pub trait Entity<T> {
     async fn count_all<'a>(executor: impl PgExecutor<'a>) -> Result<i64, sqlx::Error>;
 }
 
-fn build_find_all_query<T: fmt::Debug>(
+fn build_find_all_query<T>(
     table_name: &'static str,
     ordering: &[Sort<T>],
     pagination: Option<Pagination>,
-) -> String {
+) -> String
+where
+    T: Debug + Display,
+{
     let ordering_part = ordering
         .iter()
         .map(ToString::to_string)
@@ -141,15 +138,14 @@ mod tests {
 
     #[test]
     fn display_order_by() {
-        let field: String = Faker.fake();
-        let snake_field = field.to_case(Case::Snake);
+        let field: String = Faker.fake::<String>().to_uppercase();
         assert_eq!(
             Sort {
                 field: &field,
                 direction: Direction::Asc
             }
             .to_string(),
-            format!("{snake_field:?} {}", Direction::Asc)
+            format!("{field} {}", Direction::Asc)
         );
         assert_eq!(
             Sort {
@@ -157,7 +153,7 @@ mod tests {
                 direction: Direction::Desc
             }
             .to_string(),
-            format!("{snake_field:?} {}", Direction::Desc)
+            format!("{field} {}", Direction::Desc)
         );
     }
 
@@ -188,13 +184,7 @@ mod tests {
         }];
         let pagination: Option<Pagination> = None;
         let query = build_find_all_query("table", &ordering, pagination);
-        assert_eq!(
-            query,
-            format!(
-                "SELECT * FROM table ORDER BY {:?} ASC",
-                field.to_case(Case::Snake)
-            )
-        );
+        assert_eq!(query, format!("SELECT * FROM table ORDER BY {field} ASC"));
     }
 
     #[test]
@@ -227,8 +217,7 @@ mod tests {
         assert_eq!(
             query,
             format!(
-                "SELECT * FROM table ORDER BY {:?} ASC LIMIT {size} OFFSET {}",
-                field.to_case(Case::Snake),
+                "SELECT * FROM table ORDER BY {field} ASC LIMIT {size} OFFSET {}",
                 size * (page - 1)
             )
         );
@@ -260,10 +249,7 @@ mod tests {
         assert_eq!(
             query,
             format!(
-                "SELECT * FROM table ORDER BY {:?} ASC, {:?} DESC, {:?} ASC LIMIT {size} OFFSET {}",
-                field1.to_case(Case::Snake),
-                field2.to_case(Case::Snake),
-                field3.to_case(Case::Snake),
+                "SELECT * FROM table ORDER BY {field1} ASC, {field2} DESC, {field3} ASC LIMIT {size} OFFSET {}",
                 size * (page - 1)
             )
         );
