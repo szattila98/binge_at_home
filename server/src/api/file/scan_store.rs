@@ -5,7 +5,10 @@ use axum_extra::routing::TypedPath;
 use sqlx::PgPool;
 use tracing::instrument;
 
-use crate::{api::AppState, file_access::FileStore};
+use crate::file_access::FileStore;
+
+#[cfg(debug_assertions)]
+use crate::api::AppState;
 
 #[derive(TypedPath)]
 #[typed_path("/store/scan")]

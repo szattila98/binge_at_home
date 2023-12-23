@@ -16,5 +16,6 @@ FROM debian:bullseye AS runtime
 WORKDIR /app
 COPY --from=builder /app/target/release/binge-at-home /usr/local/bin
 COPY docker/config/app.yml config/app.yml
+COPY templates/assets assets
 EXPOSE 8080
 ENTRYPOINT ["/usr/local/bin/binge-at-home"]

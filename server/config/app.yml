@@ -16,8 +16,8 @@
 #
 # Can also be specified via environment variable `STATIC`.
 #
-# Default value: ./templates/assets
-#static_dir: ./templates/assets
+# Default value: ./assets
+static_dir: ./templates/assets
 
 # Logging configuration options.
 logging:

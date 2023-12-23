@@ -25,6 +25,8 @@ services:
       dockerfile: ./Dockerfile
     ports:
       - "8080:8080"
+    volumes:
+      - ./dev/store:/app/store
     depends_on:
       database:
         condition: service_healthy

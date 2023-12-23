@@ -15,6 +15,7 @@ use crate::{
     model::{Catalog, FormatDate},
 };
 
+#[cfg(debug_assertions)]
 use super::AppState;
 
 #[derive(TypedPath)]

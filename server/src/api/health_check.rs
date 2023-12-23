@@ -8,6 +8,7 @@ use tracing::{debug, instrument};
 
 use crate::{get_app_name, get_app_version};
 
+#[cfg(debug_assertions)]
 use super::AppState;
 
 #[derive(TypedPath)]

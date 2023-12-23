@@ -13,6 +13,7 @@ use crate::{
     model::{Catalog, EntityId, Video},
 };
 
+#[cfg(debug_assertions)]
 use super::AppState;
 
 #[derive(TypedPath, Deserialize)]

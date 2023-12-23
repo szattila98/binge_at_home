@@ -39,7 +39,7 @@ pub struct Configuration {
     #[config(nested)]
     middlewares: Middlewares,
     /// Static directory to serve.
-    #[config(env = "STATIC", default = "./templates/assets")]
+    #[config(env = "STATIC", default = "./assets")]
     static_dir: String,
     /// File store configuration options.
     #[config(nested)]

@@ -14,11 +14,13 @@ use sqlx::PgPool;
 use tracing::instrument;
 
 use crate::{
-    api::AppState,
     crud::Entity,
     file_access::FileStore,
     model::{EntityId, Metadata, Video},
 };
+
+#[cfg(debug_assertions)]
+use crate::api::AppState;
 
 static MAX_CHUNK_SIZE: u64 = 1024 * 1024;
 
