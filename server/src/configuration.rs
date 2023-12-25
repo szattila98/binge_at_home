@@ -20,6 +20,7 @@ use confique::{
 use tap::Tap;
 use tower_http::cors::AllowOrigin;
 use tracing::{info, instrument};
+use tracing_unwrap::ResultExt;
 
 #[derive(Debug, Config, Clone)]
 pub struct Configuration {
@@ -244,10 +245,10 @@ impl FileStore {
             store
         } else {
             env::current_dir()
-                .expect("could not get current dir")
+                .expect_or_log("could not get current dir")
                 .join(store)
                 .normalize()
-                .expect("could not normalize path")
+                .expect_or_log("could not normalize path")
                 .into_path_buf()
         }
     }

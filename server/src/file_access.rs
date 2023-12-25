@@ -20,6 +20,7 @@ use tokio::{
     sync::mpsc::Receiver,
 };
 use tracing::{debug, error, info, instrument, warn, Instrument};
+use tracing_unwrap::{OptionExt, ResultExt};
 use walkdir::{DirEntry, WalkDir};
 
 use crate::{
@@ -65,7 +66,7 @@ impl FileStore {
         };
         file.seek(SeekFrom::Start(range_start)).await?;
         let range_size = usize::try_from(range_end - range_start + 1)
-            .expect("while parsing range_size ->usize is outside of the range of u64");
+            .expect_or_log("while parsing range_size ->usize is outside of the range of u64");
         debug!("requested data size is {range_size} bytes");
         let mut data = vec![0_u8; range_size];
         // TODO what if reaches end of file - if writing tests check the case
@@ -82,7 +83,7 @@ impl FileStore {
         let file_path = self.get_file(file_path);
         let ffprobe = tokio::task::spawn_blocking(move || ffprobe(file_path))
             .await
-            .expect("error while spawning task")
+            .expect_or_log("error while spawning task")
             .tap_err(|e| error!("error while getting metadata: {e}"))?;
         let streams = ffprobe.streams.get(0);
 
@@ -168,7 +169,7 @@ impl FileStore {
             .into_iter()
             .map(|path| {
                 path.strip_prefix(&self.path())
-                    .expect("could not strip file store prefix from catalog path")
+                    .expect_or_log("could not strip file store prefix from catalog path")
                     .to_path_buf()
             })
             .collect::<HashSet<_>>();
@@ -186,7 +187,7 @@ impl FileStore {
             .into_iter()
             .map(|path| {
                 path.strip_prefix(&self.path())
-                    .expect("could not strip file store prefix from video path")
+                    .expect_or_log("could not strip file store prefix from video path")
                     .to_path_buf()
             })
             .filter(|path| is_allowed_extension(path, self.config.file_store().video_extensions()))
@@ -225,7 +226,7 @@ impl FileStore {
             let catalog_path = path
                 .components()
                 .next()
-                .expect("path does not have a catalog somehow")
+                .expect_or_log("path does not have a catalog somehow")
                 .as_os_str()
                 .to_string_lossy()
                 .to_string();
@@ -279,7 +280,7 @@ fn is_file_in_catalog_or_catalog(entry: DirEntry, store: &Path) -> Option<DirEnt
     let path = entry
         .path()
         .strip_prefix(store)
-        .expect("could not strip prefix, path not in store somehow");
+        .expect_or_log("could not strip prefix, path not in store somehow");
 
     let is_file_in_catalog = file_type.is_file() && {
         let is_in_catalog = path.components().count() > 1;

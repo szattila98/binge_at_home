@@ -32,6 +32,7 @@ use tower_http::{
     LatencyUnit, ServiceBuilderExt,
 };
 use tracing::{info, instrument};
+use tracing_unwrap::ResultExt;
 
 use crate::{
     api::file::{scan_store, stream},
@@ -163,7 +164,7 @@ fn handle_panic(err: Box<dyn Any + Send + 'static>) -> Response<Body> {
         .status(StatusCode::INTERNAL_SERVER_ERROR)
         .header(header::CONTENT_TYPE, "application/json") // TODO use askama server error template instead
         .body(Body::from(format!("fatal error: {details}")))
-        .expect("error in building response, handle_panic is probably misconfigured")
+        .expect_or_log("error in building response, handle_panic is probably misconfigured")
 }
 
 #[cfg(debug_assertions)]

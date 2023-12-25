@@ -1,5 +1,6 @@
 use axum_extra::routing::TypedPath;
 use serde::Serialize;
+use tracing_unwrap::OptionExt;
 
 use crate::{api::browse::Endpoint as BrowseEndpoint, model::EntityId};
 
@@ -13,7 +14,7 @@ impl Breadcrumb {
     pub fn new(catalog_id: EntityId, path: &[&str]) -> Self {
         let text = path
             .last()
-            .expect("no last path part is found")
+            .expect_or_log("no last path part is found")
             .to_owned()
             .to_owned();
         let link = BrowseEndpoint::PATH
@@ -34,5 +35,5 @@ pub fn extract_breadcrumbs(catalog_id: EntityId, path: &str) -> Breadcrumbs {
         let _ = path_parts.pop();
     }
     breadcrumbs.reverse();
-    return breadcrumbs;
+    breadcrumbs
 }

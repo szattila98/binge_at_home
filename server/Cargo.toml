@@ -84,6 +84,7 @@ tracing-subscriber = { version = "0.3.17", features = [
     "std",
     "thread_local",
 ], default-features = false }
+tracing-unwrap = { version = "0.10.0", features = ["log-location"] }
 walkdir = "2.4.0"
 
 [dev-dependencies]

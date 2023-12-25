@@ -12,6 +12,7 @@ use http_body::Full;
 use serde::Deserialize;
 use sqlx::PgPool;
 use tracing::instrument;
+use tracing_unwrap::ResultExt;
 
 use crate::{
     crud::Entity,
@@ -130,6 +131,6 @@ pub async fn handler(
             format!("bytes {range_start}-{range_end}/{file_size}"),
         )
         .body(Full::from(data))
-        .expect("error while building response");
+        .expect_or_log("error while building response");
     Ok(response)
 }

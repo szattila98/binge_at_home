@@ -5,6 +5,7 @@ use tokio::signal;
 
 use anyhow::Context;
 use tracing::{info, instrument};
+use tracing_unwrap::ResultExt;
 
 use crate::logging::Logger;
 
@@ -35,13 +36,13 @@ async fn shutdown_signal() {
     let ctrl_c = async {
         signal::ctrl_c()
             .await
-            .expect("failed to install Ctrl+C handler");
+            .expect_or_log("failed to install Ctrl+C handler");
     };
 
     #[cfg(unix)]
     let terminate = async {
         signal::unix::signal(signal::unix::SignalKind::terminate())
-            .expect("failed to install signal handler")
+            .expect_or_log("failed to install signal handler")
             .recv()
             .await;
     };

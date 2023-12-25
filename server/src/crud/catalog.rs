@@ -248,7 +248,7 @@ mod tests {
 
     #[sqlx::test(fixtures("catalogs"))]
     async fn find_correct_id_found(executor: PgPool) -> Result<(), sqlx::Error> {
-        let catalog = Catalog::find(&executor, 3).await?.expect("no catalog found");
+        let catalog = Catalog::find(&executor, 3).await?.expect_or_log("no catalog found");
 
         assert_eq!(catalog.id, 3);
         assert_eq!(catalog.path, "/movies/2");
