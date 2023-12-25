@@ -1,0 +1,9 @@
+<div hx-boost="true">
+    {% for breadcrumb in breadcrumbs %}
+        {% if !loop.last %}
+            <a href="{{ breadcrumb.link }}">{{ breadcrumb.text }}</a>
+        {% else %}
+            <span>{{ breadcrumb.text }}</span>
+        {% endif %}
+    {% endfor %}
+</div>

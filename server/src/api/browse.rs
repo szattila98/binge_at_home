@@ -8,13 +8,15 @@ use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 use tracing::{debug, error, instrument};
 
+use super::fragment::breadcrumbs::Breadcrumbs;
+#[cfg(debug_assertions)]
+use super::AppState;
+
 use crate::{
+    api::fragment::breadcrumbs::extract_breadcrumbs,
     crud::Entity,
     model::{Catalog, EntityId, Video},
 };
-
-#[cfg(debug_assertions)]
-use super::AppState;
 
 #[derive(TypedPath, Deserialize)]
 #[typed_path("/catalog/:catalog_id/browse/*path")]
@@ -31,7 +33,11 @@ pub enum File {
 
 #[derive(Serialize)]
 enum TemplateState {
-    Ok { catalog: Catalog, files: Vec<File> },
+    Ok {
+        catalog: Catalog,
+        files: Vec<File>,
+        breadcrumbs: Breadcrumbs,
+    },
     CatalogNotFound,
     InvalidPath,
     DbErr(String),
@@ -86,6 +92,8 @@ pub async fn handler(
         );
     };
 
+    let breadcrumbs = extract_breadcrumbs(catalog.id, &path);
+
     let Some(files) = get_files(videos, &PathBuf::from(path)) else {
         return (
             StatusCode::BAD_REQUEST,
@@ -93,7 +101,11 @@ pub async fn handler(
         );
     };
 
-    let rendered = HtmlTemplate::new(TemplateState::Ok { catalog, files });
+    let rendered = HtmlTemplate::new(TemplateState::Ok {
+        catalog,
+        files,
+        breadcrumbs,
+    });
     debug!("browse rendered\n{rendered}");
     (StatusCode::OK, rendered)
 }

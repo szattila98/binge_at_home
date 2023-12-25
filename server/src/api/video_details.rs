@@ -6,13 +6,14 @@ use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 use tracing::{debug, instrument};
 
+use super::fragment::breadcrumbs::Breadcrumbs;
+#[cfg(debug_assertions)]
+use super::AppState;
 use crate::{
+    api::fragment::breadcrumbs::extract_breadcrumbs,
     crud::Entity,
     model::{EntityId, Video},
 };
-
-#[cfg(debug_assertions)]
-use super::AppState;
 
 #[derive(TypedPath, Deserialize)]
 #[typed_path("/video/:id")]
@@ -22,7 +23,10 @@ pub struct Endpoint {
 
 #[derive(Serialize)]
 enum TemplateState {
-    Ok { video: Video },
+    Ok {
+        video: Video,
+        breadcrumbs: Breadcrumbs,
+    },
     VideoNotFound,
     DbErr(String),
 }
@@ -58,7 +62,9 @@ pub async fn handler(Endpoint { id }: Endpoint, State(pool): State<PgPool>) -> i
         );
     };
 
-    let rendered = HtmlTemplate::new(TemplateState::Ok { video });
+    let breadcrumbs = extract_breadcrumbs(video.catalog_id, &video.path);
+
+    let rendered = HtmlTemplate::new(TemplateState::Ok { video, breadcrumbs });
     debug!("video details rendered\n{rendered}");
     (StatusCode::OK, rendered)
 }

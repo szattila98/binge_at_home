@@ -4,7 +4,8 @@
 
 {% block content %}
     {% match state %}
-        {% when TemplateState::Ok with { video } %}
+        {% when TemplateState::Ok with { video, breadcrumbs } %}
+            {% include "fragments/breadcrumbs.html" %}
             <h1>{{ video.display_name }}</h1>
             <p>infókák a vidinyóról</p>
             <a hx-boost="true" href="/video/{{ video.id }}/watch">watch</a>
