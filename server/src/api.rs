@@ -17,6 +17,7 @@ use axum::{
     Router,
 };
 use axum_extra::routing::RouterExt;
+use elasticsearch::Elasticsearch;
 use sqlx::PgPool;
 use tap::Tap;
 use tower::ServiceBuilder;
@@ -49,14 +50,21 @@ pub struct AppState {
     config: Arc<Configuration>,
     database: PgPool,
     file_store: Arc<FileStore>,
+    elastic: Elasticsearch,
 }
 
 impl AppState {
-    pub fn new(config: Arc<Configuration>, database: PgPool, file_store: Arc<FileStore>) -> Self {
+    pub fn new(
+        config: Arc<Configuration>,
+        database: PgPool,
+        file_store: Arc<FileStore>,
+        elastic: Elasticsearch,
+    ) -> Self {
         Self {
             config,
             database,
             file_store,
+            elastic,
         }
     }
 }
@@ -66,6 +74,7 @@ pub fn init(
     config: Arc<Configuration>,
     database: PgPool,
     file_store: Arc<FileStore>,
+    elastic: Elasticsearch,
     _: &Logger,
 ) -> anyhow::Result<Router> {
     info!("initializing router...");
@@ -120,7 +129,7 @@ pub fn init(
         );
 
     let static_dir = config.static_dir().to_owned();
-    let state = AppState::new(config, database, file_store);
+    let state = AppState::new(config, database, file_store, elastic);
 
     let fragment = Router::new();
 

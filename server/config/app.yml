@@ -47,6 +47,9 @@ database:
   # Required! This value must be specified.
   url: postgresql://root:password@localhost:5432/binge-at-home
 
+elastic:
+  url: http://localhost:9200
+
 # Server middleware configuration options.
 middlewares:
   # The request body size limit in bytes.

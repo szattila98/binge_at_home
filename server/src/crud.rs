@@ -51,36 +51,41 @@ pub enum Direction {
 }
 
 #[async_trait]
-pub trait Entity<T> {
+pub trait Entity
+where
+    Self: Sized,
+{
     type CreateRequest: StructOfArray;
     type Ordering: Debug + Display;
     type UpdateRequest;
 
+    fn id(&self) -> EntityId;
+
     async fn create<'a>(
         executor: impl PgExecutor<'a>,
         request: Self::CreateRequest,
-    ) -> Result<T, sqlx::Error>;
+    ) -> Result<Self, sqlx::Error>;
 
     async fn create_many<'a>(
         executor: impl PgExecutor<'a>,
         requests: <Self::CreateRequest as StructOfArray>::Type,
-    ) -> Result<Vec<T>, sqlx::Error>;
+    ) -> Result<Vec<Self>, sqlx::Error>;
 
     async fn find<'a>(
         executor: impl PgExecutor<'a>,
         id: EntityId,
-    ) -> Result<Option<T>, sqlx::Error>;
+    ) -> Result<Option<Self>, sqlx::Error>;
 
     async fn find_all<'a>(
         executor: impl PgExecutor<'a>,
         ordering: Vec<Sort<Self::Ordering>>,
         pagination: Option<Pagination>,
-    ) -> Result<Vec<T>, sqlx::Error>;
+    ) -> Result<Vec<Self>, sqlx::Error>;
 
     async fn update<'a>(
         executor: impl PgExecutor<'a>,
         request: Self::UpdateRequest,
-    ) -> Result<Option<T>, sqlx::Error>;
+    ) -> Result<Option<Self>, sqlx::Error>;
 
     async fn delete<'a>(executor: impl PgExecutor<'a>, id: EntityId) -> Result<bool, sqlx::Error>;
 
@@ -118,6 +123,13 @@ where
         if pagination_part.is_empty() { "" } else { " " },
         pagination_part
     )
+}
+
+pub trait StoreEntry {
+    fn path(&self) -> &str;
+    fn display_name(&self) -> &str;
+    fn short_desc(&self) -> &str;
+    fn long_desc(&self) -> &str;
 }
 
 #[cfg(test)]

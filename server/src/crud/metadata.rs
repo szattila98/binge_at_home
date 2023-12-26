@@ -46,10 +46,14 @@ pub struct UpdateMetadataRequest {
 }
 
 #[async_trait]
-impl Entity<Self> for Metadata {
+impl Entity for Metadata {
     type CreateRequest = CreateMetadataRequest;
     type Ordering = MetadataSort;
     type UpdateRequest = UpdateMetadataRequest;
+
+    fn id(&self) -> EntityId {
+        self.id
+    }
 
     #[instrument(skip(executor))]
     async fn create<'a>(

@@ -36,6 +36,9 @@ pub struct Configuration {
     /// Database configuration options.
     #[config(nested)]
     database: Database,
+    /// Elasticsearch configuration options.
+    #[config(nested)]
+    elastic: Elastic,
     /// Server middleware configuration options.
     #[config(nested)]
     middlewares: Middlewares,
@@ -69,8 +72,15 @@ pub struct LogFile {
 
 #[derive(Debug, Config, Deserialize, Clone)]
 pub struct Database {
-    /// The url of the postgres the data source.
+    /// The url of the postgres data source.
     #[config(env = "DATABASE_URL")]
+    url: Secret<String>,
+}
+
+#[derive(Debug, Config, Deserialize, Clone)]
+pub struct Elastic {
+    /// The url of the elastic instance.
+    #[config(env = "ELASTIC_URL")]
     url: Secret<String>,
 }
 
@@ -145,6 +155,10 @@ impl Configuration {
         &self.database
     }
 
+    pub fn elastic(&self) -> &Elastic {
+        &self.elastic
+    }
+
     pub const fn middlewares(&self) -> &Middlewares {
         &self.middlewares
     }
@@ -179,6 +193,12 @@ impl LogFile {
 }
 
 impl Database {
+    pub const fn url(&self) -> &Secret<String> {
+        &self.url
+    }
+}
+
+impl Elastic {
     pub const fn url(&self) -> &Secret<String> {
         &self.url
     }

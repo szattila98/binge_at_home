@@ -2,4 +2,5 @@
 .env*
 
 logs/
-dev/postgres-data
+dev/*-data
+dev/store

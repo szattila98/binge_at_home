@@ -23,9 +23,9 @@ docker-all:
     @docker compose up -d --build
 
 docker-dev:
-    # Starting development services (database)
+    # Starting development services (database, elasticsearch, kibana)
     @just _check-app 'docker compose'
-    @docker compose up database -d --build
+    @docker compose up database elasticsearch kibana -d --build
 
 docker-down:
     # Stopping docker compose environment

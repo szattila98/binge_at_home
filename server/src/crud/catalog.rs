@@ -9,7 +9,7 @@ use tracing::{error, instrument};
 
 use crate::model::{Catalog, EntityId};
 
-use super::{build_find_all_query, Entity, Pagination, Sort};
+use super::{build_find_all_query, Entity, Pagination, Sort, StoreEntry};
 
 #[derive(Debug, Default, Clone, StructOfArray)]
 #[soa_derive(Debug)]
@@ -50,10 +50,14 @@ pub struct UpdateCatalogRequest {
 }
 
 #[async_trait]
-impl Entity<Self> for Catalog {
+impl Entity for Catalog {
     type CreateRequest = CreateCatalogRequest;
     type Ordering = CatalogSort;
     type UpdateRequest = UpdateCatalogRequest;
+
+    fn id(&self) -> EntityId {
+        self.id
+    }
 
     #[instrument(skip(executor))]
     async fn create<'a>(
@@ -175,6 +179,24 @@ impl Entity<Self> for Catalog {
             .await
             .tap_err(|e| error!("error while counting catalogs: {e}"))?;
         Ok(count)
+    }
+}
+
+impl StoreEntry for Catalog {
+    fn path(&self) -> &str {
+        &self.path
+    }
+
+    fn display_name(&self) -> &str {
+        &self.display_name
+    }
+
+    fn short_desc(&self) -> &str {
+        &self.short_desc
+    }
+
+    fn long_desc(&self) -> &str {
+        &self.long_desc
     }
 }
 
