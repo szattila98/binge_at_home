@@ -2,13 +2,13 @@ use std::path::PathBuf;
 
 #[cfg(test)]
 use fake::Dummy;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use time::{format_description::FormatItem, macros::format_description, OffsetDateTime};
 use tracing_unwrap::ResultExt;
 
 pub type EntityId = i64;
 
-#[derive(Debug, Clone, sqlx::FromRow, Serialize)]
+#[derive(Debug, Clone, sqlx::FromRow, Serialize, Deserialize)]
 #[cfg_attr(test, derive(Dummy))]
 pub struct Catalog {
     pub id: EntityId,
@@ -46,7 +46,7 @@ pub struct Metadata {
     pub framerate: FramesPerSecond,
 }
 
-#[derive(Debug, Clone, sqlx::FromRow, Serialize, PartialEq, Eq)]
+#[derive(Debug, Clone, sqlx::FromRow, Serialize, Deserialize, PartialEq, Eq)]
 #[cfg_attr(test, derive(Dummy))]
 pub struct Video {
     pub id: EntityId,

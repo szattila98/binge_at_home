@@ -7,9 +7,12 @@ use sqlx::PgExecutor;
 use tap::TapFallible;
 use tracing::{error, instrument};
 
-use crate::model::{Catalog, EntityId};
+use crate::{
+    elastic::Indexable,
+    model::{Catalog, EntityId},
+};
 
-use super::{build_find_all_query, Entity, Pagination, Sort, StoreEntry};
+use super::{build_find_all_query, Entity, Pagination, Sort};
 
 #[derive(Debug, Default, Clone, StructOfArray)]
 #[soa_derive(Debug)]
@@ -182,21 +185,9 @@ impl Entity for Catalog {
     }
 }
 
-impl StoreEntry for Catalog {
-    fn path(&self) -> &str {
-        &self.path
-    }
-
-    fn display_name(&self) -> &str {
-        &self.display_name
-    }
-
-    fn short_desc(&self) -> &str {
-        &self.short_desc
-    }
-
-    fn long_desc(&self) -> &str {
-        &self.long_desc
+impl Indexable for Catalog {
+    fn index_name() -> &'static str {
+        "catalogs"
     }
 }
 

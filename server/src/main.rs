@@ -27,11 +27,11 @@ async fn main() -> anyhow::Result<()> {
     #[cfg(feature = "migrate")]
     sqlx::migrate!().run(&database).await?;
 
-    let elastic = elastic::init(&config, &logger).await?;
+    let elastic = Arc::new(elastic::init(&config, &logger).await?);
     elastic::index_database(&elastic, &database, &logger).await?;
 
     let config = Arc::new(config);
-    let file_store = Arc::new(FileStore::new(config.clone()));
+    let file_store = Arc::new(FileStore::new(config.clone(), elastic.clone()));
     let mut store_watcher =
         StoreWatcher::new(config.clone(), file_store.clone(), database.clone()).await;
     store_watcher.watch_store()?;

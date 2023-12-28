@@ -85,7 +85,10 @@ where
         let is_hyper_debug_log = metadata
             .module_path()
             .map_or(false, |path| path.starts_with("hyper"));
-        let enabled = is_configured_log_level && !is_hyper_debug_log;
+        let is_tower_debug_log = metadata
+            .module_path()
+            .map_or(false, |path| path.starts_with("tower"));
+        let enabled = is_configured_log_level && !is_hyper_debug_log && !is_tower_debug_log;
         if enabled {
             Interest::always()
         } else {

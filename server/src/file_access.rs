@@ -8,6 +8,7 @@ use std::{
 };
 
 use anyhow::bail;
+use elasticsearch::Elasticsearch;
 use ffprobe::{ffprobe, FfProbeError};
 use notify::{Error, RecommendedWatcher, RecursiveMode, Watcher};
 use notify_debouncer_full::{new_debouncer, DebounceEventResult, Debouncer, FileIdMap};
@@ -29,12 +30,14 @@ use crate::{
         catalog::CreateCatalogRequest, metadata::CreateMetadataRequest, video::CreateVideoRequest,
         Entity,
     },
+    elastic,
     model::{Catalog, Metadata, Video},
 };
 
 #[derive(Debug)]
 pub struct FileStore {
     config: Arc<Configuration>,
+    elastic: Arc<Elasticsearch>,
 }
 
 #[derive(Debug, Default, Serialize)]
@@ -44,8 +47,8 @@ pub struct FileStoreChanges {
 }
 
 impl FileStore {
-    pub fn new(config: Arc<Configuration>) -> Self {
-        Self { config }
+    pub fn new(config: Arc<Configuration>, elastic: Arc<Elasticsearch>) -> Self {
+        Self { config, elastic }
     }
 
     pub fn path(&self) -> PathBuf {
@@ -212,16 +215,18 @@ impl FileStore {
             .into_iter()
             .map(|path| CreateCatalogRequest::new(path.to_string_lossy().to_string()))
             .collect();
-        let Ok(catalogs) = Catalog::create_many(&mut *tx, requests).await else {
-            bail!("database error");
-        };
-        let added_catalogs = catalogs.len().tap(|n| {
-            if *n > 0 {
-                info!("{n} catalogs added to the store");
+        let catalogs = Catalog::create_many(&mut *tx, requests).await?;
+        let added_catalogs = catalogs.len();
+        if added_catalogs > 0 {
+            info!("{added_catalogs} catalog(s) added to the store");
+            info!("indexing added catalog(s)...");
+            match elastic::index(&self.elastic, catalogs).await {
+                Ok(()) => info!("indexed added catalog(s)"),
+                Err(error) => error!("error while indexing added catalog(s), reindex database with Elastic manually to reflect changes - {error}"),
             }
-        });
+        }
 
-        let mut added_videos = 0;
+        let mut videos = vec![];
         for path in videos_not_in_db {
             let catalog_path = path
                 .components()
@@ -253,13 +258,19 @@ impl FileStore {
                 catalog.id,
                 metadata_id,
             );
-            let Ok(_) = Video::create(&mut *tx, request).await else {
+            let Ok(video) = Video::create(&mut *tx, request).await else {
                 continue;
             };
-            added_videos += 1;
+            videos.push(video);
         }
+        let added_videos = videos.len();
         if added_videos > 0 {
             info!("{added_videos} video(s) added to the database");
+            info!("indexing added video(s)...");
+            match elastic::index(&self.elastic, videos).await {
+                Ok(()) => info!("indexed added video(s)"),
+                Err(error) => error!("error while indexing added video(s), reindex database with Elastic manually to reflect changes - {error}"),
+            }
         }
 
         match tx.commit().await {

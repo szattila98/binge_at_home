@@ -3,6 +3,7 @@ pub mod catalogs;
 pub mod file;
 pub mod fragment;
 pub mod health_check;
+pub mod search;
 pub mod video_details;
 pub mod video_watch;
 
@@ -50,7 +51,7 @@ pub struct AppState {
     config: Arc<Configuration>,
     database: PgPool,
     file_store: Arc<FileStore>,
-    elastic: Elasticsearch,
+    elastic: Arc<Elasticsearch>,
 }
 
 impl AppState {
@@ -58,7 +59,7 @@ impl AppState {
         config: Arc<Configuration>,
         database: PgPool,
         file_store: Arc<FileStore>,
-        elastic: Elasticsearch,
+        elastic: Arc<Elasticsearch>,
     ) -> Self {
         Self {
             config,
@@ -74,7 +75,7 @@ pub fn init(
     config: Arc<Configuration>,
     database: PgPool,
     file_store: Arc<FileStore>,
-    elastic: Elasticsearch,
+    elastic: Arc<Elasticsearch>,
     _: &Logger,
 ) -> anyhow::Result<Router> {
     info!("initializing router...");
@@ -142,6 +143,7 @@ pub fn init(
         .typed_get(health_check::handler)
         .typed_get(catalogs::handler)
         .typed_get(browse::handler)
+        .typed_get(search::handler)
         .typed_get(video_details::handler)
         .typed_get(video_watch::handler)
         .nest("/fragment", fragment)

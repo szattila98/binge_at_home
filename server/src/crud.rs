@@ -13,8 +13,8 @@ pub mod video;
 
 #[derive(Debug, PartialEq, Eq, Deserialize)]
 pub struct Pagination {
-    size: u64,
-    page: u64,
+    pub size: i64,
+    pub page: i64,
 }
 
 impl Display for Pagination {
@@ -125,13 +125,6 @@ where
     )
 }
 
-pub trait StoreEntry {
-    fn path(&self) -> &str;
-    fn display_name(&self) -> &str;
-    fn short_desc(&self) -> &str;
-    fn long_desc(&self) -> &str;
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -140,8 +133,8 @@ mod tests {
 
     #[test]
     fn display_pagination() {
-        let size: u64 = Faker.fake::<u8>().into();
-        let page: u64 = Faker.fake::<u8>().into();
+        let size: i64 = Faker.fake::<u8>().into();
+        let page: i64 = Faker.fake::<u8>().into();
         assert_eq!(
             Pagination { size, page }.to_string(),
             format!("LIMIT {} OFFSET {}", size, size * (page - 1))
@@ -201,8 +194,8 @@ mod tests {
 
     #[test]
     fn build_find_all_query_only_pagination() {
-        let size: u64 = Faker.fake::<u8>().into();
-        let page: u64 = Faker.fake::<u8>().into();
+        let size: i64 = Faker.fake::<u8>().into();
+        let page: i64 = Faker.fake::<u8>().into();
         let ordering: Vec<Sort<&str>> = vec![];
         let pagination = Some(Pagination { size, page });
         let query = build_find_all_query("table", &ordering, pagination);
@@ -218,8 +211,8 @@ mod tests {
     #[test]
     fn build_find_all_query_both_params() {
         let field: String = Faker.fake();
-        let size: u64 = Faker.fake::<u8>().into();
-        let page: u64 = Faker.fake::<u8>().into();
+        let size: i64 = Faker.fake::<u8>().into();
+        let page: i64 = Faker.fake::<u8>().into();
         let ordering = vec![Sort {
             field: field.clone(),
             direction: Direction::Asc,
@@ -240,8 +233,8 @@ mod tests {
         let field1: String = Faker.fake();
         let field2: String = Faker.fake();
         let field3: String = Faker.fake();
-        let size: u64 = Faker.fake::<u8>().into();
-        let page: u64 = Faker.fake::<u8>().into();
+        let size: i64 = Faker.fake::<u8>().into();
+        let page: i64 = Faker.fake::<u8>().into();
         let ordering = vec![
             Sort {
                 field: field1.clone(),

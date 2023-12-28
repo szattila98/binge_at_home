@@ -7,9 +7,12 @@ use sqlx::PgExecutor;
 use tap::TapFallible;
 use tracing::{error, instrument};
 
-use crate::model::{EntityId, Video};
+use crate::{
+    elastic::Indexable,
+    model::{EntityId, Video},
+};
 
-use super::{build_find_all_query, Entity, Pagination, Sort, StoreEntry};
+use super::{build_find_all_query, Entity, Pagination, Sort};
 
 #[derive(Debug, Default, StructOfArray)]
 #[soa_derive(Debug)]
@@ -212,21 +215,9 @@ impl Entity for Video {
     }
 }
 
-impl StoreEntry for Video {
-    fn path(&self) -> &str {
-        &self.path
-    }
-
-    fn display_name(&self) -> &str {
-        &self.display_name
-    }
-
-    fn short_desc(&self) -> &str {
-        &self.short_desc
-    }
-
-    fn long_desc(&self) -> &str {
-        &self.long_desc
+impl Indexable for Video {
+    fn index_name() -> &'static str {
+        "videos"
     }
 }
 

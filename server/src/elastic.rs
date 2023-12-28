@@ -6,14 +6,16 @@ use elasticsearch::{
     BulkParts, Elasticsearch,
 };
 use secrecy::ExposeSecret;
-use serde_json::json;
+use serde::{Deserialize, Serialize};
+use serde_json::{json, to_value};
 use sqlx::PgPool;
 use tap::Tap;
 use tracing::{info, instrument};
+use tracing_unwrap::ResultExt;
 
 use crate::{
     configuration::Configuration,
-    crud::{Entity, StoreEntry},
+    crud::Entity,
     logging::Logger,
     model::{Catalog, Video},
 };
@@ -41,40 +43,44 @@ pub async fn index_database(
 ) -> anyhow::Result<()> {
     info!("syncing elastic with database on startup...");
 
-    index_entity::<Catalog>(elastic, pool, "catalogs")
+    let (catalogs, videos) = tokio::join!(
+        Catalog::find_all(pool, vec![], None),
+        Video::find_all(pool, vec![], None)
+    );
+    index(elastic, catalogs?)
         .await
         .context("could not index catalogs on startup")?;
-    index_entity::<Video>(elastic, pool, "videos")
+    index(elastic, videos?)
         .await
         .context("could not index videos on startup")?;
 
     Ok(()).tap(|_| info!("synced elastic with database"))
 }
 
-async fn index_entity<T: Entity + StoreEntry>(
+pub trait Indexable {
+    fn index_name() -> &'static str;
+}
+
+pub async fn index<T>(
     elastic: &Elasticsearch,
-    pool: &PgPool,
-    index_name: &str,
-) -> anyhow::Result<()> {
-    let mut to_index: Vec<JsonBody<_>> = vec![];
-
-    T::find_all(pool, vec![], None)
-        .await
-        .with_context(|| format!("could not query {index_name}"))?
+    entities: impl IntoIterator<Item = T>,
+) -> anyhow::Result<()>
+where
+    T: Entity + Serialize + Indexable,
+{
+    let to_index: Vec<JsonBody<_>> = entities
         .into_iter()
-        .for_each(|entity| {
-            to_index.push(json!({"index": {"_id": entity.id()}}).into());
-            to_index.push(
-                json!({
-                    "path": entity.path(),
-                    "display_name": entity.display_name(),
-                    "short_desc": entity.short_desc(),
-                    "long_desc": entity.long_desc()
-                })
-                .into(),
-            );
-        });
+        .flat_map(|entity| {
+            [
+                json!({"index": {"_id": entity.id()}}).into(),
+                to_value(entity)
+                    .expect_or_log("could not serialize entity")
+                    .into(),
+            ]
+        })
+        .collect();
 
+    let index_name = T::index_name();
     if let Some(exception) = elastic
         .bulk(BulkParts::Index(index_name))
         .body(to_index)
@@ -92,4 +98,35 @@ async fn index_entity<T: Entity + StoreEntry>(
     };
 
     Ok(())
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ElasticQueryResponse<T> {
+    pub took: u64,
+    pub hits: Hits<T>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Hits<T> {
+    pub total: Total,
+    pub max_score: Option<f64>,
+    pub hits: Vec<Hit<T>>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Total {
+    pub value: u64,
+    pub relation: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Hit<T> {
+    #[serde(rename = "_index")]
+    pub index: String,
+    #[serde(rename = "_id")]
+    pub id: String,
+    #[serde(rename = "_score")]
+    pub score: Option<f64>,
+    #[serde(rename = "_source")]
+    pub source: T,
 }

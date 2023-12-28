@@ -1,0 +1,38 @@
+{% extends "partials/base.html" %}
+
+{% block title %}Search{% endblock %}
+
+{% block searchbar %}
+{% endblock %}
+
+{% block content %}
+    <form action="/search" class="searchbar" hx-boost="true" hx-vals='{ "page": 1 }'>
+        <input id="query" name="query" type="text" placeholder="What film are you looking for?" class="search" value="{{ query }}" required minlength="3" maxlength="{{ crate::api::search::MAX_QUERY_LEN }}"/> 
+        <button type="submit" class="search-button">
+            <svg width="20" height="20" viewBox="0 0 24 24">
+                <use href="/assets/img/main.svg#search-logo" />
+            </svg>
+        </button>
+    </form>
+    {% match state %}
+        {% when TemplateState::Ok with { results } %}
+            {% for entry in results %}
+                {% match entry %}
+                    {% when StoreEntry::Catalog(catalog) %}
+                        <p>katalógus {{ catalog.display_name }}</p>
+                    {% when StoreEntry::Video(video) %}
+                        <p>videó {{ video.display_name }}</p>
+                    {% else %}
+                {% endmatch %}
+            {% endfor %}
+        {% when TemplateState::Empty %}
+            <p>Search for something using the search input!</p>
+        {% when TemplateState::TechnicalError(_) %}
+            <div class="template-error">
+                <p >Technikai hiba történt!</p>
+                <svg viewbox="0 0 16 16"width="300px" height="300px">
+                    <use href="/assets/img/main.svg#catalog-error"/>
+                </svg>
+            </div> 
+    {% endmatch %}
+{% endblock %}

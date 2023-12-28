@@ -155,7 +155,7 @@ impl Configuration {
         &self.database
     }
 
-    pub fn elastic(&self) -> &Elastic {
+    pub const fn elastic(&self) -> &Elastic {
         &self.elastic
     }
 
