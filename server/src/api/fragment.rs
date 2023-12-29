@@ -1,2 +1,1 @@
-pub mod breadcrumbs;
-pub mod pager;
+pub mod autosuggest;

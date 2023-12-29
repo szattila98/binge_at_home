@@ -86,6 +86,13 @@ pub trait FormatDate {
 impl FormatDate for Catalog {}
 impl FormatDate for Video {}
 
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum StoreEntry {
+    Video(Video),
+    Catalog(Catalog),
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

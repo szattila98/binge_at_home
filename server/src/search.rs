@@ -20,6 +20,8 @@ use crate::{
     model::{Catalog, Video},
 };
 
+pub const MAX_QUERY_LEN: usize = 30;
+
 #[instrument(skip_all)]
 pub async fn init(config: &Configuration, _: &Logger) -> anyhow::Result<Elasticsearch> {
     info!("connecting to elastic...");

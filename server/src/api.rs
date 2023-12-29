@@ -3,6 +3,7 @@ pub mod catalogs;
 pub mod file;
 pub mod fragment;
 pub mod health_check;
+pub mod include;
 pub mod search;
 pub mod video_details;
 pub mod video_watch;
@@ -37,7 +38,10 @@ use tracing::{info, instrument};
 use tracing_unwrap::ResultExt;
 
 use crate::{
-    api::file::{scan_store, stream},
+    api::{
+        file::{scan_store, stream},
+        fragment::autosuggest,
+    },
     configuration::Configuration,
     file_access::FileStore,
     logging::Logger,
@@ -144,6 +148,7 @@ pub fn init(
         .typed_get(catalogs::handler)
         .typed_get(browse::handler)
         .typed_get(search::handler)
+        .typed_get(autosuggest::handler)
         .typed_get(video_details::handler)
         .typed_get(video_watch::handler)
         .nest("/fragment", fragment)

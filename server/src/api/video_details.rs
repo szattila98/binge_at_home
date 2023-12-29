@@ -6,11 +6,11 @@ use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 use tracing::{debug, instrument};
 
-use super::fragment::breadcrumbs::Breadcrumbs;
+use super::include::breadcrumbs::Breadcrumbs;
 #[cfg(debug_assertions)]
 use super::AppState;
 use crate::{
-    api::fragment::breadcrumbs::extract_breadcrumbs,
+    api::include::breadcrumbs::extract_breadcrumbs,
     crud::Entity,
     model::{EntityId, Video},
 };

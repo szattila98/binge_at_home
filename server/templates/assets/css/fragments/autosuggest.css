@@ -1,0 +1,7 @@
+.autosuggest-results {
+
+    & .autosuggest-item:hover {
+        cursor: pointer;
+        background: red;
+    }
+}

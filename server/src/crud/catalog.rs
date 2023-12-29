@@ -7,8 +7,8 @@ use tap::TapFallible;
 use tracing::{error, instrument};
 
 use crate::{
-    elastic::Indexable,
     model::{Catalog, EntityId},
+    search::Indexable,
 };
 
 use super::{build_find_all_query, Entity, Pagination, Sort};

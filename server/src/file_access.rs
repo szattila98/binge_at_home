@@ -30,8 +30,8 @@ use crate::{
         catalog::CreateCatalogRequest, metadata::CreateMetadataRequest, video::CreateVideoRequest,
         Entity,
     },
-    elastic,
     model::{Catalog, Metadata, Video},
+    search,
 };
 
 #[derive(Debug)]
@@ -220,7 +220,7 @@ impl FileStore {
         if added_catalogs > 0 {
             info!("{added_catalogs} catalog(s) added to the store");
             info!("indexing added catalog(s)...");
-            match elastic::index(&self.elastic, catalogs).await {
+            match search::index(&self.elastic, catalogs).await {
                 Ok(()) => info!("indexed added catalog(s)"),
                 Err(error) => error!("error while indexing added catalog(s), reindex database with Elastic manually to reflect changes - {error}"),
             }
@@ -267,7 +267,7 @@ impl FileStore {
         if added_videos > 0 {
             info!("{added_videos} video(s) added to the database");
             info!("indexing added video(s)...");
-            match elastic::index(&self.elastic, videos).await {
+            match search::index(&self.elastic, videos).await {
                 Ok(()) => info!("indexed added video(s)"),
                 Err(error) => error!("error while indexing added video(s), reindex database with Elastic manually to reflect changes - {error}"),
             }
