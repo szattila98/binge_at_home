@@ -1,4 +1,3 @@
-use async_trait::async_trait;
 #[cfg(test)]
 use fake::Dummy;
 use serde::Deserialize;
@@ -45,7 +44,6 @@ pub struct UpdateMetadataRequest {
     pub framerate: FramesPerSecond,
 }
 
-#[async_trait]
 impl Entity for Metadata {
     type CreateRequest = CreateMetadataRequest;
     type Ordering = MetadataSort;

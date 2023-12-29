@@ -88,7 +88,7 @@ impl FileStore {
             .await
             .expect_or_log("error while spawning task")
             .tap_err(|e| error!("error while getting metadata: {e}"))?;
-        let streams = ffprobe.streams.get(0);
+        let streams = ffprobe.streams.first();
 
         let size = ffprobe.format.size.parse().unwrap_or(0);
         let duration = ffprobe

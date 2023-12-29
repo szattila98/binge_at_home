@@ -47,12 +47,17 @@ pub async fn index_database(
         Catalog::find_all(pool, vec![], None),
         Video::find_all(pool, vec![], None)
     );
-    index(elastic, catalogs?)
-        .await
-        .context("could not index catalogs on startup")?;
-    index(elastic, videos?)
-        .await
-        .context("could not index videos on startup")?;
+    let (catalogs, videos) = (catalogs?, videos?);
+    if !catalogs.is_empty() {
+        index(elastic, catalogs)
+            .await
+            .context("could not index catalogs on startup")?;
+    }
+    if !videos.is_empty() {
+        index(elastic, videos)
+            .await
+            .context("could not index videos on startup")?;
+    }
 
     Ok(()).tap(|_| info!("synced elastic with database"))
 }
@@ -115,7 +120,7 @@ pub struct Hits<T> {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Total {
-    pub value: u64,
+    pub value: usize,
     pub relation: String,
 }
 

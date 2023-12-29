@@ -70,6 +70,7 @@
 			"use sqlx::PgPool;",
 			"use tracing::{debug, instrument};",
 			"",
+			"#[cfg(debug_assertions)]",
 			"use super::AppState;",
 			"",
 			"#[derive(TypedPath)]",

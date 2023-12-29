@@ -1,3 +1,5 @@
+@import url("./fragments/pager.css");
+
 .catalog-table {
 
     color: var(--text-primary);
@@ -44,30 +46,6 @@
         cursor: pointer;
         background-color: var(--secondary);
         color: var(--text-secondary);
-    }
-}
-
-.pagination {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    padding-top: 20px;
-
-    & .page-number {
-        color: var(--text-primary);
-        text-decoration: none;
-        border-radius: 20px;
-        padding: 5px 10px 5px 10px;
-        text-align: center;
-        font-size: 1.1rem;
-    }
-
-    & .page-number:hover {
-        background-color: var(--primary);
-    }
-
-    & .page-number.active {
-        background-color: var(--secondary);
     }
 }
 

@@ -18,6 +18,9 @@ use crate::{
     model::{Catalog, Video},
 };
 
+use super::fragment::pager::Pager;
+
+#[cfg(debug_assertions)]
 use super::AppState;
 
 #[derive(TypedPath)]
@@ -28,10 +31,10 @@ pub struct Endpoint;
 pub struct Params {
     query: String,
     #[serde(default = "default_page")]
-    page: i64,
+    page: usize,
 }
 
-const fn default_page() -> i64 {
+const fn default_page() -> usize {
     1
 }
 
@@ -44,7 +47,10 @@ pub enum StoreEntry {
 
 #[derive(Serialize)]
 enum TemplateState {
-    Ok { results: Vec<StoreEntry> },
+    Ok {
+        results: Vec<StoreEntry>,
+        pager: Pager,
+    },
     Empty,
     TechnicalError(String),
 }
@@ -62,7 +68,7 @@ impl HtmlTemplate {
     }
 }
 
-pub const SEARCH_PAGE_SIZE: i64 = 10;
+pub const SEARCH_PAGE_SIZE: usize = 10;
 pub const MAX_QUERY_LEN: usize = 30;
 
 #[instrument(skip(elastic))]
@@ -78,13 +84,14 @@ pub async fn handler(
 
     // TODO redirect if query is limited to max query length so url param is correct - maybe from request parts implementation
     // same with page, redirect to have it is different from starting one
+    // TODO validate page is not too big
     let query = query[..MAX_QUERY_LEN.min(query.len())].to_owned();
     let page = (page - 1).max(0);
 
     let response = match elastic
         .search(SearchParts::Index(&["catalogs", "videos"]))
-        .from(page * SEARCH_PAGE_SIZE)
-        .size(SEARCH_PAGE_SIZE)
+        .from((page * SEARCH_PAGE_SIZE) as i64)
+        .size(SEARCH_PAGE_SIZE as i64)
         .body(json!({
             "query": {
                 "query_string": {
@@ -134,7 +141,13 @@ pub async fn handler(
     };
     debug!("elastic query took {}ms to complete", response.took);
 
-    // FIXME pagination rendering and functionality
+    let pager = Pager::new(
+        response.hits.total.value.div_ceil(SEARCH_PAGE_SIZE),
+        page + 1,
+        10,
+        format!("{}?query={query}", Endpoint::PATH),
+    );
+
     let results = response
         .hits
         .hits
@@ -142,5 +155,5 @@ pub async fn handler(
         .map(|hit| hit.source)
         .collect();
 
-    HtmlTemplate::new(TemplateState::Ok { results }, query)
+    HtmlTemplate::new(TemplateState::Ok { results, pager }, query)
 }

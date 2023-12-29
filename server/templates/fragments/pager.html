@@ -1,0 +1,17 @@
+<div class="pager" hx-boost="true">
+    <a class="page-number" href="{{ pager.first_page_link() }}">&laquo;</a>
+    {% if pager.left_dots_visible() %}
+        ...
+    {% endif %}
+    {% for page in pager.shown_pages() %}
+        {% if page == pager.current_page %}
+            <a class="page-number active" href="{{ pager.paged_link(page) }}">{{ page }}</a>
+        {% else %}
+            <a class="page-number" href="{{ pager.paged_link(page) }}">{{ page }}</a>
+        {% endif %}
+    {% endfor %}
+    {% if pager.right_dots_visible() %}
+        ...
+    {% endif %}
+    <a class="page-number" href="{{ pager.last_page_link() }}">&raquo;</a>
+</div>

@@ -1,4 +1,3 @@
-use async_trait::async_trait;
 #[cfg(test)]
 use fake::Dummy;
 use serde::Deserialize;
@@ -63,7 +62,6 @@ pub struct UpdateVideoRequest {
     pub metadata_id: Option<EntityId>,
 }
 
-#[async_trait]
 impl Entity for Video {
     type CreateRequest = CreateVideoRequest;
     type Ordering = VideoSort;

@@ -272,7 +272,6 @@ dependencies = [
  "anyhow",
  "askama",
  "askama_axum",
- "async-trait",
  "axum",
  "axum-extra",
  "axum-macros",

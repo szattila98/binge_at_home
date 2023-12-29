@@ -1,6 +1,5 @@
 use std::fmt::{self, Debug, Display};
 
-use async_trait::async_trait;
 use serde::Deserialize;
 use soa_derive::StructOfArray;
 use sqlx::PgExecutor;
@@ -50,7 +49,7 @@ pub enum Direction {
     Desc,
 }
 
-#[async_trait]
+#[allow(async_fn_in_trait)]
 pub trait Entity
 where
     Self: Sized,

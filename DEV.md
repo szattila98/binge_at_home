@@ -17,7 +17,7 @@
 
 - _docker_ 24.0.2 or higher
 - _docker-compose_ 2.18.1 or higher
-- _cargo_ 1.70.0 or higher
+- _rustc_ 1.75.0 or higher
 - _ffprobe_ 12.2.0 or higher
 
 ### IDE

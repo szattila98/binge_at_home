@@ -21,7 +21,7 @@
         </a>
         {% block searchbar %}
             <form action="/search" class="searchbar" hx-boost="true" hx-vals='{ "page": 1 }'>
-                <input name="query" type="text" placeholder="What film are you looking for?" class="search" required minlength="3" maxlength="{{ crate::api::search::MAX_QUERY_LEN }}"/> 
+                <input name="query" type="text" placeholder="What film are you looking for?" class="search" required minlength="1" maxlength="{{ crate::api::search::MAX_QUERY_LEN }}"/> 
                 <button type="submit" class="search-button">
                     <svg width="20" height="20" viewBox="0 0 24 24">
                         <use href="/assets/img/main.svg#search-logo" />

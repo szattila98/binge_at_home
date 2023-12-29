@@ -32,16 +32,7 @@
                     {% endfor %}
                 </div>
             </div>
-            <div class="pagination">
-                <a class="page-number" href="#">&laquo;</a>
-                <a class="page-number  active" href="#">1</a>
-                <a class="page-number" href="#">2</a>
-                <a class="page-number" href="#">3</a>
-                <a class="page-number" href="#">4</a>
-                <a class="page-number" href="#">5</a>
-                <a class="page-number" href="#">6</a>
-                <a class="page-number" href="#">&raquo;</a>
-            </div>
+            <!-- { include "fragments/pager.html" } -->
         {% when TemplateState::NoCatalogsFound %}
             <div class="template-error">
                 <p >Nem találhatóak katalógusok</p>

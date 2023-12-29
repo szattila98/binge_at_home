@@ -1,6 +1,6 @@
 CREATE TABLE catalog (
     id BIGSERIAL PRIMARY KEY NOT NULL,
-    path TEXT NOT NULL UNIQUE,
+    path TEXT NOT NULL,
     display_name TEXT NOT NULL,
     short_desc TEXT NOT NULL,
     long_desc TEXT NOT NULL,
@@ -21,7 +21,7 @@ CREATE TABLE metadata (
 
 CREATE TABLE video (
     id BIGSERIAL PRIMARY KEY NOT NULL,
-    path TEXT NOT NULL UNIQUE,
+    path TEXT NOT NULL,
     display_name TEXT NOT NULL,
     short_desc TEXT NOT NULL,
     long_desc TEXT NOT NULL,

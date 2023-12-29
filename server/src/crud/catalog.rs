@@ -1,4 +1,3 @@
-use async_trait::async_trait;
 #[cfg(test)]
 use fake::Dummy;
 use serde::Deserialize;
@@ -52,7 +51,6 @@ pub struct UpdateCatalogRequest {
     long_desc: String,
 }
 
-#[async_trait]
 impl Entity for Catalog {
     type CreateRequest = CreateCatalogRequest;
     type Ordering = CatalogSort;
