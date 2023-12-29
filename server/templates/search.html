@@ -20,15 +20,17 @@
     </form>
     {% match state %}
         {% when TemplateState::Ok with { results, pager } %}
-            {% for entry in results %}
-                {% match entry %}
-                    {% when StoreEntry::Catalog(catalog) %}
-                        <p>katalógus {{ catalog.display_name }}</p>
-                    {% when StoreEntry::Video(video) %}
-                        <p>videó {{ video.display_name }}</p>
-                    {% else %}
-                {% endmatch %}
-            {% endfor %}
+            <div id="search-results">
+                {% for entry in results %}
+                    {% match entry %}
+                        {% when StoreEntry::Catalog(catalog) %}
+                            <p>katalógus {{ catalog.display_name }}</p>
+                        {% when StoreEntry::Video(video) %}
+                            <p>videó {{ video.display_name }}</p>
+                        {% else %}
+                    {% endmatch %}
+                {% endfor %}
+            </div>
             {% include "fragments/pager.html" %}
         {% when TemplateState::Empty %}
             <p>Search for something using the search input!</p>
