@@ -5,6 +5,7 @@ pub mod fragment;
 pub mod health_check;
 pub mod include;
 pub mod search;
+pub mod technical_error;
 pub mod video_details;
 pub mod video_watch;
 
@@ -149,6 +150,7 @@ pub fn init(
         .typed_get(browse::handler)
         .typed_get(search::handler)
         .typed_get(autosuggest::handler)
+        .typed_get(technical_error::handler)
         .typed_get(video_details::handler)
         .typed_get(video_watch::handler)
         .nest("/fragment", fragment)

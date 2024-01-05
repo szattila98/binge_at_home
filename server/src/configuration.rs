@@ -22,7 +22,7 @@ use tower_http::cors::AllowOrigin;
 use tracing::{info, instrument};
 use tracing_unwrap::ResultExt;
 
-#[derive(Debug, Config, Clone)]
+#[derive(Debug, Config, Clone, Deserialize)]
 pub struct Configuration {
     /// Host to bind to.
     #[config(env = "HOST", default = "0.0.0.0")]
@@ -48,6 +48,8 @@ pub struct Configuration {
     /// File store configuration options.
     #[config(nested)]
     file_store: FileStore,
+    #[config(env = "HMAC_KEY")]
+    hmac_key: Secret<String>,
 }
 
 #[derive(Debug, Config, Deserialize, Clone)]
@@ -169,6 +171,10 @@ impl Configuration {
 
     pub const fn file_store(&self) -> &FileStore {
         &self.file_store
+    }
+
+    pub const fn hmac_key(&self) -> &Secret<String> {
+        &self.hmac_key
     }
 }
 

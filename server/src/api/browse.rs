@@ -1,11 +1,14 @@
-use std::path::PathBuf;
+use std::{path::PathBuf, sync::Arc};
 
 use askama::Template;
-use axum::{extract::State, response::IntoResponse};
+use axum::{
+    extract::State,
+    response::{IntoResponse, Response},
+};
 use axum_extra::routing::TypedPath;
-use http::StatusCode;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
+use tap::Tap;
 use tracing::{debug, error, instrument};
 
 use super::include::breadcrumbs::Breadcrumbs;
@@ -13,7 +16,10 @@ use super::include::breadcrumbs::Breadcrumbs;
 use super::AppState;
 
 use crate::{
-    api::include::breadcrumbs::extract_breadcrumbs,
+    api::{
+        include::breadcrumbs::extract_breadcrumbs, technical_error::redirect_to_technical_error,
+    },
+    configuration::Configuration,
     crud::Entity,
     model::{Catalog, EntityId, Video},
 };
@@ -40,7 +46,6 @@ enum TemplateState {
     },
     CatalogNotFound,
     InvalidPath,
-    DbErr(String),
 }
 
 #[derive(Serialize, Template)]
@@ -50,17 +55,18 @@ struct HtmlTemplate {
 }
 
 impl HtmlTemplate {
-    const fn new(state: TemplateState) -> Self {
-        Self { state }
+    fn new(state: TemplateState) -> Self {
+        Self { state }.tap(|template| debug!("rendered html template:\n{template}"))
     }
 }
 
-#[instrument(skip(pool))]
+#[instrument(skip(config, pool))]
 #[axum_macros::debug_handler(state = AppState)]
 pub async fn handler(
     Endpoint { catalog_id, path }: Endpoint,
+    State(config): State<Arc<Configuration>>,
     State(pool): State<PgPool>,
-) -> impl IntoResponse {
+) -> Response {
     let (catalog_result, videos_result) = tokio::join!(
         Catalog::find(&pool, catalog_id),
         Video::find_by_catalog_id(&pool, catalog_id)
@@ -68,46 +74,33 @@ pub async fn handler(
 
     let catalog_opt = match catalog_result {
         Ok(catalog_opt) => catalog_opt,
-        Err(e) => {
-            return (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                HtmlTemplate::new(TemplateState::DbErr(e.to_string())),
-            )
+        Err(error) => {
+            return redirect_to_technical_error(&config, &error).into_response();
         }
     };
     let videos = match videos_result {
         Ok(videos) => videos,
-        Err(e) => {
-            return (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                HtmlTemplate::new(TemplateState::DbErr(e.to_string())),
-            )
+        Err(error) => {
+            return redirect_to_technical_error(&config, &error).into_response();
         }
     };
 
     let Some(catalog) = catalog_opt else {
-        return (
-            StatusCode::NOT_FOUND,
-            HtmlTemplate::new(TemplateState::CatalogNotFound),
-        );
+        return HtmlTemplate::new(TemplateState::CatalogNotFound).into_response();
     };
 
     let breadcrumbs = extract_breadcrumbs(catalog.id, &path);
 
     let Some(files) = get_files(videos, &PathBuf::from(path)) else {
-        return (
-            StatusCode::BAD_REQUEST,
-            HtmlTemplate::new(TemplateState::InvalidPath),
-        );
+        return HtmlTemplate::new(TemplateState::InvalidPath).into_response();
     };
 
-    let rendered = HtmlTemplate::new(TemplateState::Ok {
+    HtmlTemplate::new(TemplateState::Ok {
         catalog,
         files,
         breadcrumbs,
-    });
-    debug!("browse rendered\n{rendered}");
-    (StatusCode::OK, rendered)
+    })
+    .into_response()
 }
 
 fn get_files(videos: Vec<Video>, walked_path: &PathBuf) -> Option<Vec<File>> {

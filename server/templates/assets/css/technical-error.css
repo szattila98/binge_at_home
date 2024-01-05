@@ -1,0 +1,11 @@
+.template-error {
+    width: 100%;
+    margin-top: 35vh;
+    text-align: center;
+    color: var(--text-primary);
+    font-size: 2rem;
+
+    & svg {
+        margin-top: 40px;
+    }
+}

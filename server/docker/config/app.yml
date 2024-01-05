@@ -90,3 +90,5 @@ file_store:
   #
   # Default value: [mp4, webm]
   #video_extensions: [mp4, webm]
+
+hmac_key: "nice_long_fully_random_secret"

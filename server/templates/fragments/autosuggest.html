@@ -1,20 +1,15 @@
 <ul class="autosuggest-results" hx-boost="true">
-    {% match state %}
-        {% when TemplateState::Ok with { results } %}
-            {% for entry in results %}
-                {% match entry %}
-                    {% when StoreEntry::Catalog(catalog) %}
-                        <a href="/catalog/{{ catalog.id }}/browse/{{ catalog.path }}" class="autosuggest-item">
-                            <li>katalógus {{ catalog.display_name }}</li>
-                        </a>
-                    {% when StoreEntry::Video(video) %}
-                        <a href="/video/{{ video.id }}" class="autosuggest-item">
-                            <li>videó {{ video.display_name }}</li>
-                        </a>
-                    {% else %}
-                {% endmatch %}
-            {% endfor %}
-        {% when TemplateState::TechnicalError(_) %}
-            <li>Something went wrong!</li>
-    {% endmatch %}
+    {% for entry in results %}
+        {% match entry %}
+            {% when StoreEntry::Catalog(catalog) %}
+                <a href="/catalog/{{ catalog.id }}/browse/{{ catalog.path }}" class="autosuggest-item">
+                    <li>katalógus {{ catalog.display_name }}</li>
+                </a>
+            {% when StoreEntry::Video(video) %}
+                <a href="/video/{{ video.id }}" class="autosuggest-item">
+                    <li>videó {{ video.display_name }}</li>
+                </a>
+            {% else %}
+        {% endmatch %}
+    {% endfor %}
 </ul>

@@ -11,8 +11,5 @@
             </video>
         {% when TemplateState::VideoNotFound %}
             <p>A keresett videó nem található</p>
-        {% when TemplateState::DbErr(_) %}
-            <p>Technikai hiba történt</p>
-        {% else %}
     {% endmatch %}
 {% endblock %}

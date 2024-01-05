@@ -70,10 +70,10 @@ pub trait Indexable {
 
 pub async fn index<T>(
     elastic: &Elasticsearch,
-    entities: impl IntoIterator<Item = T>,
+    entities: impl IntoIterator<Item = T> + Send,
 ) -> anyhow::Result<()>
 where
-    T: Entity + Serialize + Indexable,
+    T: Entity + Serialize + Indexable + Send,
 {
     let to_index: Vec<JsonBody<_>> = entities
         .into_iter()

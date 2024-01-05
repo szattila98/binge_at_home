@@ -3,7 +3,7 @@ use std::sync::Arc;
 use askama::Template;
 use axum::{
     extract::{Query, State},
-    response::IntoResponse,
+    response::{IntoResponse, Response},
 };
 use axum_extra::routing::TypedPath;
 use elasticsearch::{Elasticsearch, SearchParts};
@@ -14,6 +14,8 @@ use tap::Tap;
 use tracing::{debug, error, instrument};
 
 use crate::{
+    api::technical_error::redirect_to_technical_error,
+    configuration::Configuration,
     model::StoreEntry,
     search::{ElasticQueryResponse, MAX_QUERY_LEN},
 };
@@ -38,41 +40,42 @@ const fn default_page() -> usize {
     1
 }
 
-#[derive(Serialize)]
-enum TemplateState {
-    Ok {
-        results: Vec<StoreEntry>,
-        pager: Pager,
-    },
-    Empty,
-    TechnicalError(String),
-}
-
 #[derive(Serialize, Template)]
 #[template(path = "search.html")]
 struct HtmlTemplate {
-    state: TemplateState,
+    results: Vec<StoreEntry>,
+    pager: Pager,
     query: String,
 }
 
 impl HtmlTemplate {
-    fn new(state: TemplateState, query: String) -> Self {
-        Self { state, query }.tap(|rendered| debug!("search rendered\n{rendered}"))
+    fn new(results: Vec<StoreEntry>, pager: Pager, query: String) -> Self {
+        Self {
+            results,
+            pager,
+            query,
+        }
+        .tap(|template| debug!("rendered html template:\n{template}"))
     }
 }
 
 pub const SEARCH_PAGE_SIZE: usize = 10;
 
-#[instrument(skip(elastic))]
+#[instrument(skip(config, elastic))]
 #[axum_macros::debug_handler(state = AppState)]
 pub async fn handler(
     _: Endpoint,
     params: Option<Query<Params>>,
+    State(config): State<Arc<Configuration>>,
     State(elastic): State<Arc<Elasticsearch>>,
-) -> impl IntoResponse {
-    let Some(Query(Params { query, page })) = params else {
-        return HtmlTemplate::new(TemplateState::Empty, String::new());
-    };
+) -> Response {
+    // FIXME strange optional
+    let Query(Params { query, page }) = params.unwrap_or_else(|| {
+        Query(Params {
+            query: String::new(),
+            page: 1,
+        })
+    });
 
     // TODO redirect if query is limited to max query length so url param is correct - maybe from request parts implementation
     // same with page, redirect to have it is different from starting one
@@ -98,11 +101,9 @@ pub async fn handler(
     {
         Ok(response) => response,
         Err(error) => {
-            error!("elastic query error - {error}");
-            return HtmlTemplate::new(
-                TemplateState::TechnicalError(error.to_string()),
-                String::new(),
-            );
+            return redirect_to_technical_error(&config, &error)
+                .tap(|_| error!("elastic query error - {error}"))
+                .into_response()
         }
     };
 
@@ -117,18 +118,17 @@ pub async fn handler(
         } else {
             UNKNOWN_REASON.to_owned()
         };
-        error!("elastic query exception - reason: {msg}");
-        return HtmlTemplate::new(TemplateState::TechnicalError(msg.to_owned()), String::new());
+        return redirect_to_technical_error(&config, &msg)
+            .tap(|_| error!("elastic query exception - reason: {msg}"))
+            .into_response();
     };
 
     let response = match response.json::<ElasticQueryResponse<StoreEntry>>().await {
         Ok(response) => response,
         Err(error) => {
-            error!("elastic response deserialization failed - {error}");
-            return HtmlTemplate::new(
-                TemplateState::TechnicalError("could not deserialize elastic response".to_owned()),
-                String::new(),
-            );
+            return redirect_to_technical_error(&config, "could not deserialize elastic response")
+                .tap(|_| error!("elastic response deserialization failed - {error}"))
+                .into_response();
         }
     };
     debug!("elastic query took {}ms to complete", response.took);
@@ -147,5 +147,5 @@ pub async fn handler(
         .map(|hit| hit.source)
         .collect();
 
-    HtmlTemplate::new(TemplateState::Ok { results, pager }, query)
+    HtmlTemplate::new(results, pager, query).into_response()
 }

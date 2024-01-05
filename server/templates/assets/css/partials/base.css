@@ -1,4 +1,5 @@
-@import url("fragments/autosuggest.css");
+@import url("../fragments/autosuggest.css");
+@import url("../includes/pager.css");
 
 @media (prefers-color-scheme: dark) {
     :root {

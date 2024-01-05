@@ -1,16 +1,24 @@
+use std::sync::Arc;
+
 use askama::Template;
-use axum::{extract::State, response::IntoResponse};
+use axum::{
+    extract::State,
+    response::{IntoResponse, Response},
+};
 use axum_extra::routing::TypedPath;
-use http::StatusCode;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
+use tap::Tap;
 use tracing::{debug, instrument};
 
 use super::include::breadcrumbs::Breadcrumbs;
 #[cfg(debug_assertions)]
 use super::AppState;
 use crate::{
-    api::include::breadcrumbs::extract_breadcrumbs,
+    api::{
+        include::breadcrumbs::extract_breadcrumbs, technical_error::redirect_to_technical_error,
+    },
+    configuration::Configuration,
     crud::Entity,
     model::{EntityId, Video},
 };
@@ -28,7 +36,6 @@ enum TemplateState {
         breadcrumbs: Breadcrumbs,
     },
     VideoNotFound,
-    DbErr(String),
 }
 
 #[derive(Serialize, Template)]
@@ -38,33 +45,29 @@ struct HtmlTemplate {
 }
 
 impl HtmlTemplate {
-    pub const fn new(state: TemplateState) -> Self {
-        Self { state }
+    fn new(state: TemplateState) -> Self {
+        Self { state }.tap(|template| debug!("rendered html template:\n{template}"))
     }
 }
 
-#[instrument]
+#[instrument(skip(config, pool))]
 #[axum_macros::debug_handler(state = AppState)]
-pub async fn handler(Endpoint { id }: Endpoint, State(pool): State<PgPool>) -> impl IntoResponse {
+pub async fn handler(
+    Endpoint { id }: Endpoint,
+    State(config): State<Arc<Configuration>>,
+    State(pool): State<PgPool>,
+) -> Response {
     let opt = match Video::find(&pool, id).await {
         Ok(opt) => opt,
-        Err(e) => {
-            return (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                HtmlTemplate::new(TemplateState::DbErr(e.to_string())),
-            )
+        Err(error) => {
+            return redirect_to_technical_error(&config, error).into_response();
         }
     };
     let Some(video) = opt else {
-        return (
-            StatusCode::NOT_FOUND,
-            HtmlTemplate::new(TemplateState::VideoNotFound),
-        );
+        return HtmlTemplate::new(TemplateState::VideoNotFound).into_response();
     };
 
     let breadcrumbs = extract_breadcrumbs(video.catalog_id, &video.path);
 
-    let rendered = HtmlTemplate::new(TemplateState::Ok { video, breadcrumbs });
-    debug!("video details rendered\n{rendered}");
-    (StatusCode::OK, rendered)
+    HtmlTemplate::new(TemplateState::Ok { video, breadcrumbs }).into_response()
 }

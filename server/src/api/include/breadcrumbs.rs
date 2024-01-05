@@ -17,6 +17,7 @@ impl Breadcrumb {
             .expect_or_log("no last path part is found")
             .to_owned()
             .to_owned();
+        // FIXME use with_query_params instead of replacing
         let link = BrowseEndpoint::PATH
             .replace(":catalog_id", &catalog_id.to_string())
             .replace("*path", &path.join("/"));

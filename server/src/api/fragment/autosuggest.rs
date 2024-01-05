@@ -3,16 +3,19 @@ use std::sync::Arc;
 use askama::Template;
 use axum::{
     extract::{Query, State},
-    response::IntoResponse,
+    response::{IntoResponse, Response},
 };
 use axum_extra::routing::TypedPath;
 use elasticsearch::{Elasticsearch, SearchParts};
 use http::StatusCode;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
+use tap::Tap;
 use tracing::{debug, error, instrument};
 
 use crate::{
+    api::technical_error::redirect_to_technical_error,
+    configuration::Configuration,
     model::StoreEntry,
     search::{ElasticQueryResponse, MAX_QUERY_LEN},
 };
@@ -29,21 +32,15 @@ pub struct Params {
     query: String,
 }
 
-#[derive(Serialize)]
-enum TemplateState {
-    Ok { results: Vec<StoreEntry> },
-    TechnicalError(String),
-}
-
 #[derive(Serialize, Template)]
 #[template(path = "fragments/autosuggest.html")]
 struct HtmlTemplate {
-    state: TemplateState,
+    results: Vec<StoreEntry>,
 }
 
 impl HtmlTemplate {
-    fn new(state: TemplateState) -> Self {
-        Self { state }
+    fn new(results: Vec<StoreEntry>) -> Self {
+        Self { results }.tap(|fragment| debug!("rendered html fragment:\n{fragment}"))
     }
 }
 
@@ -52,8 +49,9 @@ impl HtmlTemplate {
 pub async fn handler(
     _: Endpoint,
     Query(Params { query }): Query<Params>,
+    State(config): State<Arc<Configuration>>,
     State(elastic): State<Arc<Elasticsearch>>,
-) -> impl IntoResponse {
+) -> Response {
     let query = query[..MAX_QUERY_LEN.min(query.len())].to_owned();
 
     let response = match elastic
@@ -74,8 +72,9 @@ pub async fn handler(
     {
         Ok(response) => response,
         Err(error) => {
-            error!("elastic query error - {error}");
-            return HtmlTemplate::new(TemplateState::TechnicalError(error.to_string()));
+            return redirect_to_technical_error(&config, &error)
+                .tap(|_| error!("elastic query error - {error}"))
+                .into_response();
         }
     };
 
@@ -90,17 +89,18 @@ pub async fn handler(
         } else {
             UNKNOWN_REASON.to_owned()
         };
-        error!("elastic query exception - reason: {msg}");
-        return HtmlTemplate::new(TemplateState::TechnicalError(msg.to_owned()));
+        let reason = msg.to_owned();
+        return redirect_to_technical_error(&config, &reason)
+            .tap(|_| error!("elastic query exception - reason: {reason}"))
+            .into_response();
     };
 
     let response = match response.json::<ElasticQueryResponse<StoreEntry>>().await {
         Ok(response) => response,
         Err(error) => {
-            error!("elastic response deserialization failed - {error}");
-            return HtmlTemplate::new(TemplateState::TechnicalError(
-                "could not deserialize elastic response".to_owned(),
-            ));
+            return redirect_to_technical_error(&config, "could not deserialize elastic response")
+                .tap(|_| error!("elastic response deserialization failed - {error}"))
+                .into_response();
         }
     };
     debug!("elastic query took {}ms to complete", response.took);
@@ -112,5 +112,5 @@ pub async fn handler(
         .map(|hit| hit.source)
         .collect();
 
-    HtmlTemplate::new(TemplateState::Ok { results })
+    HtmlTemplate::new(results).into_response()
 }

@@ -1,9 +1,9 @@
 use askama::Template;
 use axum::response::IntoResponse;
 use axum_extra::routing::TypedPath;
-use http::StatusCode;
 use macros::random_emoji;
 use serde::Serialize;
+use tap::Tap;
 use tracing::{debug, instrument};
 
 use crate::{get_app_name, get_app_version};
@@ -32,13 +32,12 @@ impl Default for HealthCheckTemplate {
             app_name: get_app_name(),
             app_version: get_app_version(),
         }
+        .tap(|template| debug!("rendered html template:\n{template}"))
     }
 }
 
 #[instrument]
 #[axum_macros::debug_handler(state = AppState)]
 pub async fn handler(_: Endpoint) -> impl IntoResponse {
-    let rendered = HealthCheckTemplate::default();
-    debug!("health check rendered\n{rendered}");
-    (StatusCode::OK, rendered)
+    HealthCheckTemplate::default()
 }

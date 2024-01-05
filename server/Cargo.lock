@@ -196,6 +196,7 @@ dependencies = [
  "axum-core",
  "axum-macros",
  "bytes",
+ "cookie",
  "form_urlencoded",
  "futures-util",
  "http",
@@ -279,6 +280,8 @@ dependencies = [
  "elasticsearch",
  "fake",
  "ffprobe",
+ "hex",
+ "hmac",
  "http",
  "http-body",
  "macros",
@@ -289,6 +292,7 @@ dependencies = [
  "secrecy",
  "serde",
  "serde_json",
+ "sha2",
  "soa_derive",
  "sqlx",
  "strum",
@@ -392,6 +396,17 @@ name = "const-oid"
 version = "0.9.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "28c122c3980598d243d63d9a704629a2d748d101f278052ff068be5a4423ab6f"
+
+[[package]]
+name = "cookie"
+version = "0.17.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7efb37c3e1ccb1ff97164ad95ac1606e8ccd35b3fa0a7d99a304c7f4a428cc24"
+dependencies = [
+ "percent-encoding",
+ "time",
+ "version_check",
+]
 
 [[package]]
 name = "core-foundation"
