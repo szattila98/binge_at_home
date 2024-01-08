@@ -20,17 +20,19 @@
             </svg>   
         </a>
         {% block searchbar %}
-            <form action="/search" class="searchbar" hx-boost="true">
-                <input name="query" type="text" placeholder="What film are you looking for?" class="search" required minlength="1" maxlength="{{ crate::search::MAX_QUERY_LEN }}"
-                    hx-get="/search/autosuggest" hx-trigger="input changed delay:500ms, search" hx-target="#autosuggest-results" hx-swap="outerHTML" hx-validate="true"
-                />
-                <button type="submit" class="search-button">
-                    <svg width="20" height="20" viewBox="0 0 24 24">
-                        <use href="/assets/img/main.svg#search-logo" />
-                    </svg>
-                </button>
+            <div class="searchContainer">
+                <form action="/search" class="searchbar" hx-boost="true">
+                    <input name="query" type="text" placeholder="What film are you looking for?" class="search" required minlength="1" maxlength="{{ crate::search::MAX_QUERY_LEN }}"
+                        hx-get="/search/autosuggest" hx-trigger="input changed delay:500ms, search" hx-target="#autosuggest-results" hx-swap="outerHTML" hx-validate="true"
+                    />
+                    <button type="submit" class="search-button">
+                        <svg width="20" height="20" viewBox="0 0 24 24">
+                            <use href="/assets/img/main.svg#search-logo" />
+                        </svg>
+                    </button>
+                </form>
                 <ul id="autosuggest-results"></ul> 
-            </form>
+            </div>
         {% endblock %}
         <a href="https://github.com/szattila98/binge_at_home" class="github-logo">
             <svg viewBox="0 0 24 24" width="50px" height="50px">

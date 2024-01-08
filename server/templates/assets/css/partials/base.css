@@ -47,7 +47,7 @@ header {
     & .nav-container {
         display: grid;
         height: 100px;
-        grid-template-columns: 20% 70% 10%;
+        grid-template-columns: 65% 25% 10%;
     }
 
     & .nav-logo {
@@ -64,26 +64,32 @@ header {
         align-items: center;
     }
 
-    & .searchbar {
-        width: 100%;
+    & .searchContainer {
+        top: 25px;
+        display: grid;
         position: relative;
+        height: 50px;
+    }
+
+    & .searchbar {
         display: flex;
-        align-items: center;
+        height: 35px;
+        width: 500px;
     }
 
     & .search {
-        width: 30%;
+        width: 400px;
         border: 3px solid var(--primary);
         border-right: none;
         padding: 5px;
         height: 20px;
-        border-radius: 5px 0 0 5px;
         outline: none;
         color: var(--text);
         margin: 0 0 0 auto;
     }
 
     & .search-button {
+        position: relative;
         width: 40px;
         height: 36px;
         border: 1px solid var(--primary);
@@ -91,6 +97,7 @@ header {
         text-align: center;
         border-radius: 0 5px 5px 0;
         cursor: pointer;
+        padding: 5px;
     }
 }
 

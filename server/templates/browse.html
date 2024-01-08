@@ -19,7 +19,7 @@
                         {% match file %}
                             {% when File::Directory with { path, display_name } %}
                                 <a class="browse-entry" hx-boost="true" href="/catalog/{{ catalog.id }}/browse/{{ path }}">
-                                    <svg class="icon" viewBox="0 0 256 256" width="40" height="40">
+                                    <svg class="icon" viewBox="0 0 48 48" width="40" height="40">
                                         <use href="/assets/img/main.svg#folder-icon" />
                                     </svg>
                                     <span>

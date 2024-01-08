@@ -1,15 +1,23 @@
 <ul class="autosuggest-results" hx-boost="true">
+    <h5>Catalogs</h5>
     {% for entry in results %}
         {% match entry %}
-            {% when StoreEntry::Catalog(catalog) %}
+            {% when StoreEntry::Catalog(catalog) %}  
                 <a href="/catalog/{{ catalog.id }}/browse/{{ catalog.path }}" class="autosuggest-item">
-                    <li>katalógus {{ catalog.display_name }}</li>
-                </a>
-            {% when StoreEntry::Video(video) %}
-                <a href="/video/{{ video.id }}" class="autosuggest-item">
-                    <li>videó {{ video.display_name }}</li>
+                    <li>{{ catalog.display_name }}</li>
                 </a>
             {% else %}
         {% endmatch %}
     {% endfor %}
+
+    <h5>Videos</h5>
+    {% for entry in results %}
+    {% match entry %}
+        {% when StoreEntry::Video(video) %}
+            <a href="/video/{{ video.id }}" class="autosuggest-item">
+                <li>{{ video.display_name }}</li>
+            </a>
+        {% else %}
+    {% endmatch %}
+{% endfor %}
 </ul>

@@ -1,7 +1,36 @@
 .autosuggest-results {
 
-    & .autosuggest-item:hover {
+    width: 410px;
+    background-color: var(--base);
+    position: relative;
+    display: block;
+    margin: 0 0 0 47px;
+    padding: 0;
+    list-style: none;
+    border: 2px solid var(--primary);
+    border-radius: 0 0 10px 10px;
+
+    & .autosuggest-item {
+        text-decoration: none;
+        color: var(--text-primary);
+        font-size: large;
+    }
+
+    & .autosuggest-item li {
+        padding: 10px;
+    }
+
+    & .autosuggest-item li:hover {
         cursor: pointer;
-        background: red;
+        background-color: var(--secondary);
+        color: var(--text-secondary);
+    }
+
+    h5 {
+        color: var(--text-secondary);
+        padding-block: 10px;
+        margin: 0;
+        background-color: var(--background);
+        padding-left: 10px;
     }
 }
