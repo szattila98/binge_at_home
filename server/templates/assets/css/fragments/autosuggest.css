@@ -1,10 +1,9 @@
 .autosuggest-results {
 
-    width: 410px;
+    width: calc(100% - 40px);
     background-color: var(--base);
-    position: relative;
-    display: block;
-    margin: 0 0 0 47px;
+    position: absolute;
+    top: 12px;
     padding: 0;
     list-style: none;
     border: 2px solid var(--primary);

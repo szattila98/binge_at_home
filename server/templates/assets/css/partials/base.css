@@ -6,7 +6,6 @@
         --background: hsl(217, 100%, 5%);
         --primary: hsl(202, 60%, 50%);
         --secondary: hsl(204, 79%, 20%);
-        --orange: hsl(23, 86%, 40%);
         --text-primary: hsl(190, 76%, 82%);
         --text-secondary: hsl(204, 100%, 63%);
         --base: hsl(216, 100%, 10%);
@@ -15,19 +14,20 @@
 
 @media (prefers-color-scheme: light) {
     :root {
-        --background: hsl(0, 0%, 95%);
-        --primary: hsl(202, 60%, 50%);
-        --secondary: hsl(214, 97%, 27%);
-        --orange: hsl(23, 86%, 40%);
+        --background: hsl(60, 18%, 96%);
+        --primary: hsl(184, 34%, 58%);
+        --secondary: hsl(185, 41%, 37%);
         --text-primary: hsl(217, 100%, 5%);
         --text-secondary: hsl(190, 76%, 82%);
-        --base: hsl(214, 97%, 40%);
+        --base: hsl(192, 46%, 83%);
     }
 }
 
 body {
     margin: 0;
     background-color: var(--background);
+    /* Needed because of chrome */
+    overflow-x: hidden;
 }
 
 p {
@@ -42,43 +42,41 @@ header {
 #navbar {
     height: 100px;
     width: 100vw;
-    background-color: var(--base);
+    background-color: var(--secondary);
 
     & .nav-container {
         display: grid;
         height: 100px;
-        grid-template-columns: 65% 25% 10%;
+        grid-template-columns: 75% 20% 5%;
     }
 
     & .nav-logo {
-        width: 250px;
+        max-width: 250px;
         display: flex;
         align-items: center;
-        padding-left: 40px;
+        padding-inline: 40px;
     }
 
     & .github-logo {
-        margin: 0 0 0 auto;
-        padding-right: 40px;
         display: flex;
         align-items: center;
+        justify-content: center;
     }
 
     & .searchContainer {
-        top: 25px;
         display: grid;
         position: relative;
-        height: 50px;
+        top: 30px;
     }
 
     & .searchbar {
         display: flex;
         height: 35px;
-        width: 500px;
+        width: 100%;
     }
 
     & .search {
-        width: 400px;
+        width: 100%;
         border: 3px solid var(--primary);
         border-right: none;
         padding: 5px;
@@ -109,7 +107,7 @@ header {
 
 
 /* For Desktop View */
-@media (1200px < width) {
+@media (1200px <=width) {
     #content {
         width: 90vw;
         margin-inline: 5vw;
@@ -122,6 +120,12 @@ header {
         width: 92vw;
         margin-inline: 4vw;
     }
+
+    #navbar {
+        & .nav-container {
+            grid-template-columns: 70% 25% 5%;
+        }
+    }
 }
 
 /* For Tablet View */
@@ -129,6 +133,12 @@ header {
     #content {
         width: 94vw;
         margin-inline: 3vw;
+    }
+
+    #navbar {
+        & .nav-container {
+            grid-template-columns: 65% 30% 5%;
+        }
     }
 }
 
@@ -138,6 +148,12 @@ header {
         width: 96vw;
         margin-inline: 2vw;
     }
+
+    #navbar {
+        & .nav-container {
+            grid-template-columns: 60% 35% 5%;
+        }
+    }
 }
 
 /* For Mobile Portrait View */
@@ -145,5 +161,11 @@ header {
     #content {
         width: 98vw;
         margin-inline: 1vw;
+    }
+
+    #navbar {
+        & .nav-container {
+            grid-template-columns: 50% 45% 5%;
+        }
     }
 }
