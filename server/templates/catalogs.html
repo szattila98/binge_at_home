@@ -23,10 +23,10 @@
                                 {{ catalog.short_desc }}
                             </span>
                             <span>
-                                {{ catalog.format_date(catalog.created_at) }}
+                                {{ catalog.created_at|format_date }}
                             </span>
                             <span>
-                                {{ catalog.format_date(catalog.updated_at) }}
+                                {{ catalog.updated_at|format_date }}
                             </span>
                         </a>
                     {% endfor %}
@@ -35,7 +35,7 @@
             <!-- { include "fragments/pager.html" } -->
         {% when TemplateState::NoCatalogsFound %}
             <div class="template-error">
-                <p >Nem találhatóak katalógusok</p>
+                <p >No catalogs found!</p>
                 <svg viewbox="0 0 16 16"width="300px" height="300px">
                     <use href="/assets/img/main.svg#catalog-error"/>
                 </svg>

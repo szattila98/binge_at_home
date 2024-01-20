@@ -12,9 +12,10 @@ use tap::Tap;
 use tracing::{debug, instrument, warn};
 
 use crate::{
+    api::filters,
     configuration::Configuration,
     crud::{catalog::CatalogSort, Entity, Pagination, Sort},
-    model::{Catalog, FormatDate},
+    model::Catalog,
 };
 
 use super::technical_error::redirect_to_technical_error;

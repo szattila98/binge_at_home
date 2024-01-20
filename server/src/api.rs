@@ -1,6 +1,7 @@
 pub mod browse;
 pub mod catalogs;
 pub mod file;
+pub mod filters;
 pub mod fragment;
 pub mod health_check;
 pub mod include;
