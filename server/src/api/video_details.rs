@@ -20,7 +20,7 @@ use crate::{
     },
     configuration::Configuration,
     crud::Entity,
-    model::{EntityId, Video},
+    model::{EntityId, Metadata, Video},
 };
 
 #[derive(TypedPath, Deserialize)]
@@ -33,6 +33,7 @@ pub struct Endpoint {
 enum TemplateState {
     Ok {
         video: Video,
+        metadata: Option<Metadata>,
         breadcrumbs: Breadcrumbs,
     },
     VideoNotFound,
@@ -67,7 +68,23 @@ pub async fn handler(
         return HtmlTemplate::new(TemplateState::VideoNotFound).into_response();
     };
 
+    let metadata = if let Some(metadata_id) = video.metadata_id {
+        match Metadata::find(&pool, metadata_id).await {
+            Ok(metadata) => metadata,
+            Err(error) => {
+                return redirect_to_technical_error(&config, error).into_response();
+            }
+        }
+    } else {
+        None
+    };
+
     let breadcrumbs = extract_breadcrumbs(video.catalog_id, &video.path);
 
-    HtmlTemplate::new(TemplateState::Ok { video, breadcrumbs }).into_response()
+    HtmlTemplate::new(TemplateState::Ok {
+        video,
+        metadata,
+        breadcrumbs,
+    })
+    .into_response()
 }

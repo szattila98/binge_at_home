@@ -4,11 +4,21 @@
 
 {% block content %}
     {% match state %}
-        {% when TemplateState::Ok with { video, breadcrumbs } %}
+        {% when TemplateState::Ok with { video, metadata, breadcrumbs } %}
             {% include "includes/breadcrumbs.html" %}
             <h1>{{ video.display_name }}</h1>
             <p>infókák a vidinyóról</p>
-            <a hx-boost="true" href="/video/{{ video.id }}/watch">watch</a>
+            {% if metadata.is_some() %}
+                <a hx-boost="true" href="/video/{{ video.id }}/watch">watch</a>
+            {% else %}
+                <p>Metadata missing on video, you cannot watch it</p>
+            {% endif %}
+            {% match metadata %}
+                {% when Some(metadata) %}
+                    <p>{{ metadata.duration }} seconds</p>
+                    <p>TODO: Többi metadata is jöhet ide Madár</p>
+                {% when None %}
+            {% endmatch %}
         {% when TemplateState::VideoNotFound %}
             <p>A keresett videó nem található</p>
     {% endmatch %}
