@@ -1,4 +1,4 @@
-<ul class="autosuggest-results" hx-boost="true">
+<ul id="autosuggest-results" class="autosuggest-results" hx-boost="true">
     <h5>Catalogs</h5>
     {% for entry in results %}
         {% match entry %}
@@ -12,12 +12,12 @@
 
     <h5>Videos</h5>
     {% for entry in results %}
-    {% match entry %}
-        {% when StoreEntry::Video(video) %}
-            <a href="/video/{{ video.id }}" class="autosuggest-item">
-                <li>{{ video.display_name }}</li>
-            </a>
-        {% else %}
-    {% endmatch %}
-{% endfor %}
-</ul>
+        {% match entry %}
+            {% when StoreEntry::Video(video) %}
+                <a href="/video/{{ video.id }}" class="autosuggest-item">
+                    <li>{{ video.display_name }}</li>
+                </a>
+            {% else %}
+        {% endmatch %}
+    {% endfor %}
+</ul> 

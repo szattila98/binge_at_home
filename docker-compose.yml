@@ -36,8 +36,6 @@ services:
     ports:
       - 9200:9200
       - 9300:9300
-    volumes:
-      - ./dev/elasticsearch-data:/usr/share/elasticsearch/data
     healthcheck:
       test: curl -s http://localhost:9200 >/dev/null || exit 1
       interval: 10s
