@@ -1,8 +1,14 @@
+use askama::Template;
 use axum_extra::routing::TypedPath;
 use serde::Serialize;
+use tap::Tap;
+use tracing::debug;
 use tracing_unwrap::OptionExt;
 
-use crate::{api::browse::Endpoint as BrowseEndpoint, model::EntityId};
+use crate::{
+    api::browse::Endpoint as BrowseEndpoint, api::catalogs::Endpoint as CatalogsEndpoint,
+    model::EntityId,
+};
 
 #[derive(Debug, Serialize)]
 pub struct Breadcrumb {
@@ -10,31 +16,35 @@ pub struct Breadcrumb {
     pub link: String,
 }
 
-impl Breadcrumb {
-    pub fn new(catalog_id: EntityId, path: &[&str]) -> Self {
-        let text = path
-            .last()
-            .expect_or_log("no last path part is found")
-            .to_owned()
-            .to_owned();
-        // FIXME use with_query_params instead of replacing
-        let link = BrowseEndpoint::PATH
-            .replace(":catalog_id", &catalog_id.to_string())
-            .replace("*path", &path.join("/"));
-        Self { text, link }
-    }
+#[derive(Serialize, Template)]
+#[template(path = "includes/breadcrumbs.html")]
+pub struct BreadcrumbsTemplate {
+    breadcrumbs: Vec<Breadcrumb>,
 }
 
-pub type Breadcrumbs = Vec<Breadcrumb>;
+impl BreadcrumbsTemplate {
+    pub fn new(catalog_id: EntityId, path: &str) -> Self {
+        let mut breadcrumbs = vec![Breadcrumb {
+            text: "Home".to_owned(),
+            link: CatalogsEndpoint::PATH.to_owned(),
+        }];
 
-/// Creates breadcrumbs from a given file path. Breadcrumbs links point to browse endpoints.
-pub fn extract_breadcrumbs(catalog_id: EntityId, path: &str) -> Breadcrumbs {
-    let mut breadcrumbs = vec![];
-    let mut path_parts = path.split('/').collect::<Vec<_>>();
-    while !path_parts.is_empty() {
-        breadcrumbs.push(Breadcrumb::new(catalog_id, &path_parts));
-        let _ = path_parts.pop();
+        let mut path_parts = path.split('/').collect::<Vec<_>>();
+        while !path_parts.is_empty() {
+            breadcrumbs.insert(1, {
+                let path = path_parts.join("/");
+                let text = path_parts
+                    .pop()
+                    .expect_or_log("no last path part is found for breadcrumb")
+                    .to_owned();
+                let link = BrowseEndpoint::PATH
+                    .replace(":catalog_id", &catalog_id.to_string())
+                    .replace("*path", &path);
+                Breadcrumb { text, link }
+            });
+        }
+
+        BreadcrumbsTemplate { breadcrumbs }
+            .tap(|template| debug!("rendered html include template:\n{template}"))
     }
-    breadcrumbs.reverse();
-    breadcrumbs
 }

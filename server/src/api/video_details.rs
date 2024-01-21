@@ -11,13 +11,11 @@ use sqlx::PgPool;
 use tap::Tap;
 use tracing::{debug, instrument};
 
-use super::include::breadcrumbs::Breadcrumbs;
+use super::include::breadcrumbs::BreadcrumbsTemplate;
 #[cfg(debug_assertions)]
 use super::AppState;
 use crate::{
-    api::{
-        include::breadcrumbs::extract_breadcrumbs, technical_error::redirect_to_technical_error,
-    },
+    api::technical_error::redirect_to_technical_error,
     configuration::Configuration,
     crud::Entity,
     model::{EntityId, Metadata, Video},
@@ -34,7 +32,7 @@ enum TemplateState {
     Ok {
         video: Video,
         metadata: Option<Metadata>,
-        breadcrumbs: Breadcrumbs,
+        breadcrumbs: BreadcrumbsTemplate,
     },
     VideoNotFound,
 }
@@ -79,7 +77,7 @@ pub async fn handler(
         None
     };
 
-    let breadcrumbs = extract_breadcrumbs(video.catalog_id, &video.path);
+    let breadcrumbs = BreadcrumbsTemplate::new(video.catalog_id, &video.path);
 
     HtmlTemplate::new(TemplateState::Ok {
         video,

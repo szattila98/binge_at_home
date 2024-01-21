@@ -5,7 +5,7 @@
 {% block content %}
     {% match state %}
         {% when TemplateState::Ok with { video, metadata, breadcrumbs } %}
-            {% include "includes/breadcrumbs.html" %}
+            {{ breadcrumbs|safe }}
             <h1>{{ video.display_name }}</h1>
             <p>infókák a vidinyóról</p>
             {% if metadata.is_some() %}

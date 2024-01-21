@@ -44,7 +44,7 @@ impl HtmlTemplate {
     }
 }
 
-#[instrument(skip(elastic))]
+#[instrument(skip(config, elastic))]
 #[axum_macros::debug_handler(state = AppState)]
 pub async fn handler(
     _: Endpoint,

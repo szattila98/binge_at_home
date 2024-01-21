@@ -11,14 +11,12 @@ use sqlx::PgPool;
 use tap::Tap;
 use tracing::{debug, error, instrument};
 
-use super::include::breadcrumbs::Breadcrumbs;
+use super::include::breadcrumbs::BreadcrumbsTemplate;
 #[cfg(debug_assertions)]
 use super::AppState;
 
 use crate::{
-    api::{
-        include::breadcrumbs::extract_breadcrumbs, technical_error::redirect_to_technical_error,
-    },
+    api::technical_error::redirect_to_technical_error,
     configuration::Configuration,
     crud::Entity,
     model::{Catalog, EntityId, Video},
@@ -42,7 +40,7 @@ enum TemplateState {
     Ok {
         catalog: Catalog,
         files: Vec<File>,
-        breadcrumbs: Breadcrumbs,
+        breadcrumbs: BreadcrumbsTemplate,
     },
     CatalogNotFound,
     InvalidPath,
@@ -89,7 +87,7 @@ pub async fn handler(
         return HtmlTemplate::new(TemplateState::CatalogNotFound).into_response();
     };
 
-    let breadcrumbs = extract_breadcrumbs(catalog.id, &path);
+    let breadcrumbs = BreadcrumbsTemplate::new(catalog.id, &path);
 
     let Some(files) = get_files(videos, &PathBuf::from(path)) else {
         return HtmlTemplate::new(TemplateState::InvalidPath).into_response();

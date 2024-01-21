@@ -5,7 +5,7 @@
 {% block content %}
     {% match state %}
         {% when TemplateState::Ok with { catalog, files, breadcrumbs } %}
-            {% include "includes/breadcrumbs.html" %}
+            {{ breadcrumbs|safe }}
             <h2 class="header">{{ catalog.display_name }}</h2>
             <div class="browse-table">
                 <div class="table-header">

@@ -20,7 +20,7 @@ use crate::{
     search::{ElasticQueryResponse, MAX_QUERY_LEN},
 };
 
-use super::include::pager::Pager;
+use super::include::pager::PagerTemplate;
 
 #[cfg(debug_assertions)]
 use super::AppState;
@@ -44,12 +44,12 @@ const fn default_page() -> usize {
 #[template(path = "search.html")]
 struct HtmlTemplate {
     results: Vec<StoreEntry>,
-    pager: Pager,
+    pager: PagerTemplate,
     query: String,
 }
 
 impl HtmlTemplate {
-    fn new(results: Vec<StoreEntry>, pager: Pager, query: String) -> Self {
+    fn new(results: Vec<StoreEntry>, pager: PagerTemplate, query: String) -> Self {
         Self {
             results,
             pager,
@@ -133,7 +133,7 @@ pub async fn handler(
     };
     debug!("elastic query took {}ms to complete", response.took);
 
-    let pager = Pager::new(
+    let pager = PagerTemplate::new(
         response.hits.total.value.div_ceil(SEARCH_PAGE_SIZE),
         page + 1,
         10,

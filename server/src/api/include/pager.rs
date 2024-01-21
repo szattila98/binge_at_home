@@ -1,16 +1,18 @@
 use std::ops::Deref;
 
+use askama::Template;
 use serde::Serialize;
 
-#[derive(Debug, Serialize)]
-pub struct Pager {
+#[derive(Debug, Serialize, Template)]
+#[template(path = "includes/pager.html")]
+pub struct PagerTemplate {
     pub total_pages: usize,
     pub current_page: usize,
     pub limit: usize,
     pub link: String,
 }
 
-impl Pager {
+impl PagerTemplate {
     pub const fn new(total_pages: usize, current_page: usize, limit: usize, link: String) -> Self {
         Self {
             total_pages,
