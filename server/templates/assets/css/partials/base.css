@@ -28,6 +28,20 @@ body {
     background-color: var(--background);
     /* Needed because of chrome */
     overflow-x: hidden;
+
+    & .github-logo {
+        display: flex;
+        background-color: var(--secondary);
+        border-radius: 50%;
+        position: fixed;
+        right: 20px;
+        bottom: 20px;
+        padding: 5px;
+    }
+
+    & .github-logo:hover {
+        background-color: var(--primary);
+    }
 }
 
 p {
@@ -55,12 +69,6 @@ header {
         display: flex;
         align-items: center;
         padding-inline: 40px;
-    }
-
-    & .github-logo {
-        display: flex;
-        align-items: center;
-        justify-content: center;
     }
 
     & .searchContainer {

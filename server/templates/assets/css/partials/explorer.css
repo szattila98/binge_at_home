@@ -3,7 +3,6 @@
     color: var(--text-primary);
     border: 2px solid var(--secondary);
     border-radius: 10px;
-    width: 100%;
 
     & .table-header,
     .catalog-entry {
