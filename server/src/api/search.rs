@@ -11,7 +11,7 @@ use http::StatusCode;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use tap::Tap;
-use tracing::{debug, error, instrument};
+use tracing::{debug, error, field, instrument};
 
 use crate::{
     api::technical_error::redirect_to_technical_error,
@@ -61,7 +61,7 @@ impl HtmlTemplate {
 
 pub const SEARCH_PAGE_SIZE: usize = 10;
 
-#[instrument(skip(config, elastic))]
+#[instrument(skip(config, elastic), fields(pager = field::Empty))]
 #[axum_macros::debug_handler(state = AppState)]
 pub async fn handler(
     _: Endpoint,

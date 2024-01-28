@@ -9,7 +9,7 @@ use axum_extra::routing::TypedPath;
 use serde::Serialize;
 use sqlx::PgPool;
 use tap::Tap;
-use tracing::{debug, instrument, warn};
+use tracing::{debug, field, instrument, warn};
 
 use crate::{
     api::filters,
@@ -44,7 +44,7 @@ impl HtmlTemplate {
     }
 }
 
-#[instrument(skip(config, pool))]
+#[instrument(skip(config, pool), fields(pager = field::Empty))]
 #[axum_macros::debug_handler(state = AppState)]
 pub async fn handler(
     _: Endpoint,

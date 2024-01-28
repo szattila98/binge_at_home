@@ -1,17 +1,21 @@
-<div class="pager" hx-boost="true">
-    <a class="page-number" href="{{ self.first_page_link() }}">&laquo;</a>
-    {% if self.left_dots_visible() %}
-        ...
-    {% endif %}
-    {% for page in self.shown_pages() %}
-        {% if page == self.current_page %}
-            <a class="page-number active" href="{{ self.paged_link(page) }}">{{ page }}</a>
-        {% else %}
-            <a class="page-number" href="{{ self.paged_link(page) }}">{{ page }}</a>
+{% if self.total_pages > 1 -%}
+    <div class="pager" hx-boost="true">
+        <a class="page-number" href="{{ self.first_page_link() }}">&laquo;</a>
+        {% if self.left_dots_visible() %}
+            ...
         {% endif %}
-    {% endfor %}
-    {% if self.right_dots_visible() %}
-        ...
-    {% endif %}
-    <a class="page-number" href="{{ self.last_page_link() }}">&raquo;</a>
-</div>
+        {% for page in self.shown_pages() %}
+            {% if page == self.current_page %}
+                <a class="page-number active" href="{{ self.paged_link(page) }}">{{ page }}</a>
+            {% else %}
+                <a class="page-number" href="{{ self.paged_link(page) }}">{{ page }}</a>
+            {% endif %}
+        {% endfor %}
+        {% if self.right_dots_visible() %}
+            ...
+        {% endif %}
+        <a class="page-number" href="{{ self.last_page_link() }}">&raquo;</a>
+    </div>
+{% else -%}
+{% endif -%}
+

@@ -9,6 +9,7 @@
     "xabikos.javascriptsnippets",
     "otovo-oss.htmx-tags",
     "esbenp.prettier-vscode",
-    "wholroyd.jinja"
+    "wholroyd.jinja",
+    "macabeus.vscode-fluent"
   ]
 }

@@ -2,6 +2,8 @@ use std::ops::Deref;
 
 use askama::Template;
 use serde::Serialize;
+use tap::Tap;
+use tracing::Span;
 
 #[derive(Debug, Serialize, Template)]
 #[template(path = "includes/pager.html")]
@@ -13,13 +15,16 @@ pub struct PagerTemplate {
 }
 
 impl PagerTemplate {
-    pub const fn new(total_pages: usize, current_page: usize, limit: usize, link: String) -> Self {
+    pub fn new(total_pages: usize, current_page: usize, limit: usize, link: String) -> Self {
         Self {
             total_pages,
             current_page,
             limit,
             link,
         }
+        .tap(|pager| {
+            Span::current().record("pager", format!("{pager:?}"));
+        })
     }
 
     pub fn shown_pages(&self) -> Vec<usize> {
