@@ -20,7 +20,7 @@ use crate::{
     search::{ElasticQueryResponse, MAX_QUERY_LEN},
 };
 
-use super::include::pager::PagerTemplate;
+use super::{include::pager::PagerTemplate, PagedParams};
 
 #[cfg(debug_assertions)]
 use super::AppState;
@@ -32,12 +32,14 @@ pub struct Endpoint;
 #[derive(Debug, Deserialize)]
 pub struct Params {
     query: String,
-    #[serde(default = "default_page")]
+    #[serde(default = "Params::default_page")]
     page: usize,
 }
 
-const fn default_page() -> usize {
-    1
+impl PagedParams for Params {
+    fn get_page(&self) -> usize {
+        self.page
+    }
 }
 
 #[derive(Serialize, Template)]
@@ -59,8 +61,6 @@ impl HtmlTemplate {
     }
 }
 
-pub const SEARCH_PAGE_SIZE: usize = 10;
-
 #[instrument(skip(config, elastic), fields(pager = field::Empty))]
 #[axum_macros::debug_handler(state = AppState)]
 pub async fn handler(
@@ -70,7 +70,7 @@ pub async fn handler(
     State(elastic): State<Arc<Elasticsearch>>,
 ) -> Response {
     // FIXME strange optional
-    let Query(Params { query, page }) = params.unwrap_or_else(|| {
+    let Query(params) = params.unwrap_or_else(|| {
         Query(Params {
             query: String::new(),
             page: 1,
@@ -79,14 +79,14 @@ pub async fn handler(
 
     // TODO redirect if query is limited to max query length so url param is correct - maybe from request parts implementation
     // same with page, redirect to have it is different from starting one
-    // TODO validate page is not too big
-    let query = query[..MAX_QUERY_LEN.min(query.len())].to_owned();
-    let page = (page - 1).max(0);
+    // TODO validate page is not too big, or too small, redirect if it is
+    let query = params.query[..MAX_QUERY_LEN.min(params.query.len())].to_owned();
+    let page = params.get_zero_indexed_page();
 
     let response = match elastic
         .search(SearchParts::Index(&["catalogs", "videos"]))
-        .from((page * SEARCH_PAGE_SIZE) as i64)
-        .size(SEARCH_PAGE_SIZE as i64)
+        .from((page * Params::page_size()) as i64)
+        .size(Params::page_size() as i64)
         .body(json!({
             "query": {
                 "query_string": {
@@ -133,10 +133,8 @@ pub async fn handler(
     };
     debug!("elastic query took {}ms to complete", response.took);
 
-    let pager = PagerTemplate::new(
-        response.hits.total.value.div_ceil(SEARCH_PAGE_SIZE),
-        page + 1,
-        10,
+    let pager = params.create_pager(
+        response.hits.total.value,
         format!("{}?query={query}", Endpoint::PATH),
     );
 

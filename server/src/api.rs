@@ -49,6 +49,8 @@ use crate::{
     logging::Logger,
 };
 
+use self::include::pager::PagerTemplate;
+
 static REQUEST_ID_HEADER: &str = "x-request-id";
 static MISSING_REQUEST_ID: &str = "missing_request_id";
 
@@ -198,5 +200,29 @@ mod live_reload_predicate {
         fn check(&mut self, request: &Request<T>) -> bool {
             request.headers().get("Hx-Request").is_none()
         }
+    }
+}
+
+pub trait PagedParams {
+    fn get_page(&self) -> usize;
+
+    fn get_zero_indexed_page(&self) -> usize {
+        self.get_page().saturating_sub(1)
+    }
+
+    fn create_pager(&self, total_items: usize, link: String) -> PagerTemplate {
+        PagerTemplate::new(
+            total_items.div_ceil(Self::page_size()),
+            self.get_page(),
+            link,
+        )
+    }
+
+    fn page_size() -> usize {
+        10
+    }
+
+    fn default_page() -> usize {
+        1
     }
 }

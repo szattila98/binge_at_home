@@ -3,42 +3,41 @@
 {% block title %}Catalogs{% endblock %}
 
 {% block content %}
-    {% match state %}
-        {% when TemplateState::Ok with { catalogs } %}
-            <h2 class="header">Catalog</h2>
-            <div class="catalog-table">
-                <div class="table-header">
-                    <span>Name</span>
-                    <span>Description</span>
-                    <span>Created</span>
-                    <span>Updated</span>
-                </div>
-                <div class="table-body">
-                    {% for catalog in catalogs %}
-                        <a class="catalog-entry" hx-boost="true" href="/catalog/{{ catalog.id }}/browse/{{ catalog.path }}">
-                            <span>
-                                {{ catalog.display_name }}
-                            </span>
-                            <span>
-                                {{ catalog.short_desc }}
-                            </span>
-                            <span>
-                                {{ catalog.created_at|format_date }}
-                            </span>
-                            <span>
-                                {{ catalog.updated_at|format_date }}
-                            </span>
-                        </a>
-                    {% endfor %}
-                </div>
+    {% if !catalogs.is_empty() %}
+        <h2 class="header">Catalog</h2>
+        <div class="catalog-table">
+            <div class="table-header">
+                <span>Name</span>
+                <span>Description</span>
+                <span>Created</span>
+                <span>Updated</span>
             </div>
-            <!-- { include "fragments/pager.html" } -->
-        {% when TemplateState::NoCatalogsFound %}
-            <div class="template-error">
-                <p >No catalogs found!</p>
-                <svg viewbox="0 0 16 16"width="300px" height="300px">
-                    <use href="/assets/img/main.svg#catalog-error"/>
-                </svg>
+            <div class="table-body">
+                {% for catalog in catalogs %}
+                    <a class="catalog-entry" hx-boost="true" href="/catalog/{{ catalog.id }}/browse/{{ catalog.path }}">
+                        <span>
+                            {{ catalog.display_name }}
+                        </span>
+                        <span>
+                            {{ catalog.short_desc }}
+                        </span>
+                        <span>
+                            {{ catalog.created_at|format_date }}
+                        </span>
+                        <span>
+                            {{ catalog.updated_at|format_date }}
+                        </span>
+                    </a>
+                {% endfor %}
             </div>
-    {% endmatch %}
+        </div>
+        {{ pager|safe }}
+    {% else %}
+        <div class="template-error">
+            <p >No catalogs found!</p>
+            <svg viewbox="0 0 16 16"width="300px" height="300px">
+                <use href="/assets/img/main.svg#catalog-error"/>
+            </svg>
+        </div>
+    {%- endif %}
 {% endblock %}
