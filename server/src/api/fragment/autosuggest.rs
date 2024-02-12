@@ -42,6 +42,26 @@ impl HtmlTemplate {
     fn new(results: Vec<StoreEntry>) -> Self {
         Self { results }.tap(|fragment| debug!("rendered html fragment:\n{fragment}"))
     }
+
+    fn catalog_count(&self) -> usize {
+        self.results.iter().fold(0, |acc, result| {
+            if let StoreEntry::Catalog(_) = result {
+                acc + 1
+            } else {
+                acc
+            }
+        })
+    }
+
+    fn video_count(&self) -> usize {
+        self.results.iter().fold(0, |acc, result| {
+            if let StoreEntry::Video(_) = result {
+                acc + 1
+            } else {
+                acc
+            }
+        })
+    }
 }
 
 #[instrument(skip(config, elastic))]

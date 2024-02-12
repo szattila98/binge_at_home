@@ -9,6 +9,7 @@
         integrity="sha384-xcuj3WpfgjlKF+FXhSQFQ0ZNr39ln+hwjN3npfM9VBnUskLolQAcN80McRIVOPuO"
         crossorigin="anonymous"></script>
     <link rel="stylesheet" href="/assets/css/partials/base.css" />
+    <script type="text/javascript" src="/assets/js/main.js"></script>
     {% block head %}{% endblock %}
 </head>
 
@@ -21,17 +22,24 @@
         </a>
         {% block searchbar %}
             <div class="searchContainer">
-                <form action="/search" class="searchbar" hx-boost="true">
-                    <input name="query" type="input" placeholder="What film are you looking for?" class="search" required minlength="1" maxlength="{{ crate::search::MAX_QUERY_LEN }}"
+                <form action="/search" class="searchbar" hx-boost="true" autocomplete="off">
+                    <input 
+                        id="search-input"
+                        name="query" 
+                        type="input" 
+                        placeholder="What film are you looking for?" 
+                        class="search" 
+                        required minlength="1" maxlength="{{ crate::search::MAX_QUERY_LEN }}"
                         hx-get="/search/autosuggest" hx-trigger="input changed delay:200ms, search" hx-target="#autosuggest-results" hx-swap="outerHTML" hx-validate="true"
+                        onblur="closeAutosuggest()"
                     />
-                    <button type="submit" class="search-button">
+                    <button id="search-button" type="submit" class="search-button">
                         <svg width="20" height="20" viewBox="0 0 24 24">
                             <use href="/assets/img/main.svg#search-logo" />
                         </svg>
                     </button>
                 </form>
-                <ul id="autosuggest-results" class="autosuggest-results" hx-boost="true"></ul> 
+                <ul id="autosuggest-results" class="autosuggest-results" hx-boost="true" style="display: none;"></ul> 
             </div>
         {% endblock %}
     </div>

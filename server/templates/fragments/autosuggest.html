@@ -1,23 +1,27 @@
 <ul id="autosuggest-results" class="autosuggest-results" hx-boost="true">
-    <h5>Catalogs</h5>
-    {% for entry in results %}
-        {% match entry %}
-            {% when StoreEntry::Catalog(catalog) %}  
-                <a href="/catalog/{{ catalog.id }}/browse/{{ catalog.path }}" class="autosuggest-item">
-                    <li>{{ catalog.display_name }}</li>
-                </a>
-            {% else %}
-        {% endmatch %}
-    {% endfor %}
+    {% if self.catalog_count() != 0 %}
+        <h5>Catalogs</h5>
+        {% for entry in results %}
+            {% match entry %}
+                {% when StoreEntry::Catalog(catalog) %}  
+                    <a href="/catalog/{{ catalog.id }}/browse/{{ catalog.path }}" class="autosuggest-item">
+                        <li id="search-result-{{ loop.index0 }}" tabindex="{{ loop.index0 }}">{{ catalog.display_name }}</li>
+                    </a>
+                {% else %}
+            {% endmatch %}
+        {% endfor %}
+    {% endif %}
 
-    <h5>Videos</h5>
-    {% for entry in results %}
-        {% match entry %}
-            {% when StoreEntry::Video(video) %}
-                <a href="/video/{{ video.id }}" class="autosuggest-item">
-                    <li>{{ video.display_name }}</li>
-                </a>
-            {% else %}
-        {% endmatch %}
-    {% endfor %}
+    {% if self.video_count() != 0 %}
+        <h5>Videos</h5>
+        {% for entry in results %}
+            {% match entry %}
+                {% when StoreEntry::Video(video) %}
+                    <a href="/video/{{ video.id }}" class="autosuggest-item">
+                        <li id="search-result-{{ loop.index0 + self.catalog_count() }}" tabindex="{{ loop.index0 + self.catalog_count() }}">{{ video.display_name }}</li>
+                    </a>
+                {% else %}
+            {% endmatch %}
+        {% endfor %}
+    {% endif %}
 </ul> 
