@@ -54,14 +54,15 @@ header {
 
 /* Navbar part */
 #navbar {
-    height: 100px;
     width: 100vw;
     background-color: var(--secondary);
 
     & .nav-container {
-        display: grid;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
         height: 100px;
-        grid-template-columns: 75% 20% 5%;
     }
 
     & .nav-logo {
@@ -72,9 +73,12 @@ header {
     }
 
     & .searchContainer {
-        display: grid;
-        position: relative;
-        top: 30px;
+        display: flex;
+        flex: 0 1 500px;
+        min-width: 0;
+        flex-direction: row;
+        align-items: center;
+        margin-inline: 40px;
     }
 
     & .searchbar {
@@ -83,27 +87,44 @@ header {
         width: 100%;
     }
 
-    & .search {
+    & .search-box {
         width: 100%;
-        border: 3px solid var(--primary);
-        border-right: none;
+        border: 2px solid var(--primary);
+        border-radius: 15px 0 0 15px;
         padding: 5px;
-        height: 20px;
         outline: none;
         color: var(--text);
-        margin: 0 0 0 auto;
     }
 
     & .search-button {
         position: relative;
         width: 40px;
-        height: 36px;
+        height: 35px;
         border: 1px solid var(--primary);
         background: var(--primary);
         text-align: center;
-        border-radius: 0 5px 5px 0;
+        border-radius: 0 15px 15px 0;
         cursor: pointer;
         padding: 5px;
+    }
+
+    #clear-text {
+        position: absolute;
+        top: 38px;
+        right: 82px;
+    }
+
+    #clear-text button {
+        display: inline-block;
+        border: 1px solid transparent;
+        background-color: transparent;
+        outline: 0;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+    .search-box:not(:valid)~#clear-text {
+        display: none;
     }
 }
 

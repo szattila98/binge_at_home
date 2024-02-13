@@ -13,27 +13,33 @@
     {% block head %}{% endblock %}
 </head>
 
-<header id="navbar">
+<nav id="navbar">
     <div class="nav-container">
-        <a href="/catalog" class="nav-logo" hx-boost="true">
-            <svg viewBox="0 0 250 50" width="250px" height="50px">
-                <use href="/assets/img/main.svg#logo" />
-            </svg>   
-        </a>
+        <header class="nav-logo" >
+            <a href="/catalog" hx-boost="true">
+                <svg viewBox="0 0 250 50" width="250px" height="50px">
+                    <use href="/assets/img/main.svg#logo" />
+                </svg>   
+            </a>
+        </header>
         {% block searchbar %}
             <div class="searchContainer">
                 <form action="/search" class="searchbar" hx-boost="true" autocomplete="off">
                     <input 
                         id="search-input"
                         name="query" 
-                        type="input" 
+                        type="text" 
                         placeholder="What film are you looking for?" 
-                        class="search" 
-                        required minlength="1" maxlength="{{ crate::search::MAX_QUERY_LEN }}"
+                        class="search-box " 
+                        required minlength="3" maxlength="{{ crate::search::MAX_QUERY_LEN }}"
                         hx-get="/search/autosuggest" hx-trigger="input changed delay:200ms, search" hx-target="#autosuggest-results" hx-swap="outerHTML" hx-validate="true"
                         onblur="closeAutosuggest()"
+                        oninput="hideSuggest()"
                     />
-                    <button id="search-button" type="submit" class="search-button">
+                    <div id="clear-text">
+                        <button id="clear" type="reset" onclick="document.querySelector('.autosuggest-results').style.display = 'none'">X</button>
+                    </div>
+                    <button id="search-button" type="submit" class="search-button" onclick="document.querySelector('.autosuggest-results').style.display = 'none'">
                         <svg width="20" height="20" viewBox="0 0 24 24">
                             <use href="/assets/img/main.svg#search-logo" />
                         </svg>
@@ -43,7 +49,7 @@
             </div>
         {% endblock %}
     </div>
-</header>
+</nav>
 
 <body>
     <div id="content">

@@ -1,35 +1,46 @@
 .autosuggest-results {
 
-    width: calc(100% - 40px);
+    width: 450px;
+    margin-right: 80px;
     background-color: var(--base);
     position: absolute;
-    top: 10px;
+    right: 0;
+    top: 50px;
     padding: 0;
     list-style: none;
     border: 2px solid var(--primary);
     border-radius: 0 0 10px 10px;
 
-    & .autosuggest-item {
+    & .autosuggest-item a {
         text-decoration: none;
         color: var(--text-primary);
         font-size: large;
     }
 
-    & .autosuggest-item li {
+    & .autosuggest-item {
         padding: 10px;
     }
 
-    & .autosuggest-item li:hover {
+    & .autosuggest-item:hover {
         cursor: pointer;
         background-color: var(--secondary);
         color: var(--text-secondary);
     }
 
-    h5 {
+    .category {
         color: var(--text-secondary);
         padding-block: 10px;
         margin: 0;
         background-color: var(--background);
         padding-left: 10px;
+        font-size: larger;
+    }
+
+    .no-result {
+        width: 100%;
+        padding-block: 10px;
+        color: var(--text-primary);
+        font-size: large;
+        text-align: center;
     }
 }
