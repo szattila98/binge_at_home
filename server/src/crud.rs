@@ -1,4 +1,7 @@
-use std::fmt::{self, Debug, Display};
+use std::{
+    fmt::{self, Debug, Display},
+    str::FromStr,
+};
 
 use serde::Deserialize;
 use soa_derive::StructOfArray;
@@ -24,13 +27,35 @@ impl Display for Pagination {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 pub struct Sort<T>
 where
     T: Debug + Display,
 {
-    field: T,
-    direction: Direction,
+    pub field: T,
+    pub direction: Direction,
+}
+
+pub const SORT_QUERY_PARAM_DELIMITER: &str = "-";
+
+impl<T> FromStr for Sort<T>
+where
+    T: Debug + Display + FromStr,
+{
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let Some((field, direction)) = s.split_once(SORT_QUERY_PARAM_DELIMITER) else {
+            return Err("error while splitting filter string".to_owned());
+        };
+        let Ok(field) = T::from_str(field) else {
+            return Err("error while converting field string to enum".to_owned());
+        };
+        let Ok(direction) = Direction::from_str(direction) else {
+            return Err("error while converting direction string to enum".to_owned());
+        };
+        Ok(Sort { field, direction })
+    }
 }
 
 impl<T> Display for Sort<T>
@@ -42,7 +67,7 @@ where
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Deserialize, strum::Display)]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, strum::Display, strum::EnumString)]
 #[strum(serialize_all = "SCREAMING_SNAKE_CASE")]
 pub enum Direction {
     Asc,

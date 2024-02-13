@@ -4,13 +4,13 @@
 
 {% block content %}
     {% if !catalogs.is_empty() %}
-        <h2 class="header">Catalog</h2>
+        <h2 class="header">Catalogs</h2>
         <div class="catalog-table">
             <div class="table-header">
-                <span>Name</span>
+                <span>{{ self.get_sortable_header("Name", CatalogSort::DisplayName)|safe }}</span>
                 <span>Description</span>
-                <span>Created</span>
-                <span>Updated</span>
+                <span>{{ self.get_sortable_header("Created", CatalogSort::CreatedAt)|safe }}</span>
+                <span>{{ self.get_sortable_header("Updated", CatalogSort::UpdatedAt)|safe }}</span>
             </div>
             <div class="table-body">
                 {% for catalog in catalogs %}

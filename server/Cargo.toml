@@ -25,7 +25,11 @@ anyhow = "1.0.75"
 askama = { version = "0.12.1", features = ["with-axum"] }
 askama_axum = "0.3.0"
 axum = { version = "0.6.20", features = ["macros", "headers"] }
-axum-extra = { version = "0.7.7", features = ["typed-routing", "cookie"] }
+axum-extra = { version = "0.7.7", features = [
+    "typed-routing",
+    "cookie",
+    "query",
+] }
 axum-macros = "0.3.8"
 confique = { version = "0.2.4", default-features = false, features = ["yaml"] }
 elasticsearch = { version = "8.5.0-alpha.1", default-features = false, features = [
@@ -89,6 +93,7 @@ tracing-subscriber = { version = "0.3.17", features = [
     "thread_local",
 ], default-features = false }
 tracing-unwrap = { version = "0.10.0", features = ["log-location"] }
+url = "2.5.0"
 walkdir = "2.4.0"
 
 [dev-dependencies]

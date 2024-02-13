@@ -1,11 +1,10 @@
 use std::ops::Deref;
 
 use askama::Template;
-use serde::Serialize;
 use tap::Tap;
 use tracing::Span;
 
-#[derive(Debug, Serialize, Template)]
+#[derive(Debug, Template)]
 #[template(path = "includes/pager.html")]
 pub struct PagerTemplate {
     pub total_pages: usize,

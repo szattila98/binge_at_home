@@ -319,6 +319,7 @@ dependencies = [
  "tracing-appender",
  "tracing-subscriber",
  "tracing-unwrap",
+ "url",
  "walkdir",
 ]
 

@@ -1,0 +1,13 @@
+<a hx-boost="true" href="{{ self.link_with_sort_params() }}">
+    {{ text }}
+    {% match direction %}
+        {% when Some(direction) %}
+            {% match direction %}
+                {% when Direction::Asc %}
+                    &nbsp;Up
+                {% when Direction::Desc %}
+                    &nbsp;Down
+            {% endmatch %}
+        {% else %}
+    {% endmatch %}
+</a>

@@ -8,7 +8,7 @@ use axum::{
 use axum_extra::routing::TypedPath;
 use elasticsearch::{Elasticsearch, SearchParts};
 use http::StatusCode;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use serde_json::json;
 use tap::Tap;
 use tracing::{debug, error, field, instrument};
@@ -42,7 +42,7 @@ impl PagedParams for Params {
     }
 }
 
-#[derive(Serialize, Template)]
+#[derive(Template)]
 #[template(path = "search.html")]
 struct HtmlTemplate {
     results: Vec<StoreEntry>,
